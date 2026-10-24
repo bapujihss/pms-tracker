@@ -1763,7 +1763,7 @@ function doPost(e) {
       if (!student) return;
 
       const result = evaluateStudent(student);
-      const message = `Dear Parent of ${student.name} (${student.className} - ${student.section}),\n\nYour scholarship application has pending documentation:\n` + result.issues.map(issue => `• ${issue}`).join('\n') + '\n\nPlease update the required documents at the earliest.\nThank you.\n- Bapuji Higher Secondary School';
+      const message = `ପ୍ରିୟ ଅଭିଭାବକ ${student.name} (${student.className} - ${student.section}),\n\nଆପଣଙ୍କ ବୃତ୍ତି (Scholarship) ଆବେଦନର କେତେକ ଦସ୍ତାବେଜ (Documentation) ବାକି ଅଛି ।:\n` + result.issues.map(issue => `• ${issue}`).join('\n') + '\n\nଦୟାକରି ଶୀଘ୍ର ଆବଶ୍ୟକୀୟ ଦସ୍ତାବେଜଗୁଡ଼ିକ ଅପଡେଟ୍ କରନ୍ତୁ ।\nଧନ୍ୟବାଦ ।\n- ପିଏମ ଶ୍ରୀ ସରକାରୀ ବାପୁଜୀ ଉଚ୍ଚ ମାଧ୍ୟମିକ ବିଦ୍ୟାଳୟ, ତେନ୍ତୁଳିଖୁଣ୍ଟି';
 
       document.getElementById('reminderTextContent').textContent = message;
       const cleanPhone = String(student.phone || '').replace(/[^0-9+]/g, '');
