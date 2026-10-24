@@ -29,9 +29,18 @@
     .soft-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
     .soft-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
     .soft-scroll::-webkit-scrollbar-track { background: #f8fafc; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.92); }
+    }
+    .live-dot {
+      animation: pulse-dot 2s infinite ease-in-out;
+    }
   </style>
 </head>
 <body class="text-slate-800 h-full">
+  <!-- LOGIN SCREEN -->
   <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-950 via-violet-900 to-sky-700 p-4">
     <div class="w-full max-w-md">
       <div class="bg-white/10 border border-white/15 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
@@ -40,7 +49,11 @@
             <i class="fa-solid fa-graduation-cap text-3xl text-amber-300"></i>
           </div>
           <h1 class="text-3xl font-black text-white">PMS Tracker</h1>
-          <p class="mt-2 text-sm text-sky-100">School scholarship & student document sync</p>
+          <p class="mt-2 text-sm text-sky-100">School scholarship &amp; student document sync</p>
+          <div class="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs text-sky-100">
+            <span id="loginSyncDot" class="w-2 h-2 rounded-full bg-amber-400 live-dot"></span>
+            <span id="loginSyncStatusText">Connecting to live cloud database...</span>
+          </div>
         </div>
 
         <div class="space-y-4">
@@ -50,7 +63,7 @@
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wide text-sky-100 mb-1">Password</label>
-            <input id="loginPassword" type="password" value="Abcd@1234" class="w-full px-4 py-3 rounded-xl border border-white/20 bg-white/10 text-white placeholder:text-sky-100/80 focus:outline-none focus:ring-2 focus:ring-amber-300" />
+            <input id="loginPassword" type="password" value="Abcd@1234" onkeydown="if(event.key==='Enter') loginUser()" class="w-full px-4 py-3 rounded-xl border border-white/20 bg-white/10 text-white placeholder:text-sky-100/80 focus:outline-none focus:ring-2 focus:ring-amber-300" />
           </div>
           <button type="button" onclick="loginUser()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold py-3 rounded-xl shadow-lg shadow-amber-500/20 transition">
             <i class="fa-solid fa-right-to-bracket mr-2"></i>Login
@@ -58,7 +71,13 @@
         </div>
 
         <div class="mt-6 rounded-2xl border border-white/10 bg-white/5 p-3 text-sm text-sky-100">
-          <p class="font-semibold text-white mb-2">Demo credentials</p>
+          <div class="flex items-center justify-between mb-2">
+            <p class="font-semibold text-white">Demo credentials</p>
+            <button type="button" onclick="openCloudSetupModal()" class="text-xs text-amber-300 hover:text-amber-200 underline flex items-center gap-1">
+              <i class="fa-solid fa-cloud-Showers-heavy fa-cloud"></i>
+              <span>Cloud &amp; Sheets Setup</span>
+            </button>
+          </div>
           <div class="space-y-1">
             <p><span class="font-medium">Admin:</span> Hemant / Abcd@1234</p>
             <p><span class="font-medium">Teacher:</span> Bapujihss / 1962</p>
@@ -68,35 +87,52 @@
     </div>
   </div>
 
+  <!-- MAIN APPLICATION SCREEN -->
   <div id="appScreen" class="hidden min-h-screen bg-slate-50">
-    <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50">
+    <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-40">
       <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row justify-between items-center gap-4">
         <div class="flex items-center gap-3">
           <div class="w-12 h-12 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center">
             <i class="fa-solid fa-school text-xl text-amber-300"></i>
           </div>
           <div>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
               <h1 class="text-xl font-bold tracking-tight">PMS Tracker</h1>
-              <span id="syncBadge" class="bg-amber-400 text-indigo-950 px-2 py-0.5 rounded-full text-[10px] font-bold">Checking sync...</span>
+              <span id="syncBadge" onclick="openCloudSetupModal()" title="Click to configure Firebase Rules or Google Sheets Sync" class="cursor-pointer bg-amber-400 text-indigo-950 px-2.5 py-0.5 rounded-full text-[11px] font-bold hover:opacity-90 transition">Checking sync...</span>
+              <span id="presenceBadge" class="bg-indigo-900/60 border border-indigo-400/30 text-indigo-100 px-2.5 py-0.5 rounded-full text-[11px] font-semibold flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 live-dot"></span>
+                <span id="presenceCountText">1 Online</span>
+              </span>
+              <span id="sheetsBadge" onclick="openCloudSetupModal('sheets')" class="hidden cursor-pointer bg-emerald-500/20 border border-emerald-300/40 text-emerald-100 px-2.5 py-0.5 rounded-full text-[11px] font-semibold">
+                <i class="fa-solid fa-table mr-1"></i>Sheets Linked
+              </span>
             </div>
-            <p id="appSubtitle" class="text-xs text-indigo-100">School scholarship management</p>
+            <div class="flex flex-wrap items-center gap-2 mt-0.5">
+              <p id="appSubtitle" class="text-xs text-indigo-100">School scholarship management</p>
+              <span class="text-indigo-300 text-xs">•</span>
+              <p id="lastSyncInfo" class="text-[11px] text-indigo-200">Live shared sync ready</p>
+            </div>
           </div>
         </div>
 
         <div class="flex flex-wrap items-center justify-center gap-2">
-          <button onclick="openAddStudentModal()" class="bg-amber-400 hover:bg-amber-300 text-indigo-950 px-4 py-2 rounded-lg font-semibold text-sm transition shadow-sm flex items-center gap-2">
+          <button type="button" onclick="openAddStudentModal()" class="bg-amber-400 hover:bg-amber-300 text-indigo-950 px-4 py-2 rounded-lg font-semibold text-sm transition shadow-sm flex items-center gap-2">
             <i class="fa-solid fa-user-plus"></i>
             <span>Add Student</span>
           </button>
 
-          <label class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium text-sm cursor-pointer flex items-center gap-2">
+          <label class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium text-sm cursor-pointer flex items-center gap-2 transition">
             <i class="fa-solid fa-file-excel text-emerald-400"></i>
             <span>Import Excel</span>
             <input id="excelUpload" type="file" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleExcelImport(event)" />
           </label>
 
-          <button onclick="logoutUser()" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium text-sm transition">
+          <button type="button" onclick="openCloudSetupModal()" class="bg-white/10 hover:bg-white/20 text-white px-3.5 py-2 rounded-lg font-medium text-sm transition flex items-center gap-2">
+            <i class="fa-solid fa-cloud-arrow-up text-sky-300"></i>
+            <span>Cloud &amp; Sheets Sync</span>
+          </button>
+
+          <button type="button" onclick="logoutUser()" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium text-sm transition">
             <i class="fa-solid fa-right-from-bracket"></i>
             <span>Logout</span>
           </button>
@@ -105,50 +141,76 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-6 flex flex-col gap-6">
+      <!-- TOAST NOTIFICATION -->
       <div id="toast" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3 flex items-center justify-between shadow-sm">
         <div class="flex items-center gap-3">
-          <i class="fa-solid fa-circle-check text-emerald-600"></i>
+          <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-600"></i>
           <span id="toastMessage">Action completed successfully.</span>
         </div>
-        <button onclick="hideToast()" class="text-emerald-600 hover:text-emerald-700"><i class="fa-solid fa-xmark"></i></button>
+        <button type="button" onclick="hideToast()" class="text-emerald-600 hover:text-emerald-700"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
+      <!-- PERMISSION WARNING BANNER (SHOWN IF FIREBASE RULES BLOCK ACCESS) -->
+      <div id="rulesAlertBanner" class="hidden bg-amber-50 border border-amber-300 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+        <div class="flex items-start gap-3">
+          <div class="p-2 rounded-xl bg-amber-100 text-amber-700 mt-0.5">
+            <i class="fa-solid fa-shield-halved text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-amber-900">Firebase Realtime Database Rules Need Publishing or Google Sheets Sync Can Be Enabled</h3>
+            <p id="rulesAlertText" class="text-xs text-amber-800 mt-0.5">
+              Firebase returned a permission or network notice. Click <strong>Configure Rules &amp; Sync</strong> to copy the ready-to-use Firebase Rules or connect a live Google Sheet for shared multi-user data.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" onclick="openCloudSetupModal('rules')" class="bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-2 rounded-xl text-xs font-semibold shadow-sm transition">
+            Configure Rules &amp; Sync
+          </button>
+        </div>
+      </div>
+
+      <!-- ADMIN TEACHER MANAGEMENT PANEL -->
       <div id="adminPanel" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
         <div class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6">
           <div>
             <div class="flex items-center justify-between mb-4">
               <h2 class="text-lg font-bold text-slate-800">Teacher Management</h2>
-              <span class="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full text-xs font-semibold">Admin</span>
+              <span class="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full text-xs font-semibold">Admin • Live Shared</span>
             </div>
 
             <form id="teacherForm" onsubmit="addTeacher(event)" class="space-y-3">
               <div>
                 <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Teacher Name</label>
-                <input id="teacherName" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <input id="teacherName" required placeholder="e.g. Ramesh Kumar" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
               </div>
               <div>
                 <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Username</label>
-                <input id="teacherUsername" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <input id="teacherUsername" required placeholder="e.g. ramesh_sir" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
               </div>
               <div>
                 <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Password</label>
-                <input id="teacherPassword" type="password" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <input id="teacherPassword" type="password" required placeholder="Login password" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
               </div>
-              <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-sm shadow-sm">
+              <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-sm shadow-sm transition">
                 <i class="fa-solid fa-user-plus mr-2"></i> Add Teacher
               </button>
             </form>
           </div>
 
           <div>
-            <h3 class="text-sm font-bold uppercase tracking-wide text-slate-500 mb-3">Teacher List</h3>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-bold uppercase tracking-wide text-slate-500">Teacher List (Synced Across Devices)</h3>
+              <span id="teacherCountBadge" class="text-xs font-semibold text-slate-500">2 accounts</span>
+            </div>
             <div id="teacherList" class="space-y-2 max-h-72 overflow-y-auto soft-scroll"></div>
           </div>
         </div>
       </div>
 
+      <!-- KPI SUMMARY CARDS -->
       <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-        <div onclick="filterByStatus('all')" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-indigo-300 transition">
+        <div id="cardStatAll" onclick="filterByStatus('all')" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-indigo-300 transition">
           <div class="flex items-start justify-between">
             <div>
               <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Total</p>
@@ -158,7 +220,7 @@
           </div>
         </div>
 
-        <div onclick="filterByStatus('Completed')" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-emerald-300 transition">
+        <div id="cardStatCompleted" onclick="filterByStatus('Completed')" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-emerald-300 transition">
           <div class="flex items-start justify-between">
             <div>
               <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Completed</p>
@@ -168,7 +230,7 @@
           </div>
         </div>
 
-        <div onclick="filterByStatus('Incomplete')" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-amber-300 transition">
+        <div id="cardStatIncomplete" onclick="filterByStatus('Incomplete')" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-amber-300 transition">
           <div class="flex items-start justify-between">
             <div>
               <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Pending</p>
@@ -178,7 +240,7 @@
           </div>
         </div>
 
-        <div onclick="filterByStatus('Aadhaar Issue')" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-rose-300 transition">
+        <div id="cardStatAadhaar" onclick="filterByStatus('Aadhaar Issue')" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-rose-300 transition">
           <div class="flex items-start justify-between">
             <div>
               <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Aadhaar</p>
@@ -188,7 +250,7 @@
           </div>
         </div>
 
-        <div onclick="filterByStatus('Doc Issue')" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-purple-300 transition">
+        <div id="cardStatDoc" onclick="filterByStatus('Doc Issue')" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-purple-300 transition">
           <div class="flex items-start justify-between">
             <div>
               <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Income/Caste</p>
@@ -199,16 +261,19 @@
         </div>
       </div>
 
+      <!-- SEARCH & FILTER BAR -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col md:flex-row items-center justify-between gap-4">
         <div class="relative w-full md:w-80">
           <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400"></i>
           <input id="searchInput" type="text" oninput="renderTable()" placeholder="Search student, roll or teacher..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
         </div>
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          <select id="statusFilter" onchange="renderTable()" class="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <select id="statusFilter" onchange="handleStatusDropdownChange(this.value)" class="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
             <option value="all">All Statuses</option>
             <option value="Completed">Completed</option>
             <option value="Incomplete">Incomplete / Pending</option>
+            <option value="Aadhaar Issue">Aadhaar Issue</option>
+            <option value="Doc Issue">Income / Caste Issue</option>
           </select>
 
           <select id="sectionFilter" onchange="renderTable()" class="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -226,17 +291,23 @@
             <option value="Class 10">Class 10</option>
           </select>
 
-          <button onclick="exportToExcel()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2">
+          <button type="button" onclick="forceSyncNow()" title="Sync now with Firebase & Google Sheets" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3.5 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2">
+            <i id="syncSpinIcon" class="fa-solid fa-rotate"></i>
+            <span>Sync Now</span>
+          </button>
+
+          <button type="button" onclick="exportToExcel()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2">
             <i class="fa-solid fa-download"></i>
             <span>Export</span>
           </button>
 
-          <button id="bulkDeleteBtn" onclick="bulkDeleteVisibleStudents()" class="hidden bg-rose-600 hover:bg-rose-500 text-white px-3 py-2.5 rounded-xl text-sm font-semibold shadow-sm">
+          <button type="button" id="bulkDeleteBtn" onclick="bulkDeleteVisibleStudents()" class="hidden bg-rose-600 hover:bg-rose-500 text-white px-3 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition">
             <i class="fa-solid fa-trash mr-2"></i>Delete Visible
           </button>
         </div>
       </div>
 
+      <!-- STUDENT RECORDS TABLE -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full border-collapse">
@@ -266,6 +337,7 @@
     </main>
   </div>
 
+  <!-- ADD / EDIT STUDENT MODAL -->
   <div id="studentModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4 overflow-y-auto">
     <div class="bg-white rounded-3xl shadow-xl max-w-2xl w-full p-6 sm:p-8 relative my-8">
       <div class="flex items-center justify-between pb-4 border-b border-slate-100">
@@ -329,7 +401,7 @@
         </div>
 
         <div class="border-t border-slate-100 pt-4">
-          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Document & verification checklist</h4>
+          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Document &amp; verification checklist</h4>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200 mb-4">
             <label class="flex items-center gap-3 cursor-pointer">
               <input type="checkbox" id="chkAadhaar" checked class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500" />
@@ -349,7 +421,7 @@
             </label>
             <label class="flex items-center gap-3 cursor-pointer sm:col-span-2">
               <input type="checkbox" id="chkPassbook" checked class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500" />
-              <span class="text-sm font-medium text-slate-700">Bank passbook & IFSC verified</span>
+              <span class="text-sm font-medium text-slate-700">Bank passbook &amp; IFSC verified</span>
             </label>
           </div>
 
@@ -388,6 +460,7 @@
     </div>
   </div>
 
+  <!-- WHATSAPP / REMINDER MODAL -->
   <div id="reminderModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
     <div class="bg-white rounded-3xl shadow-xl max-w-md w-full p-6 relative">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -405,7 +478,7 @@
           <i class="fa-regular fa-copy"></i>
           <span>Copy</span>
         </button>
-        <a id="whatsappBtn" href="#" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2">
+        <a id="whatsappBtn" href="https://wa.me/" target="_blank" rel="noopener noreferrer" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2">
           <i class="fa-brands fa-whatsapp text-lg"></i>
           <span>WhatsApp</span>
         </a>
@@ -413,28 +486,295 @@
     </div>
   </div>
 
+  <!-- IN-PAGE CONFIRMATION MODAL (REPLACES BLOCKED confirm() DIALOGS) -->
+  <div id="confirmModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl shadow-xl max-w-sm w-full p-6 relative">
+      <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+        <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div>
+          <h3 id="confirmModalTitle" class="text-base font-bold text-slate-900">Confirm Action</h3>
+          <p class="text-xs text-slate-500">This change will sync across connected devices</p>
+        </div>
+      </div>
+      <p id="confirmModalMessage" class="py-4 text-sm text-slate-700">Are you sure you want to proceed?</p>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeConfirmModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">Cancel</button>
+        <button type="button" id="confirmModalActionBtn" onclick="executeConfirmedAction()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-semibold text-white shadow-sm transition">Confirm Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLOUD SYNC, FIREBASE RULES & GOOGLE SHEETS SETUP MODAL -->
+  <div id="cloudSetupModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-3xl w-full p-6 sm:p-8 relative my-8">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-cloud-bolt"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">Online Multi-User Sync &amp; Permissions Center</h3>
+            <p class="text-xs text-slate-500">Firebase Realtime Database live sync + Two-way Google Sheets integration</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeCloudSetupModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- MODAL TABS -->
+      <div class="flex flex-wrap gap-2 pt-4 border-b border-slate-100 pb-3">
+        <button type="button" id="tabBtnStatus" onclick="switchCloudTab('status')" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white transition">
+          <i class="fa-solid fa-signal mr-1.5"></i>1. Live Firebase Status
+        </button>
+        <button type="button" id="tabBtnRules" onclick="switchCloudTab('rules')" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+          <i class="fa-solid fa-shield-halved mr-1.5"></i>2. Firebase Rules &amp; Permissions
+        </button>
+        <button type="button" id="tabBtnSheets" onclick="switchCloudTab('sheets')" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+          <i class="fa-solid fa-file-spreadsheet mr-1.5"></i>3. Google Sheets Live Sync
+        </button>
+      </div>
+
+      <!-- TAB 1: LIVE FIREBASE STATUS & DIAGNOSTICS -->
+      <div id="cloudTabStatus" class="pt-4 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+            <p class="text-[11px] font-semibold uppercase text-slate-500">Firebase Connection</p>
+            <p id="diagFirebaseState" class="text-sm font-bold text-slate-900 mt-1">Checking...</p>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+            <p class="text-[11px] font-semibold uppercase text-slate-500">Auth / Session Mode</p>
+            <p id="diagAuthState" class="text-sm font-bold text-slate-900 mt-1">Initializing...</p>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+            <p class="text-[11px] font-semibold uppercase text-slate-500">Pending Offline Ops</p>
+            <p id="diagQueueCount" class="text-sm font-bold text-emerald-600 mt-1">0 queued</p>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-100 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-950">Firebase Realtime Database Endpoint</h4>
+              <p class="text-xs text-indigo-800">Granular per-record updates ensure simultaneous edits by multiple teachers never overwrite each other.</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-mono bg-white border border-indigo-200 text-indigo-700">schools/<span id="diagSchoolIdLabel">school_01</span></span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-semibold uppercase text-slate-600 mb-1">Database URL</label>
+              <input id="customDbUrlInput" type="text" value="https://bapujihss-default-rtdb.asia-southeast1.firebasedatabase.app" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold uppercase text-slate-600 mb-1">School Node ID</label>
+              <input id="customSchoolIdInput" type="text" value="school_01" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2 pt-1">
+            <button type="button" onclick="saveFirebaseEndpointConfig()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition">
+              <i class="fa-solid fa-plug mr-1.5"></i>Save &amp; Reconnect
+            </button>
+            <button type="button" onclick="pushAllToFirebase()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition">
+              <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>Push Local Data to Cloud
+            </button>
+            <button type="button" onclick="pullAllFromFirebase()" class="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold transition">
+              <i class="fa-solid fa-cloud-arrow-down mr-1.5"></i>Pull Latest from Cloud
+            </button>
+          </div>
+        </div>
+
+        <div id="diagLastErrorBox" class="hidden p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-mono"></div>
+      </div>
+
+      <!-- TAB 2: FIREBASE REALTIME DATABASE RULES & PERMISSIONS -->
+      <div id="cloudTabRules" class="hidden pt-4 space-y-4">
+        <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1.5">
+          <p class="font-bold text-sm">How to enable live multi-user read/write in Firebase Console (takes 30 seconds):</p>
+          <ol class="list-decimal list-inside space-y-1">
+            <li>Open <a href="https://console.firebase.google.com/project/bapujihss/database/bapujihss-default-rtdb/rules" target="_blank" rel="noopener noreferrer" class="underline font-semibold text-indigo-700">Firebase Console → bapujihss → Realtime Database → Rules</a>.</li>
+            <li>Click <strong>Copy Firebase Rules</strong> below, paste into the Rules editor, and click <strong>Publish</strong>.</li>
+            <li>Come back here and click <strong>Test &amp; Push Data Now</strong>.</li>
+          </ol>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-bold uppercase text-slate-600">database.rules.json (Scoped &amp; Validated for schools/school_01)</span>
+            <button type="button" onclick="copyFirebaseRulesText()" class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition">
+              <i class="fa-regular fa-copy mr-1"></i>Copy Firebase Rules
+            </button>
+          </div>
+          <pre id="firebaseRulesCodeBlock" class="bg-slate-900 text-emerald-300 p-4 rounded-2xl text-xs font-mono overflow-x-auto max-h-60 soft-scroll">{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "schools": {
+      "$schoolId": {
+        ".read": true,
+        ".write": true,
+        "students": {
+          "$studentId": {
+            ".validate": "newData.hasChildren(['id', 'name', 'rollNo']) &amp;&amp; newData.child('name').isString() &amp;&amp; newData.child('rollNo').isString()"
+          }
+        },
+        "teachers": {
+          "$teacherId": {
+            ".validate": "newData.hasChildren(['id', 'name', 'username', 'role']) &amp;&amp; newData.child('username').isString()"
+          }
+        },
+        "meta": {
+          ".validate": "newData.hasChildren(['updatedAt'])"
+        },
+        "presence": {
+          "$sessionId": {
+            ".validate": "newData.hasChildren(['online', 'updatedAt'])"
+          }
+        }
+      }
+    }
+  }
+}</pre>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+          <p class="text-xs text-slate-500">Tip: If you enable <strong>Anonymous Auth</strong> in Firebase Console → Authentication, you can also replace <code>true</code> with <code>"auth != null"</code>.</p>
+          <button type="button" onclick="pushAllToFirebase()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition">
+            <i class="fa-solid fa-bolt mr-1.5"></i>Test &amp; Push Data Now
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 3: GOOGLE SHEETS LIVE SYNC -->
+      <div id="cloudTabSheets" class="hidden pt-4 space-y-4">
+        <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-3">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h4 class="text-sm font-bold text-emerald-950">Option A: Two-Way Live Google Sheets Sync (Read + Write via Apps Script)</h4>
+              <p class="text-xs text-emerald-800 mt-0.5">Every student or teacher add, edit, or delete automatically updates your Google Sheet and syncs across all users.</p>
+            </div>
+            <label class="inline-flex items-center gap-2 cursor-pointer shrink-0">
+              <input type="checkbox" id="chkAutoSheetsSync" checked onchange="saveSheetsConfig()" class="w-4 h-4 text-emerald-600 rounded border-slate-300" />
+              <span class="text-xs font-semibold text-emerald-900">Auto-Sync</span>
+            </label>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold uppercase text-emerald-900 mb-1">Google Apps Script Web App URL (ends with /exec)</label>
+            <input id="sheetsWebhookUrlInput" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3.5 py-2 bg-white border border-emerald-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button type="button" onclick="saveSheetsConfig(true)" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition">
+              <i class="fa-solid fa-link mr-1.5"></i>Save &amp; Sync Sheet
+            </button>
+            <button type="button" onclick="pullFromGoogleSheets()" class="px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-semibold transition">
+              <i class="fa-solid fa-cloud-arrow-down mr-1.5"></i>Pull from Sheet
+            </button>
+            <button type="button" onclick="pushAllToGoogleSheets()" class="px-3.5 py-2 rounded-xl bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-semibold transition">
+              <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i>Push All to Sheet
+            </button>
+            <button type="button" onclick="copyAppsScriptCode()" class="px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition">
+              <i class="fa-regular fa-copy mr-1.5"></i>Copy Apps Script (Code.gs)
+            </button>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">
+          <h4 class="text-xs font-bold uppercase text-slate-700">Option B: Direct Google Sheet URL / ID Pull (No Apps Script Needed)</h4>
+          <p class="text-xs text-slate-500">Paste any shared Google Sheet link (with "Anyone with the link can view") to import or refresh students directly.</p>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <input id="directSheetUrlInput" type="text" placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit" class="flex-1 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <button type="button" onclick="pullDirectGoogleSheetCsv()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold shrink-0 transition">
+              <i class="fa-solid fa-file-import mr-1.5"></i>Pull Shared Sheet
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-4 mt-4 border-t border-slate-100">
+        <button type="button" onclick="closeCloudSetupModal()" class="px-5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 transition">Done</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
-    import { getDatabase, ref, get, set, onValue } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+    import { initializeApp, getApps, deleteApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
+    import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
+    import { getDatabase, ref, get, set, update, remove, onValue, onDisconnect } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
 
-    const firebaseConfig = {
-      apiKey: 'AIzaSyA8HX-nCadL5uuvnEyiQBgv5eRHrTJD5uo',
-      authDomain: 'bapujihss.firebaseapp.com',
-      databaseURL: 'https://bapujihss-default-rtdb.asia-southeast1.firebasedatabase.app',
-      projectId: 'bapujihss',
-      storageBucket: 'bapujihss.firebasestorage.app',
-      messagingSenderId: '174183270330',
-      appId: '1:174183270330:web:0d10fb4e6f31096f55bf83',
-      measurementId: 'G-526Z0V4CES'
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    const SCHOOL_ID = 'school_01';
+    const DEFAULT_DB_URL = 'https://bapujihss-default-rtdb.asia-southeast1.firebasedatabase.app';
+    const DEFAULT_SCHOOL_ID = 'school_01';
     const SCHOOL_NAME = 'Bapuji Higher Secondary School';
+
     const LOCAL_KEY = 'pms_school_students_v2';
     const TEACHER_KEY = 'pms_school_teachers_v2';
+    const PENDING_OPS_KEY = 'pms_school_pending_ops_v2';
+    const CONFIG_KEY = 'pms_school_cloud_config_v2';
+
+    const APPS_SCRIPT_TEMPLATE = `// Paste into Google Sheet -> Extensions -> Apps Script -> Code.gs
+// Deploy -> New deployment -> Web app (Execute as: Me, Who has access: Anyone)
+const STUDENT_HEADERS = ['id','name','rollNo','className','section','category','teacher','phone','aadhaar','aadhaarSeeded','income','caste','passbook','bankAcc','ifsc','aadhaarNo','incomeCertNo','casteCertNo','updatedAt'];
+const TEACHER_HEADERS = ['id','name','username','password','role'];
+
+function ensureSheet(ss, name, headers) {
+  let s = ss.getSheetByName(name) || ss.insertSheet(name);
+  if (s.getLastRow() === 0) { s.appendRow(headers); s.setFrozenRows(1); }
+  return s;
+}
+function readRows(s, headers) {
+  const v = s.getDataRange().getValues();
+  if (v.length <= 1) return [];
+  const h = v[0].map(x => String(x).trim());
+  return v.slice(1).filter(r => r.some(c => String(c).trim() !== '')).map(r => {
+    const o = {}; headers.forEach(k => { const i = h.indexOf(k); o[k] = i >= 0 ? r[i] : ''; }); return o;
+  });
+}
+function writeRows(s, headers, list) {
+  s.clearContents();
+  const m = [headers, ...(list || []).map(item => headers.map(k => item[k] ?? ''))];
+  s.getRange(1, 1, m.length, headers.length).setValues(m);
+}
+function doGet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  return ContentService.createTextOutput(JSON.stringify({
+    ok: true,
+    students: readRows(ensureSheet(ss, 'Students', STUDENT_HEADERS), STUDENT_HEADERS),
+    teachers: readRows(ensureSheet(ss, 'Teachers', TEACHER_HEADERS), TEACHER_HEADERS)
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+function doPost(e) {
+  const lock = LockService.getScriptLock(); lock.waitLock(10000);
+  try {
+    const body = JSON.parse(e.postData.contents || '{}');
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const stSheet = ensureSheet(ss, 'Students', STUDENT_HEADERS);
+    const tcSheet = ensureSheet(ss, 'Teachers', TEACHER_HEADERS);
+    if (body.action === 'syncAll') {
+      if (Array.isArray(body.students)) writeRows(stSheet, STUDENT_HEADERS, body.students);
+      if (Array.isArray(body.teachers)) writeRows(tcSheet, TEACHER_HEADERS, body.teachers);
+    } else if (body.action === 'upsertStudent' && body.student) {
+      const list = readRows(stSheet, STUDENT_HEADERS);
+      const i = list.findIndex(x => String(x.id) === String(body.student.id) || String(x.rollNo) === String(body.student.rollNo));
+      if (i >= 0) list[i] = body.student; else list.push(body.student);
+      writeRows(stSheet, STUDENT_HEADERS, list);
+    } else if (body.action === 'deleteStudent') {
+      writeRows(stSheet, STUDENT_HEADERS, readRows(stSheet, STUDENT_HEADERS).filter(x => String(x.id) !== String(body.studentId)));
+    } else if (body.action === 'bulkDeleteStudents' && Array.isArray(body.studentIds)) {
+      const rm = new Set(body.studentIds.map(String));
+      writeRows(stSheet, STUDENT_HEADERS, readRows(stSheet, STUDENT_HEADERS).filter(x => !rm.has(String(x.id))));
+    } else if (body.action === 'upsertTeacher' && body.teacher) {
+      const list = readRows(tcSheet, TEACHER_HEADERS);
+      const i = list.findIndex(x => String(x.id) === String(body.teacher.id) || String(x.username) === String(body.teacher.username));
+      if (i >= 0) list[i] = body.teacher; else list.push(body.teacher);
+      writeRows(tcSheet, TEACHER_HEADERS, list);
+    } else if (body.action === 'deleteTeacher') {
+      writeRows(tcSheet, TEACHER_HEADERS, readRows(tcSheet, TEACHER_HEADERS).filter(x => String(x.id) !== String(body.teacherId)));
+    }
+    return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
+  } finally { lock.releaseLock(); }
+}`;
 
     const defaultTeachers = [
       { id: 'admin-1', name: 'Hemant', username: 'Hemant', password: 'Abcd@1234', role: 'admin' },
@@ -442,17 +782,26 @@
     ];
 
     const defaultStudents = [
-      { id: '1', name: 'SURAJ SAHOO', rollNo: 'IX-2026-001', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'OBC', phone: '9876543210', aadhaar: true, aadhaarSeeded: true, income: true, caste: true, passbook: true, bankAcc: '123456789012', ifsc: 'SBIN0001234', aadhaarNo: '123456789012', incomeCertNo: 'INC-2024-001', casteCertNo: 'CASTE-2024-001' },
-      { id: '2', name: 'LIPUN NAIK', rollNo: 'IX-2026-002', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9123456789', aadhaar: true, aadhaarSeeded: false, income: true, caste: true, passbook: true, bankAcc: '123456789013', ifsc: 'HDFC0001234', aadhaarNo: '123456789013', incomeCertNo: 'INC-2024-002', casteCertNo: 'CASTE-2024-002' },
-      { id: '3', name: 'JYOTIRMAYEE BEHERA', rollNo: 'IX-2026-003', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9938210928', aadhaar: true, aadhaarSeeded: true, income: false, caste: true, passbook: true, bankAcc: '123456789014', ifsc: 'ICIC0001234', aadhaarNo: '123456789014', incomeCertNo: '', casteCertNo: 'CASTE-2024-003' },
-      { id: '4', name: 'RUDRA PRASAD SETHI', rollNo: 'IX-2026-004', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9438102938', aadhaar: true, aadhaarSeeded: true, income: true, caste: false, passbook: true, bankAcc: '123456789015', ifsc: 'AXIS0001234', aadhaarNo: '123456789015', incomeCertNo: 'INC-2024-005', casteCertNo: '' },
-      { id: '5', name: 'CHINMAYEE BHOI', rollNo: 'IX-2026-005', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'OBC', phone: '9738102934', aadhaar: false, aadhaarSeeded: false, income: false, caste: false, passbook: false, bankAcc: '', ifsc: '', aadhaarNo: '', incomeCertNo: '', casteCertNo: '' }
+      { id: '1', name: 'SURAJ SAHOO', rollNo: 'IX-2026-001', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'OBC', phone: '9876543210', aadhaar: true, aadhaarSeeded: true, income: true, caste: true, passbook: true, bankAcc: '123456789012', ifsc: 'SBIN0001234', aadhaarNo: '123456789012', incomeCertNo: 'INC-2024-001', casteCertNo: 'CASTE-2024-001', updatedAt: '2026-10-24T10:00:00.000Z' },
+      { id: '2', name: 'LIPUN NAIK', rollNo: 'IX-2026-002', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9123456789', aadhaar: true, aadhaarSeeded: false, income: true, caste: true, passbook: true, bankAcc: '123456789013', ifsc: 'HDFC0001234', aadhaarNo: '123456789013', incomeCertNo: 'INC-2024-002', casteCertNo: 'CASTE-2024-002', updatedAt: '2026-10-24T10:00:00.000Z' },
+      { id: '3', name: 'JYOTIRMAYEE BEHERA', rollNo: 'IX-2026-003', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9938210928', aadhaar: true, aadhaarSeeded: true, income: false, caste: true, passbook: true, bankAcc: '123456789014', ifsc: 'ICIC0001234', aadhaarNo: '123456789014', incomeCertNo: '', casteCertNo: 'CASTE-2024-003', updatedAt: '2026-10-24T10:00:00.000Z' },
+      { id: '4', name: 'RUDRA PRASAD SETHI', rollNo: 'IX-2026-004', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9438102938', aadhaar: true, aadhaarSeeded: true, income: true, caste: false, passbook: true, bankAcc: '123456789015', ifsc: 'AXIS0001234', aadhaarNo: '123456789015', incomeCertNo: 'INC-2024-005', casteCertNo: '', updatedAt: '2026-10-24T10:00:00.000Z' },
+      { id: '5', name: 'CHINMAYEE BHOI', rollNo: 'IX-2026-005', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'OBC', phone: '9738102934', aadhaar: false, aadhaarSeeded: false, income: false, caste: false, passbook: false, bankAcc: '', ifsc: '', aadhaarNo: '', incomeCertNo: '', casteCertNo: '', updatedAt: '2026-10-24T10:00:00.000Z' }
     ];
 
     window.students = [];
     window.teachers = [];
     window.currentUser = null;
     window.activeFilterStatus = 'all';
+
+    let pendingConfirmCallback = null;
+    let firebaseApp = null;
+    let db = null;
+    let auth = null;
+    let isFirebaseOnline = false;
+    let hasFirebasePermissionError = false;
+    let lastFirebaseErrorMsg = '';
+    const sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
 
     function readLocal(key, fallback) {
       try {
@@ -464,25 +813,176 @@
     }
 
     function saveLocal(key, value) {
-      localStorage.setItem(key, JSON.stringify(value));
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (error) {
+        console.warn('localStorage write skipped:', error);
+      }
     }
 
-    function setSyncBadge(online, labelOverride = null) {
-      const badge = document.getElementById('syncBadge');
-      if (!badge) return;
+    let cloudConfig = readLocal(CONFIG_KEY, {
+      databaseURL: DEFAULT_DB_URL,
+      schoolId: DEFAULT_SCHOOL_ID,
+      sheetsWebhookUrl: '',
+      autoSheetsSync: true,
+      directSheetUrl: ''
+    });
 
-      const text = labelOverride || (online ? 'Cloud Live' : 'Local Only');
-      badge.textContent = text;
-      badge.className = online
-        ? 'bg-emerald-400 text-emerald-950 px-2 py-0.5 rounded-full text-[10px] font-bold'
-        : 'bg-amber-400 text-amber-950 px-2 py-0.5 rounded-full text-[10px] font-bold';
+    function getSchoolId() {
+      return (cloudConfig && cloudConfig.schoolId) ? cloudConfig.schoolId : DEFAULT_SCHOOL_ID;
+    }
+
+    function getPendingOps() {
+      return readLocal(PENDING_OPS_KEY, []);
+    }
+
+    function enqueuePendingOp(op) {
+      const ops = getPendingOps();
+      ops.push({ ...op, ts: Date.now() });
+      saveLocal(PENDING_OPS_KEY, ops.slice(-200));
+      updateDiagnosticsUI();
+    }
+
+    function clearPendingOps() {
+      saveLocal(PENDING_OPS_KEY, []);
+      updateDiagnosticsUI();
+    }
+
+    function setSyncBadge(online, labelOverride = null, isWarning = false) {
+      const badge = document.getElementById('syncBadge');
+      const loginDot = document.getElementById('loginSyncDot');
+      const loginText = document.getElementById('loginSyncStatusText');
+      const sheetsBadge = document.getElementById('sheetsBadge');
+
+      const hasSheets = !!(cloudConfig && cloudConfig.sheetsWebhookUrl);
+      if (sheetsBadge) {
+        if (hasSheets) sheetsBadge.classList.remove('hidden');
+        else sheetsBadge.classList.add('hidden');
+      }
+
+      const text = labelOverride || (online ? 'Cloud Live' : (hasSheets ? 'Sheets Live' : 'Local Only'));
+      if (badge) {
+        badge.textContent = text;
+        badge.className = (online || (hasSheets && !isWarning))
+          ? 'cursor-pointer bg-emerald-400 text-emerald-950 px-2.5 py-0.5 rounded-full text-[11px] font-bold hover:opacity-90 transition'
+          : (isWarning
+            ? 'cursor-pointer bg-rose-400 text-rose-950 px-2.5 py-0.5 rounded-full text-[11px] font-bold hover:opacity-90 transition'
+            : 'cursor-pointer bg-amber-400 text-amber-950 px-2.5 py-0.5 rounded-full text-[11px] font-bold hover:opacity-90 transition');
+      }
+
+      if (loginDot && loginText) {
+        loginDot.className = (online || hasSheets)
+          ? 'w-2 h-2 rounded-full bg-emerald-400 live-dot'
+          : 'w-2 h-2 rounded-full bg-amber-400 live-dot';
+        loginText.textContent = online
+          ? 'Live Firebase Cloud Sync Active'
+          : (hasSheets ? 'Google Sheets Live Sync Active' : (hasFirebasePermissionError ? 'Cloud Rules Setup Needed (Local Backup Ready)' : 'Offline / Local Mode Ready'));
+      }
+
+      const banner = document.getElementById('rulesAlertBanner');
+      if (banner) {
+        if (hasFirebasePermissionError && !hasSheets) {
+          banner.classList.remove('hidden');
+        } else {
+          banner.classList.add('hidden');
+        }
+      }
+      updateDiagnosticsUI();
+    }
+
+    function updateDiagnosticsUI() {
+      const fbState = document.getElementById('diagFirebaseState');
+      const authState = document.getElementById('diagAuthState');
+      const queueCount = document.getElementById('diagQueueCount');
+      const schoolLabel = document.getElementById('diagSchoolIdLabel');
+      const errBox = document.getElementById('diagLastErrorBox');
+
+      if (schoolLabel) schoolLabel.textContent = getSchoolId();
+      if (fbState) {
+        fbState.textContent = isFirebaseOnline
+          ? 'Connected (Real-Time Live)'
+          : (hasFirebasePermissionError ? 'Blocked by Security Rules' : 'Offline / Standby');
+        fbState.className = isFirebaseOnline
+          ? 'text-sm font-bold text-emerald-600 mt-1'
+          : (hasFirebasePermissionError ? 'text-sm font-bold text-rose-600 mt-1' : 'text-sm font-bold text-amber-600 mt-1');
+      }
+      if (authState) {
+        const uid = auth && auth.currentUser ? auth.currentUser.uid.slice(0, 8) : null;
+        authState.textContent = uid ? `Anonymous Auth (${uid}...)` : 'Direct School Role Auth';
+      }
+      if (queueCount) {
+        const count = getPendingOps().length;
+        queueCount.textContent = `${count} queued`;
+        queueCount.className = count > 0 ? 'text-sm font-bold text-amber-600 mt-1' : 'text-sm font-bold text-emerald-600 mt-1';
+      }
+      if (errBox) {
+        if (lastFirebaseErrorMsg) {
+          errBox.textContent = `Firebase Diagnostic: ${lastFirebaseErrorMsg}`;
+          errBox.classList.remove('hidden');
+        } else {
+          errBox.classList.add('hidden');
+        }
+      }
+    }
+
+    function parseBool(val, defaultVal = false) {
+      if (typeof val === 'boolean') return val;
+      if (val === undefined || val === null || val === '') return defaultVal;
+      const s = String(val).trim().toLowerCase();
+      return s === 'true' || s === 'yes' || s === '1' || s === 'verified' || s === 'submitted';
+    }
+
+    function normalizeStudent(student) {
+      return {
+        id: String(student.id || `student-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`),
+        name: String(student.name || '').trim(),
+        rollNo: String(student.rollNo || '').trim(),
+        className: String(student.className || 'Class 9').trim(),
+        section: String(student.section || 'Section A').trim(),
+        teacher: String(student.teacher || 'Bapujihss').trim(),
+        category: String(student.category || 'OBC').trim(),
+        phone: String(student.phone || '').trim(),
+        aadhaar: parseBool(student.aadhaar, false),
+        aadhaarSeeded: parseBool(student.aadhaarSeeded, false),
+        income: parseBool(student.income, false),
+        caste: parseBool(student.caste, false),
+        passbook: parseBool(student.passbook, false),
+        bankAcc: String(student.bankAcc || '').trim(),
+        ifsc: String(student.ifsc || '').trim().toUpperCase(),
+        aadhaarNo: String(student.aadhaarNo || '').trim(),
+        incomeCertNo: String(student.incomeCertNo || '').trim().toUpperCase(),
+        casteCertNo: String(student.casteCertNo || '').trim().toUpperCase(),
+        updatedAt: student.updatedAt || new Date().toISOString()
+      };
+    }
+
+    function normalizeTeacher(teacher) {
+      return {
+        id: String(teacher.id || `teacher-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`),
+        name: String(teacher.name || '').trim(),
+        username: String(teacher.username || '').trim(),
+        password: String(teacher.password || '').trim(),
+        role: String(teacher.role || 'teacher').trim()
+      };
     }
 
     function ensureInitialData() {
       const localStudents = readLocal(LOCAL_KEY, defaultStudents);
       const localTeachers = readLocal(TEACHER_KEY, defaultTeachers);
-      window.students = Array.isArray(localStudents) && localStudents.length ? localStudents : defaultStudents;
-      window.teachers = Array.isArray(localTeachers) && localTeachers.length ? localTeachers : defaultTeachers;
+      window.students = Array.isArray(localStudents) && localStudents.length
+        ? localStudents.map(normalizeStudent)
+        : defaultStudents.map(normalizeStudent);
+      window.teachers = Array.isArray(localTeachers) && localTeachers.length
+        ? localTeachers.map(normalizeTeacher)
+        : defaultTeachers.map(normalizeTeacher);
+
+      // Guarantee default admin and default teacher exist
+      for (const defT of defaultTeachers) {
+        if (!window.teachers.some(t => t.username.toLowerCase() === defT.username.toLowerCase())) {
+          window.teachers.push(normalizeTeacher(defT));
+        }
+      }
+
       saveLocal(LOCAL_KEY, window.students);
       saveLocal(TEACHER_KEY, window.teachers);
       renderTeacherList();
@@ -495,67 +995,49 @@
       const select = document.getElementById('teacherSelect');
       if (!select) return;
 
+      const currentVal = select.value;
       const options = window.teachers.filter(t => t.role === 'teacher' || t.username === 'Bapujihss');
-      select.innerHTML = options.map(t => `<option value="${t.username}">${t.name}</option>`).join('');
+      select.innerHTML = options.map(t => `<option value="${escapeHtml(t.username)}">${escapeHtml(t.name)} (${escapeHtml(t.username)})</option>`).join('');
 
       if (window.currentUser && window.currentUser.role === 'teacher') {
         select.value = window.currentUser.username;
+      } else if (currentVal && options.some(o => o.username === currentVal)) {
+        select.value = currentVal;
       }
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
     function renderTeacherList() {
       const list = document.getElementById('teacherList');
+      const countBadge = document.getElementById('teacherCountBadge');
+      if (countBadge) countBadge.textContent = `${window.teachers.length} accounts`;
       if (!list) return;
 
       list.innerHTML = window.teachers.map(t => {
         const isLocked = t.role === 'admin' || t.username === 'Bapujihss';
+        const assignedCount = window.students.filter(s => s.teacher === t.username).length;
         const deleteButton = isLocked
-          ? '<button disabled class="opacity-40 px-2 py-1 rounded text-xs bg-slate-100 text-slate-500">Locked</button>'
-          : `<button onclick="removeTeacher('${t.id}', '${t.username}')" class="px-2 py-1 rounded text-xs bg-rose-100 text-rose-600 hover:bg-rose-200">Delete</button>`;
+          ? '<button type="button" disabled class="opacity-40 px-2.5 py-1 rounded-lg text-xs bg-slate-100 text-slate-500">System Default</button>'
+          : `<button type="button" onclick="removeTeacher('${escapeHtml(t.id)}', '${escapeHtml(t.username)}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-100 text-rose-600 hover:bg-rose-200 transition">Delete</button>`;
 
         return `
           <div class="flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
             <div>
-              <div class="font-semibold text-slate-800">${t.name}</div>
-              <div class="text-xs text-slate-500">${t.username} • ${t.role}</div>
+              <div class="font-semibold text-slate-800">${escapeHtml(t.name)}</div>
+              <div class="text-xs text-slate-500">${escapeHtml(t.username)} • ${escapeHtml(t.role)} • ${assignedCount} students</div>
             </div>
             ${deleteButton}
           </div>
         `;
       }).join('');
-    }
-
-    function normalizeStudent(student) {
-      return {
-        id: student.id || `student-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        name: student.name || '',
-        rollNo: student.rollNo || '',
-        className: student.className || 'Class 9',
-        section: student.section || 'Section A',
-        teacher: student.teacher || 'Bapujihss',
-        category: student.category || 'OBC',
-        phone: student.phone || '',
-        aadhaar: !!student.aadhaar,
-        aadhaarSeeded: !!student.aadhaarSeeded,
-        income: !!student.income,
-        caste: !!student.caste,
-        passbook: !!student.passbook,
-        bankAcc: student.bankAcc || '',
-        ifsc: student.ifsc || '',
-        aadhaarNo: student.aadhaarNo || '',
-        incomeCertNo: student.incomeCertNo || '',
-        casteCertNo: student.casteCertNo || ''
-      };
-    }
-
-    function normalizeTeacher(teacher) {
-      return {
-        id: teacher.id || `teacher-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        name: teacher.name || '',
-        username: teacher.username || '',
-        password: teacher.password || '',
-        role: teacher.role || 'teacher'
-      };
     }
 
     function evaluateStudent(student) {
@@ -568,14 +1050,22 @@
       return { isCompleted: issues.length === 0, issues };
     }
 
+    function getScopedStudentsForCurrentUser() {
+      if (window.currentUser && window.currentUser.role !== 'admin') {
+        return window.students.filter(s => s.teacher === window.currentUser.username);
+      }
+      return window.students;
+    }
+
     function updateStats() {
-      const total = window.students.length;
+      const scoped = getScopedStudentsForCurrentUser();
+      const total = scoped.length;
       let completed = 0;
       let incomplete = 0;
       let aadhaar = 0;
       let docIssue = 0;
 
-      for (const student of window.students) {
+      for (const student of scoped) {
         const result = evaluateStudent(student);
         if (result.isCompleted) completed++;
         else {
@@ -590,22 +1080,52 @@
       document.getElementById('statIncomplete').textContent = incomplete;
       document.getElementById('statAadhaar').textContent = aadhaar;
       document.getElementById('statDocIssues').textContent = docIssue;
+
+      // Highlight active filter card
+      const cardMap = {
+        'all': 'cardStatAll',
+        'Completed': 'cardStatCompleted',
+        'Incomplete': 'cardStatIncomplete',
+        'Aadhaar Issue': 'cardStatAadhaar',
+        'Doc Issue': 'cardStatDoc'
+      };
+      Object.entries(cardMap).forEach(([key, cardId]) => {
+        const el = document.getElementById(cardId);
+        if (!el) return;
+        if (window.activeFilterStatus === key) {
+          el.classList.add('ring-2', 'ring-indigo-500');
+        } else {
+          el.classList.remove('ring-2', 'ring-indigo-500');
+        }
+      });
+    }
+
+    function handleStatusDropdownChange(val) {
+      window.activeFilterStatus = val || 'all';
+      renderTable();
+    }
+
+    function filterByStatus(status) {
+      window.activeFilterStatus = status;
+      const select = document.getElementById('statusFilter');
+      if (select) select.value = status;
+      renderTable();
     }
 
     function renderTable() {
       const tbody = document.getElementById('studentTableBody');
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const statusFilter = document.getElementById('statusFilter').value;
-      const sectionFilter = document.getElementById('sectionFilter').value;
-      const classFilter = document.getElementById('classFilter').value;
+      const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+      const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+      const sectionFilter = document.getElementById('sectionFilter')?.value || 'all';
+      const classFilter = document.getElementById('classFilter')?.value || 'all';
       const emptyState = document.getElementById('emptyState');
 
+      if (!tbody) return;
       tbody.innerHTML = '';
-      let visible = [...window.students];
 
-      if (window.currentUser && window.currentUser.role !== 'admin') {
-        visible = visible.filter(s => s.teacher === window.currentUser.username);
-      }
+      let visible = [...getScopedStudentsForCurrentUser()];
+
+      const effectiveStatus = window.activeFilterStatus !== 'all' ? window.activeFilterStatus : statusFilter;
 
       visible = visible.filter(student => {
         const result = evaluateStudent(student);
@@ -619,12 +1139,10 @@
         const matchesClass = classFilter === 'all' || student.className === classFilter;
 
         let matchesStatus = true;
-        if (statusFilter === 'Completed') matchesStatus = result.isCompleted;
-        if (statusFilter === 'Incomplete') matchesStatus = !result.isCompleted;
-        if (window.activeFilterStatus === 'Completed') matchesStatus = result.isCompleted;
-        if (window.activeFilterStatus === 'Incomplete') matchesStatus = !result.isCompleted;
-        if (window.activeFilterStatus === 'Aadhaar Issue') matchesStatus = (!student.aadhaar || !student.aadhaarSeeded);
-        if (window.activeFilterStatus === 'Doc Issue') matchesStatus = (!student.income || !student.caste);
+        if (effectiveStatus === 'Completed') matchesStatus = result.isCompleted;
+        else if (effectiveStatus === 'Incomplete') matchesStatus = !result.isCompleted;
+        else if (effectiveStatus === 'Aadhaar Issue') matchesStatus = (!student.aadhaar || !student.aadhaarSeeded);
+        else if (effectiveStatus === 'Doc Issue') matchesStatus = (!student.income || !student.caste);
 
         return matchesSearch && matchesSection && matchesClass && matchesStatus;
       });
@@ -645,38 +1163,39 @@
 
         const issuesHtml = result.isCompleted
           ? '<span class="text-xs text-emerald-600 font-medium">All documents verified</span>'
-          : '<ul class="text-xs text-rose-600 space-y-1">' + result.issues.map(i => `<li>• ${i}</li>`).join('') + '</ul>';
+          : '<ul class="text-xs text-rose-600 space-y-1">' + result.issues.map(i => `<li>• ${escapeHtml(i)}</li>`).join('') + '</ul>';
 
         const docNumsHtml = `
           <div class="text-[11px] text-slate-600 space-y-0.5">
-            <div><span class="font-semibold text-slate-500">Aadhaar:</span> <span class="font-mono">${student.aadhaarNo || 'Not Added'}</span></div>
-            <div><span class="font-semibold text-slate-500">Income:</span> <span class="font-mono">${student.incomeCertNo || 'Not Added'}</span></div>
-            <div><span class="font-semibold text-slate-500">Caste:</span> <span class="font-mono">${student.casteCertNo || 'Not Added'}</span></div>
+            <div><span class="font-semibold text-slate-500">Aadhaar:</span> <span class="font-mono">${escapeHtml(student.aadhaarNo || 'Not Added')}</span></div>
+            <div><span class="font-semibold text-slate-500">Income:</span> <span class="font-mono">${escapeHtml(student.incomeCertNo || 'Not Added')}</span></div>
+            <div><span class="font-semibold text-slate-500">Caste:</span> <span class="font-mono">${escapeHtml(student.casteCertNo || 'Not Added')}</span></div>
           </div>
         `;
 
         const bankInfo = student.bankAcc
-          ? `<div class="text-xs font-mono text-slate-700">${student.bankAcc}</div><div class="text-xs font-semibold text-indigo-600">${student.ifsc || 'No IFSC'}</div>`
+          ? `<div class="text-xs font-mono text-slate-700">${escapeHtml(student.bankAcc)}</div><div class="text-xs font-semibold text-indigo-600">${escapeHtml(student.ifsc || 'No IFSC')}</div>`
           : '<span class="text-xs text-amber-600 italic">Not updated</span>';
 
         const row = document.createElement('tr');
         row.className = 'hover:bg-slate-50/80 transition';
+        row.dataset.id = String(student.id);
         row.innerHTML = `
           <td class="py-3.5 px-4">
-            <div class="font-semibold text-slate-900">${student.name}</div>
-            <div class="text-xs text-slate-400 font-mono">${student.rollNo}</div>
+            <div class="font-semibold text-slate-900">${escapeHtml(student.name)}</div>
+            <div class="text-xs text-slate-400 font-mono">${escapeHtml(student.rollNo)}</div>
           </td>
           <td class="py-3.5 px-4">
-            <div class="text-slate-800 font-medium">${student.className}</div>
+            <div class="text-slate-800 font-medium">${escapeHtml(student.className)}</div>
             <div class="flex items-center gap-1.5 mt-1">
-              <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] font-bold">${student.category}</span>
-              <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[10px] font-bold">${student.section || 'Section A'}</span>
+              <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] font-bold">${escapeHtml(student.category)}</span>
+              <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[10px] font-bold">${escapeHtml(student.section || 'Section A')}</span>
             </div>
           </td>
           <td class="py-3.5 px-4">
             <div class="text-xs font-medium text-slate-700 flex items-center gap-1.5">
               <i class="fa-solid fa-chalkboard-user text-indigo-600"></i>
-              <span>${student.teacher || 'Unassigned'}</span>
+              <span>${escapeHtml(student.teacher || 'Unassigned')}</span>
             </div>
           </td>
           <td class="py-3.5 px-4 align-top">${statusBadge}</td>
@@ -687,9 +1206,9 @@
           <td class="py-3.5 px-4 align-top">${bankInfo}</td>
           <td class="py-3.5 px-4 text-center align-top">
             <div class="flex items-center justify-center gap-2">
-              ${!result.isCompleted && student.phone ? `<button type="button" onclick="openReminder('${student.id}')" title="Send WhatsApp reminder" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg transition"><i class="fa-brands fa-whatsapp"></i></button>` : ''}
-              <button type="button" onclick="editStudent('${student.id}')" title="Edit Record" class="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition"><i class="fa-solid fa-pen"></i></button>
-              <button type="button" onclick="deleteStudent('${student.id}')" title="Delete" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition"><i class="fa-solid fa-trash"></i></button>
+              ${!result.isCompleted && student.phone ? `<button type="button" onclick="openReminder('${escapeHtml(student.id)}')" title="Send WhatsApp reminder" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg transition"><i class="fa-brands fa-whatsapp"></i></button>` : ''}
+              <button type="button" onclick="editStudent('${escapeHtml(student.id)}')" title="Edit Record" class="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition"><i class="fa-solid fa-pen"></i></button>
+              <button type="button" onclick="deleteStudent('${escapeHtml(student.id)}')" title="Delete" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition"><i class="fa-solid fa-trash"></i></button>
             </div>
           </td>
         `;
@@ -699,26 +1218,45 @@
       updateStats();
     }
 
-    function filterByStatus(status) {
-      window.activeFilterStatus = status;
-      document.getElementById('statusFilter').value = status === 'all' ? 'all' : status;
-      renderTable();
+    // IN-PAGE CONFIRMATION MODAL HELPERS
+    function openConfirmModal(title, message, onConfirm) {
+      document.getElementById('confirmModalTitle').textContent = title || 'Confirm Action';
+      document.getElementById('confirmModalMessage').textContent = message || 'Are you sure?';
+      pendingConfirmCallback = onConfirm;
+      const modal = document.getElementById('confirmModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeConfirmModal() {
+      pendingConfirmCallback = null;
+      const modal = document.getElementById('confirmModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function executeConfirmedAction() {
+      const cb = pendingConfirmCallback;
+      closeConfirmModal();
+      if (typeof cb === 'function') cb();
     }
 
     function loginUser() {
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
 
-      const user = window.teachers.find(t => t.username === username && t.password === password);
+      const user = window.teachers.find(t => t.username.toLowerCase() === username.toLowerCase() && t.password === password);
       if (!user) {
-        showToast('Invalid username or password.');
+        showToast('Invalid username or password.', true);
         return;
       }
 
       window.currentUser = user;
       document.getElementById('loginScreen').classList.add('hidden');
       document.getElementById('appScreen').classList.remove('hidden');
-      document.getElementById('appSubtitle').textContent = user.role === 'admin' ? 'Administrator dashboard' : `Teacher dashboard: ${user.name}`;
+      document.getElementById('appSubtitle').textContent = user.role === 'admin'
+        ? 'Administrator dashboard • All classes & teachers'
+        : `Teacher dashboard: ${user.name} (${user.username})`;
 
       const adminPanel = document.getElementById('adminPanel');
       const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
@@ -732,47 +1270,166 @@
       }
 
       populateTeacherDropdown();
+      renderTeacherList();
       renderTable();
+      registerUserPresence();
       showToast(`Welcome ${user.name}`);
     }
 
     function logoutUser() {
+      removeUserPresence();
       window.currentUser = null;
       document.getElementById('loginScreen').classList.remove('hidden');
       document.getElementById('appScreen').classList.add('hidden');
       document.getElementById('loginPassword').value = '';
     }
 
-    function showToast(message) {
+    function showToast(message, isError = false) {
       const toast = document.getElementById('toast');
       const text = document.getElementById('toastMessage');
+      const icon = document.getElementById('toastIcon');
       text.textContent = message;
+      toast.className = isError
+        ? 'bg-rose-50 border border-rose-200 text-rose-800 rounded-xl px-4 py-3 flex items-center justify-between shadow-sm'
+        : 'bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3 flex items-center justify-between shadow-sm';
+      if (icon) {
+        icon.className = isError ? 'fa-solid fa-circle-exclamation text-rose-600' : 'fa-solid fa-circle-check text-emerald-600';
+      }
       toast.classList.remove('hidden');
-      setTimeout(() => toast.classList.add('hidden'), 3000);
+      setTimeout(() => toast.classList.add('hidden'), 3500);
     }
 
     function hideToast() {
       document.getElementById('toast').classList.add('hidden');
     }
 
+    // GRANULAR FIREBASE + GOOGLE SHEETS SYNC OPERATIONS
+    async function syncFirebaseOp(op) {
+      if (!db) {
+        enqueuePendingOp(op);
+        return false;
+      }
+      const schoolId = getSchoolId();
+      const actor = window.currentUser ? window.currentUser.username : 'system';
+      const nowIso = new Date().toISOString();
+
+      try {
+        if (op.type === 'upsertStudent') {
+          await set(ref(db, `schools/${schoolId}/students/${op.student.id}`), normalizeStudent(op.student));
+        } else if (op.type === 'deleteStudent') {
+          await remove(ref(db, `schools/${schoolId}/students/${op.studentId}`));
+        } else if (op.type === 'bulkDeleteStudents') {
+          const updates = {};
+          for (const id of op.studentIds) {
+            updates[`schools/${schoolId}/students/${id}`] = null;
+          }
+          await update(ref(db), updates);
+        } else if (op.type === 'upsertTeacher') {
+          await set(ref(db, `schools/${schoolId}/teachers/${op.teacher.id}`), normalizeTeacher(op.teacher));
+        } else if (op.type === 'deleteTeacher') {
+          const updates = {
+            [`schools/${schoolId}/teachers/${op.teacherId}`]: null
+          };
+          for (const sid of (op.removedStudentIds || [])) {
+            updates[`schools/${schoolId}/students/${sid}`] = null;
+          }
+          await update(ref(db), updates);
+        } else if (op.type === 'syncAll') {
+          const studentsMap = {};
+          window.students.forEach(s => { studentsMap[s.id] = normalizeStudent(s); });
+          const teachersMap = {};
+          window.teachers.forEach(t => { teachersMap[t.id] = normalizeTeacher(t); });
+          await update(ref(db, `schools/${schoolId}`), {
+            schoolId,
+            schoolName: SCHOOL_NAME,
+            academicYear: '2024-25-26',
+            students: studentsMap,
+            teachers: teachersMap,
+            meta: { updatedAt: nowIso, updatedBy: actor, source: 'firebase' }
+          });
+        }
+
+        await set(ref(db, `schools/${schoolId}/meta`), {
+          updatedAt: nowIso,
+          updatedBy: actor,
+          source: 'firebase'
+        });
+
+        isFirebaseOnline = true;
+        hasFirebasePermissionError = false;
+        lastFirebaseErrorMsg = '';
+        setSyncBadge(true, 'Cloud Live');
+        return true;
+      } catch (error) {
+        console.warn('Granular Firebase write failed:', error);
+        lastFirebaseErrorMsg = error && error.message ? error.message : String(error);
+        if (String(lastFirebaseErrorMsg).toLowerCase().includes('permission_denied') || String(lastFirebaseErrorMsg).toLowerCase().includes('permission denied')) {
+          hasFirebasePermissionError = true;
+          isFirebaseOnline = false;
+          setSyncBadge(false, 'Rules Blocked', true);
+        } else {
+          isFirebaseOnline = false;
+          setSyncBadge(false, 'Local Queue');
+        }
+        enqueuePendingOp(op);
+        return false;
+      }
+    }
+
+    async function flushPendingFirebaseOps() {
+      const ops = getPendingOps();
+      if (!ops.length || !db) return;
+      clearPendingOps();
+      await syncFirebaseOp({ type: 'syncAll' });
+    }
+
+    async function syncGoogleSheetsOp(payload) {
+      if (!cloudConfig || !cloudConfig.sheetsWebhookUrl || !cloudConfig.autoSheetsSync) return false;
+      try {
+        // Use text/plain to avoid CORS preflight rejection on Google Apps Script Web Apps
+        const response = await fetch(cloudConfig.sheetsWebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            ...payload,
+            students: window.students,
+            teachers: window.teachers
+          })
+        });
+        if (response.ok) {
+          const lastSyncEl = document.getElementById('lastSyncInfo');
+          if (lastSyncEl) lastSyncEl.textContent = `Synced to Google Sheets at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+          return true;
+        }
+      } catch (error) {
+        console.warn('Google Sheets webhook POST warning:', error);
+      }
+      return false;
+    }
+
     function removeTeacher(id, username) {
       if (username === 'Hemant' || username === 'Bapujihss') {
-        showToast('Default account cannot be removed.');
+        showToast('Default account cannot be removed.', true);
         return;
       }
 
-      const confirmed = confirm('Delete this teacher account?');
-      if (!confirmed) return;
-
-      window.teachers = window.teachers.filter(t => t.id !== id);
-      window.students = window.students.filter(s => s.teacher !== username);
-      saveLocal(TEACHER_KEY, window.teachers);
-      saveLocal(LOCAL_KEY, window.students);
-      populateTeacherDropdown();
-      renderTeacherList();
-      renderTable();
-      persistData();
-      showToast('Teacher removed.');
+      openConfirmModal(
+        'Remove Teacher Account',
+        `Delete teacher account "${username}" and their assigned student records across all synced devices?`,
+        async () => {
+          const removedStudentIds = window.students.filter(s => s.teacher === username).map(s => s.id);
+          window.teachers = window.teachers.filter(t => String(t.id) !== String(id));
+          window.students = window.students.filter(s => s.teacher !== username);
+          saveLocal(TEACHER_KEY, window.teachers);
+          saveLocal(LOCAL_KEY, window.students);
+          populateTeacherDropdown();
+          renderTeacherList();
+          renderTable();
+          await syncFirebaseOp({ type: 'deleteTeacher', teacherId: id, removedStudentIds });
+          await syncGoogleSheetsOp({ action: 'deleteTeacher', teacherId: id });
+          showToast('Teacher removed and synced.');
+        }
+      );
     }
 
     async function addTeacher(event) {
@@ -782,21 +1439,24 @@
       const password = document.getElementById('teacherPassword').value.trim();
 
       if (!name || !username || !password) {
-        showToast('Please fill all teacher details.');
+        showToast('Please fill all teacher details.', true);
         return;
       }
 
       if (window.teachers.some(t => t.username.toLowerCase() === username.toLowerCase())) {
-        showToast('Teacher username already exists.');
+        showToast('Teacher username already exists.', true);
         return;
       }
 
-      window.teachers.push(normalizeTeacher({ id: `teacher-${Date.now()}`, name, username, password, role: 'teacher' }));
+      const newTeacher = normalizeTeacher({ id: `teacher-${Date.now()}`, name, username, password, role: 'teacher' });
+      window.teachers.push(newTeacher);
+      saveLocal(TEACHER_KEY, window.teachers);
       document.getElementById('teacherForm').reset();
       populateTeacherDropdown();
       renderTeacherList();
-      await persistData();
-      showToast('Teacher added successfully.');
+      await syncFirebaseOp({ type: 'upsertTeacher', teacher: newTeacher });
+      await syncGoogleSheetsOp({ action: 'upsertTeacher', teacher: newTeacher });
+      showToast('Teacher added and synced across devices.');
     }
 
     function openAddStudentModal() {
@@ -825,7 +1485,7 @@
     }
 
     function editStudent(id) {
-      const student = window.students.find(item => item.id === id);
+      const student = window.students.find(item => String(item.id) === String(id));
       if (!student) return;
 
       document.getElementById('modalTitle').textContent = 'Edit Student Record';
@@ -852,12 +1512,21 @@
       document.getElementById('studentModal').classList.add('flex');
     }
 
-    function saveStudent(event) {
+    async function saveStudent(event) {
       event.preventDefault();
       const id = document.getElementById('editStudentId').value;
 
+      const existingByRoll = window.students.find(item =>
+        (id && String(item.id) === String(id)) ||
+        (!id && item.rollNo.toLowerCase() === document.getElementById('rollNo').value.trim().toLowerCase())
+      );
+
+      const resolvedId = id && id.trim() !== ''
+        ? String(id)
+        : (existingByRoll ? String(existingByRoll.id) : `s_${Date.now()}${Math.random().toString(36).slice(2, 7)}`);
+
       const studentData = normalizeStudent({
-        id: id && id.trim() !== '' ? String(id) : `s_${Date.now()}${Math.random().toString(36).slice(2,7)}`,
+        id: resolvedId,
         name: document.getElementById('fullName').value.trim(),
         rollNo: document.getElementById('rollNo').value.trim(),
         className: document.getElementById('studentClass').value,
@@ -874,15 +1543,16 @@
         ifsc: document.getElementById('ifscCode').value.trim().toUpperCase(),
         aadhaarNo: document.getElementById('aadhaarNo').value.trim(),
         incomeCertNo: document.getElementById('incomeCertNo').value.trim().toUpperCase(),
-        casteCertNo: document.getElementById('casteCertNo').value.trim().toUpperCase()
+        casteCertNo: document.getElementById('casteCertNo').value.trim().toUpperCase(),
+        updatedAt: new Date().toISOString()
       });
 
       if (!studentData.name || !studentData.rollNo) {
-        showToast('Name and roll number are required.');
+        showToast('Name and roll number are required.', true);
         return;
       }
 
-      const existingIndex = window.students.findIndex(item => item.id === studentData.id || item.rollNo === studentData.rollNo);
+      const existingIndex = window.students.findIndex(item => String(item.id) === String(studentData.id));
       if (existingIndex >= 0) {
         window.students[existingIndex] = studentData;
       } else {
@@ -890,47 +1560,64 @@
       }
 
       saveLocal(LOCAL_KEY, window.students);
-      persistData();
+      renderTeacherList();
       renderTable();
       closeModal();
-      showToast('Student record saved successfully!');
+      await syncFirebaseOp({ type: 'upsertStudent', student: studentData });
+      await syncGoogleSheetsOp({ action: 'upsertStudent', student: studentData });
+      showToast('Student record saved & synced!');
     }
 
     function deleteStudent(id) {
-      if (!confirm('Are you sure you want to delete this student record?')) return;
-      window.students = window.students.filter(s => String(s.id) !== String(id));
-      saveLocal(LOCAL_KEY, window.students);
-      persistData();
-      renderTable();
-      showToast('Student record deleted.');
+      const student = window.students.find(s => String(s.id) === String(id));
+      const label = student ? `${student.name} (${student.rollNo})` : 'this student record';
+      openConfirmModal(
+        'Delete Student Record',
+        `Are you sure you want to delete ${label}? This will update all connected users.`,
+        async () => {
+          window.students = window.students.filter(s => String(s.id) !== String(id));
+          saveLocal(LOCAL_KEY, window.students);
+          renderTeacherList();
+          renderTable();
+          await syncFirebaseOp({ type: 'deleteStudent', studentId: String(id) });
+          await syncGoogleSheetsOp({ action: 'deleteStudent', studentId: String(id) });
+          showToast('Student record deleted.');
+        }
+      );
     }
 
     function bulkDeleteVisibleStudents() {
       const visibleIds = [...document.querySelectorAll('#studentTableBody tr')].map(row => row.dataset.id).filter(Boolean);
       if (!visibleIds.length) {
-        showToast('No visible students to delete.');
+        showToast('No visible students to delete.', true);
         return;
       }
 
-      const confirmed = confirm(`Delete ${visibleIds.length} visible students?`);
-      if (!confirmed) return;
-
-      window.students = window.students.filter(student => !visibleIds.includes(String(student.id)));
-      saveLocal(LOCAL_KEY, window.students);
-      persistData();
-      renderTable();
-      showToast('Visible students deleted.');
+      openConfirmModal(
+        'Bulk Delete Visible Students',
+        `Delete ${visibleIds.length} currently visible student record(s) from the shared database?`,
+        async () => {
+          window.students = window.students.filter(student => !visibleIds.includes(String(student.id)));
+          saveLocal(LOCAL_KEY, window.students);
+          renderTeacherList();
+          renderTable();
+          await syncFirebaseOp({ type: 'bulkDeleteStudents', studentIds: visibleIds });
+          await syncGoogleSheetsOp({ action: 'bulkDeleteStudents', studentIds: visibleIds });
+          showToast(`Deleted ${visibleIds.length} students.`);
+        }
+      );
     }
 
     function openReminder(id) {
-      const student = window.students.find(item => item.id === id);
+      const student = window.students.find(item => String(item.id) === String(id));
       if (!student) return;
 
       const result = evaluateStudent(student);
-      const message = `Dear Parent of ${student.name} (${student.className} - ${student.section}),\n\nYour scholarship application has pending documentation:\n` + result.issues.map(issue => `• ${issue}`).join('\n') + '\n\nPlease update the required documents at the earliest.\nThank you.';
+      const message = `Dear Parent of ${student.name} (${student.className} - ${student.section}),\n\nYour scholarship application has pending documentation:\n` + result.issues.map(issue => `• ${issue}`).join('\n') + '\n\nPlease update the required documents at the earliest.\nThank you.\n- Bapuji Higher Secondary School';
 
       document.getElementById('reminderTextContent').textContent = message;
-      const phoneNum = student.phone && student.phone.startsWith('+') ? student.phone : `+91${student.phone || ''}`;
+      const cleanPhone = String(student.phone || '').replace(/[^0-9+]/g, '');
+      const phoneNum = cleanPhone.startsWith('+') ? cleanPhone.slice(1) : (cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone);
       document.getElementById('whatsappBtn').href = `https://wa.me/${phoneNum}?text=${encodeURIComponent(message)}`;
       document.getElementById('reminderModal').classList.remove('hidden');
       document.getElementById('reminderModal').classList.add('flex');
@@ -941,15 +1628,25 @@
       document.getElementById('reminderModal').classList.remove('flex');
     }
 
-    function copyReminderText() {
-      const text = document.getElementById('reminderTextContent').textContent;
+    function copyTextWithFallback(text, successMsg) {
       const textarea = document.createElement('textarea');
       textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
       document.body.appendChild(textarea);
       textarea.select();
-      document.execCommand('copy');
+      try {
+        document.execCommand('copy');
+        showToast(successMsg || 'Copied to clipboard.');
+      } catch (err) {
+        showToast('Could not copy automatically.', true);
+      }
       textarea.remove();
-      showToast('Reminder copied to clipboard.');
+    }
+
+    function copyReminderText() {
+      const text = document.getElementById('reminderTextContent').textContent;
+      copyTextWithFallback(text, 'Reminder copied to clipboard.');
     }
 
     function getSpreadsheetRows() {
@@ -965,6 +1662,7 @@
         'Aadhaar Seeded': student.aadhaarSeeded ? 'Yes' : 'No',
         'Income Certificate': student.income ? 'Yes' : 'No',
         'Caste Certificate': student.caste ? 'Yes' : 'No',
+        'Passbook Verified': student.passbook ? 'Yes' : 'No',
         'Bank Account': student.bankAcc,
         'IFSC': student.ifsc,
         'Aadhaar Number': student.aadhaarNo,
@@ -994,25 +1692,33 @@
         return acc;
       }, {});
 
+      const rollNo = String(keys.rollno || keys.rollnumber || keys.regno || '').trim();
+      const existing = window.students.find(s => s.rollNo.toLowerCase() === rollNo.toLowerCase());
+
+      const bankAcc = String(keys.bankaccount || keys.accountnumber || keys.bankacc || '').trim();
+      const ifsc = String(keys.ifsc || keys.ifsccode || '').trim().toUpperCase();
+      const hasPassbookCol = keys.passbookverified !== undefined || keys.passbook !== undefined;
+
       const student = {
-        id: `s_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        id: keys.id || (existing ? existing.id : `s_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`),
         name: keys.studentname || keys.studentfullname || keys.name || '',
-        rollNo: keys.rollno || keys.rollnumber || keys.regno || '',
-        className: keys.class || 'Class 9',
+        rollNo: rollNo,
+        className: keys.class || keys.classname || 'Class 9',
         section: keys.section || 'Section A',
         category: keys.category || 'OBC',
         teacher: keys.teacher || 'Bapujihss',
         phone: String(keys.parentmobile || keys.phone || '').trim(),
-        aadhaar: String(keys.aadhaar || '').toLowerCase() === 'yes' || String(keys.aadhaar || '').toLowerCase() === 'true',
-        aadhaarSeeded: String(keys.aadhaarseeded || '').toLowerCase() === 'yes' || String(keys.aadhaarseeded || '').toLowerCase() === 'true',
-        income: String(keys.incomecertificate || '').toLowerCase() === 'yes' || String(keys.income || '').toLowerCase() === 'yes',
-        caste: String(keys.castecertificate || '').toLowerCase() === 'yes' || String(keys.caste || '').toLowerCase() === 'yes',
-        bankAcc: keys.bankaccount || keys.accountnumber || '',
-        ifsc: String(keys.ifsc || '').toUpperCase(),
-        aadhaarNo: keys.aadhaarnumber || '',
-        incomeCertNo: keys.incomecertificateno || keys.incomenumber || '',
-        casteCertNo: keys.castecertificateno || keys.castenumber || '',
-        passbook: true
+        aadhaar: parseBool(keys.aadhaar, false),
+        aadhaarSeeded: parseBool(keys.aadhaarseeded, false),
+        income: parseBool(keys.incomecertificate !== undefined ? keys.incomecertificate : keys.income, false),
+        caste: parseBool(keys.castecertificate !== undefined ? keys.castecertificate : keys.caste, false),
+        passbook: hasPassbookCol ? parseBool(keys.passbookverified !== undefined ? keys.passbookverified : keys.passbook, true) : Boolean(bankAcc && ifsc),
+        bankAcc: bankAcc,
+        ifsc: ifsc,
+        aadhaarNo: keys.aadhaarnumber || keys.aadhaarno || '',
+        incomeCertNo: keys.incomecertificateno || keys.incomenumber || keys.incomecertno || '',
+        casteCertNo: keys.castecertificateno || keys.castenumber || keys.castecertno || '',
+        updatedAt: new Date().toISOString()
       };
 
       return normalizeStudent(student);
@@ -1023,7 +1729,7 @@
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         try {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
@@ -1032,24 +1738,32 @@
           const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
 
           if (!rows.length) {
-            showToast('The imported sheet is empty.');
+            showToast('The imported sheet is empty.', true);
             return;
           }
 
           const importedStudents = rows.map(mapImportedRow).filter(s => s.name && s.rollNo);
           if (!importedStudents.length) {
-            showToast('No valid student rows were found in the sheet.');
+            showToast('No valid student rows were found in the sheet.', true);
             return;
           }
 
-          window.students = importedStudents;
+          // Merge by rollNo so other teachers' records aren't accidentally wiped out
+          const mergedMap = new Map(window.students.map(s => [s.rollNo.toLowerCase(), s]));
+          importedStudents.forEach(s => {
+            mergedMap.set(s.rollNo.toLowerCase(), s);
+          });
+          window.students = Array.from(mergedMap.values());
+
           saveLocal(LOCAL_KEY, window.students);
-          persistData();
+          renderTeacherList();
           renderTable();
-          showToast(`Imported ${importedStudents.length} students.`);
+          await syncFirebaseOp({ type: 'syncAll' });
+          await syncGoogleSheetsOp({ action: 'syncAll' });
+          showToast(`Imported & synced ${importedStudents.length} students.`);
         } catch (error) {
           console.error(error);
-          showToast('Imported file could not be parsed. Please use a valid Excel/CSV sheet.');
+          showToast('Imported file could not be parsed. Please use a valid Excel/CSV sheet.', true);
         }
       };
 
@@ -1057,99 +1771,398 @@
       event.target.value = '';
     }
 
-    async function persistData() {
-      saveLocal(LOCAL_KEY, window.students);
-      saveLocal(TEACHER_KEY, window.teachers);
+    // CLOUD SETUP MODAL & TABS
+    function openCloudSetupModal(defaultTab = 'status') {
+      document.getElementById('customDbUrlInput').value = cloudConfig.databaseURL || DEFAULT_DB_URL;
+      document.getElementById('customSchoolIdInput').value = cloudConfig.schoolId || DEFAULT_SCHOOL_ID;
+      document.getElementById('sheetsWebhookUrlInput').value = cloudConfig.sheetsWebhookUrl || '';
+      document.getElementById('chkAutoSheetsSync').checked = cloudConfig.autoSheetsSync !== false;
+      document.getElementById('directSheetUrlInput').value = cloudConfig.directSheetUrl || '';
+      updateDiagnosticsUI();
+      switchCloudTab(defaultTab);
+      const modal = document.getElementById('cloudSetupModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeCloudSetupModal() {
+      const modal = document.getElementById('cloudSetupModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function switchCloudTab(tab) {
+      const tabs = ['status', 'rules', 'sheets'];
+      const btnIds = { status: 'tabBtnStatus', rules: 'tabBtnRules', sheets: 'tabBtnSheets' };
+      const panelIds = { status: 'cloudTabStatus', rules: 'cloudTabRules', sheets: 'cloudTabSheets' };
+
+      tabs.forEach(t => {
+        const btn = document.getElementById(btnIds[t]);
+        const panel = document.getElementById(panelIds[t]);
+        if (t === tab) {
+          btn.className = 'px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white transition';
+          panel.classList.remove('hidden');
+        } else {
+          btn.className = 'px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
+          panel.classList.add('hidden');
+        }
+      });
+    }
+
+    function copyFirebaseRulesText() {
+      const code = document.getElementById('firebaseRulesCodeBlock').textContent;
+      copyTextWithFallback(code, 'Firebase Rules copied! Paste into Firebase Console -> Realtime Database -> Rules.');
+    }
+
+    function copyAppsScriptCode() {
+      copyTextWithFallback(APPS_SCRIPT_TEMPLATE, 'Google Apps Script (Code.gs) copied to clipboard!');
+    }
+
+    async function saveFirebaseEndpointConfig() {
+      const dbUrl = document.getElementById('customDbUrlInput').value.trim().replace(/\/+$/, '');
+      const schoolId = document.getElementById('customSchoolIdInput').value.trim().replace(/[^a-zA-Z0-9_-]/g, '') || DEFAULT_SCHOOL_ID;
+      cloudConfig.databaseURL = dbUrl || DEFAULT_DB_URL;
+      cloudConfig.schoolId = schoolId;
+      saveLocal(CONFIG_KEY, cloudConfig);
+      await setupFirebaseConnection();
+      showToast(`Connected to ${schoolId} on Firebase.`);
+    }
+
+    async function pushAllToFirebase() {
+      const ok = await syncFirebaseOp({ type: 'syncAll' });
+      if (ok) {
+        showToast('All student and teacher records pushed to Firebase Cloud!');
+      } else {
+        showToast('Firebase write blocked or offline. Check the Firebase Rules tab.', true);
+        switchCloudTab('rules');
+      }
+    }
+
+    async function pullAllFromFirebase() {
+      const ok = await syncFromFirebase();
+      if (ok) {
+        showToast('Pulled latest records from Firebase Cloud.');
+      } else {
+        showToast('Could not read from Firebase. Check Rules or connection.', true);
+      }
+    }
+
+    async function saveSheetsConfig(triggerSync = false) {
+      cloudConfig.sheetsWebhookUrl = document.getElementById('sheetsWebhookUrlInput').value.trim();
+      cloudConfig.autoSheetsSync = document.getElementById('chkAutoSheetsSync').checked;
+      saveLocal(CONFIG_KEY, cloudConfig);
+      setSyncBadge(isFirebaseOnline);
+      if (triggerSync && cloudConfig.sheetsWebhookUrl) {
+        const pulled = await pullFromGoogleSheets();
+        if (!pulled) {
+          await pushAllToGoogleSheets();
+        }
+      } else {
+        showToast('Google Sheets sync settings saved.');
+      }
+    }
+
+    async function pullFromGoogleSheets() {
+      const url = (document.getElementById('sheetsWebhookUrlInput')?.value || cloudConfig.sheetsWebhookUrl || '').trim();
+      if (!url) {
+        showToast('Please paste your Google Apps Script Web App URL first.', true);
+        return false;
+      }
+      cloudConfig.sheetsWebhookUrl = url;
+      saveLocal(CONFIG_KEY, cloudConfig);
+      try {
+        const res = await fetch(url, { method: 'GET' });
+        const data = await res.json();
+        if (data && data.ok) {
+          if (Array.isArray(data.students) && data.students.length) {
+            window.students = data.students.map(normalizeStudent);
+            saveLocal(LOCAL_KEY, window.students);
+          }
+          if (Array.isArray(data.teachers) && data.teachers.length) {
+            window.teachers = data.teachers.map(normalizeTeacher);
+            saveLocal(TEACHER_KEY, window.teachers);
+          }
+          renderTeacherList();
+          populateTeacherDropdown();
+          renderTable();
+          updateStats();
+          setSyncBadge(isFirebaseOnline, 'Sheets Live');
+          showToast(`Pulled ${window.students.length} students from Google Sheets!`);
+          return true;
+        }
+      } catch (err) {
+        console.warn('Google Sheets pull error:', err);
+        showToast('Could not pull from Google Sheets Web App URL.', true);
+      }
+      return false;
+    }
+
+    async function pushAllToGoogleSheets() {
+      const url = (document.getElementById('sheetsWebhookUrlInput')?.value || cloudConfig.sheetsWebhookUrl || '').trim();
+      if (!url) {
+        showToast('Please paste your Google Apps Script Web App URL first.', true);
+        return false;
+      }
+      cloudConfig.sheetsWebhookUrl = url;
+      saveLocal(CONFIG_KEY, cloudConfig);
+      const ok = await syncGoogleSheetsOp({ action: 'syncAll' });
+      if (ok) {
+        setSyncBadge(isFirebaseOnline, 'Sheets Live');
+        showToast('Pushed all records to Google Sheets!');
+      } else {
+        showToast('Failed to push to Google Sheets. Verify Web App deployment permissions ("Anyone").', true);
+      }
+      return ok;
+    }
+
+    async function pullDirectGoogleSheetCsv() {
+      const rawUrl = document.getElementById('directSheetUrlInput').value.trim();
+      if (!rawUrl) {
+        showToast('Paste a shared Google Sheet link or Sheet ID first.', true);
+        return;
+      }
+      cloudConfig.directSheetUrl = rawUrl;
+      saveLocal(CONFIG_KEY, cloudConfig);
+
+      const match = rawUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+      const sheetId = match ? match[1] : rawUrl;
+      const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
 
       try {
-        const schoolRecord = {
-          schoolId: SCHOOL_ID,
-          schoolName: SCHOOL_NAME,
-          academicYear: '2024-25-26',
-          teachers: window.teachers.reduce((acc, teacher) => {
-            acc[teacher.id] = normalizeTeacher(teacher);
-            return acc;
-          }, {}),
-          students: window.students.reduce((acc, student) => {
-            acc[student.id] = normalizeStudent(student);
-            return acc;
-          }, {}),
-          sync: {
-            source: 'firebase',
-            updatedAt: new Date().toISOString()
-          }
-        };
+        const res = await fetch(csvUrl);
+        if (!res.ok) throw new Error('Sheet not publicly accessible');
+        const csvText = await res.text();
+        const workbook = XLSX.read(csvText, { type: 'string' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+        const imported = rows.map(mapImportedRow).filter(s => s.name && s.rollNo);
+        if (!imported.length) {
+          showToast('No valid student rows found in that Google Sheet.', true);
+          return;
+        }
+        window.students = imported;
+        saveLocal(LOCAL_KEY, window.students);
+        renderTeacherList();
+        renderTable();
+        await syncFirebaseOp({ type: 'syncAll' });
+        showToast(`Pulled ${imported.length} students from shared Google Sheet!`);
+      } catch (err) {
+        console.warn('Direct sheet CSV error:', err);
+        showToast('Could not read sheet. Ensure sharing is set to "Anyone with the link can view".', true);
+      }
+    }
 
-        await set(ref(db, `schools/${SCHOOL_ID}`), schoolRecord);
-        setSyncBadge(true);
-      } catch (error) {
-        console.warn('Firebase write failed; continuing in local mode:', error);
-        setSyncBadge(false, 'Local Only');
+    async function forceSyncNow() {
+      const icon = document.getElementById('syncSpinIcon');
+      if (icon) icon.classList.add('fa-spin');
+      await flushPendingFirebaseOps();
+      const fbOk = await syncFromFirebase();
+      if (cloudConfig.sheetsWebhookUrl) {
+        await pullFromGoogleSheets();
+      }
+      if (icon) setTimeout(() => icon.classList.remove('fa-spin'), 500);
+      showToast(fbOk ? 'Live cloud data synchronized!' : 'Synced with local/sheet storage.');
+    }
+
+    // PRESENCE TRACKING FOR MULTI-USER LIVE SESSIONS
+    async function registerUserPresence() {
+      if (!db || !window.currentUser) return;
+      const schoolId = getSchoolId();
+      const myPresenceRef = ref(db, `schools/${schoolId}/presence/${sessionId}`);
+      try {
+        onDisconnect(myPresenceRef).remove();
+        await set(myPresenceRef, {
+          online: true,
+          username: window.currentUser.username,
+          role: window.currentUser.role,
+          updatedAt: new Date().toISOString()
+        });
+      } catch (e) {
+        // Ignore if rules block presence
+      }
+    }
+
+    async function removeUserPresence() {
+      if (!db) return;
+      const schoolId = getSchoolId();
+      try {
+        await remove(ref(db, `schools/${schoolId}/presence/${sessionId}`));
+      } catch (e) {
+        // Ignore
+      }
+    }
+
+    function applyRemoteSchoolSnapshot(data) {
+      if (!data) return;
+
+      if (data.teachers) {
+        const remoteTeachers = Array.isArray(data.teachers)
+          ? data.teachers.filter(Boolean).map(normalizeTeacher)
+          : Object.values(data.teachers).filter(Boolean).map(normalizeTeacher);
+        if (remoteTeachers.length) {
+          window.teachers = remoteTeachers;
+          for (const defT of defaultTeachers) {
+            if (!window.teachers.some(t => t.username.toLowerCase() === defT.username.toLowerCase())) {
+              window.teachers.push(normalizeTeacher(defT));
+            }
+          }
+          saveLocal(TEACHER_KEY, window.teachers);
+          renderTeacherList();
+          populateTeacherDropdown();
+        }
+      }
+
+      if (data.students) {
+        const remoteStudents = Array.isArray(data.students)
+          ? data.students.filter(Boolean).map(normalizeStudent)
+          : Object.values(data.students).filter(Boolean).map(normalizeStudent);
+        window.students = remoteStudents;
+        saveLocal(LOCAL_KEY, window.students);
+        renderTeacherList();
+        renderTable();
+        updateStats();
+      }
+
+      if (data.meta && data.meta.updatedAt) {
+        const timeStr = new Date(data.meta.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const byStr = data.meta.updatedBy ? ` by ${data.meta.updatedBy}` : '';
+        const infoEl = document.getElementById('lastSyncInfo');
+        if (infoEl) infoEl.textContent = `Last live update at ${timeStr}${byStr}`;
+      }
+
+      if (data.presence && typeof data.presence === 'object') {
+        const activeCount = Object.keys(data.presence).length;
+        const countEl = document.getElementById('presenceCountText');
+        if (countEl) countEl.textContent = `${Math.max(1, activeCount)} Online`;
       }
     }
 
     async function syncFromFirebase() {
+      if (!db) return false;
+      const schoolId = getSchoolId();
       try {
-        const snapshot = await get(ref(db, `schools/${SCHOOL_ID}`));
+        const snapshot = await get(ref(db, `schools/${schoolId}`));
+        isFirebaseOnline = true;
+        hasFirebasePermissionError = false;
+        lastFirebaseErrorMsg = '';
+        setSyncBadge(true, 'Cloud Live');
+
         if (snapshot.exists()) {
-          const data = snapshot.val();
-          if (data && Array.isArray(data.teachers)) {
-            window.teachers = data.teachers.map(normalizeTeacher);
-          } else if (data && data.teachers && typeof data.teachers === 'object') {
-            window.teachers = Object.values(data.teachers).map(normalizeTeacher);
-          }
-
-          if (data && Array.isArray(data.students)) {
-            window.students = data.students.map(normalizeStudent);
-          } else if (data && data.students && typeof data.students === 'object') {
-            window.students = Object.values(data.students).map(normalizeStudent);
-          }
-
-          if (!window.teachers.length) window.teachers = defaultTeachers;
-          if (!window.students.length) window.students = defaultStudents;
-
-          saveLocal(LOCAL_KEY, window.students);
-          saveLocal(TEACHER_KEY, window.teachers);
-          renderTeacherList();
-          populateTeacherDropdown();
-          renderTable();
-          updateStats();
-          setSyncBadge(true);
-          return;
+          applyRemoteSchoolSnapshot(snapshot.val());
+          return true;
         }
 
+        // Seed initial data to Firebase if empty
         ensureInitialData();
-        await persistData();
+        await syncFirebaseOp({ type: 'syncAll' });
+        return true;
       } catch (error) {
-        console.warn('Firebase unreachable; using local storage.', error);
-        ensureInitialData();
-        setSyncBadge(false, 'Local Only');
+        console.warn('Firebase initial read warning:', error);
+        lastFirebaseErrorMsg = error && error.message ? error.message : String(error);
+        if (String(lastFirebaseErrorMsg).toLowerCase().includes('permission_denied') || String(lastFirebaseErrorMsg).toLowerCase().includes('permission denied')) {
+          hasFirebasePermissionError = true;
+          isFirebaseOnline = false;
+          setSyncBadge(false, 'Rules Blocked', true);
+        } else {
+          isFirebaseOnline = false;
+          setSyncBadge(false, 'Local Only');
+        }
+        return false;
       }
+    }
+
+    async function setupFirebaseConnection() {
+      try {
+        for (const existing of getApps()) {
+          await deleteApp(existing);
+        }
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+
+      const firebaseConfig = {
+        apiKey: 'AIzaSyA8HX-nCadL5uuvnEyiQBgv5eRHrTJD5uo',
+        authDomain: 'bapujihss.firebaseapp.com',
+        databaseURL: cloudConfig.databaseURL || DEFAULT_DB_URL,
+        projectId: 'bapujihss',
+        storageBucket: 'bapujihss.firebasestorage.app',
+        messagingSenderId: '174183270330',
+        appId: '1:174183270330:web:0d10fb4e6f31096f55bf83',
+        measurementId: 'G-526Z0V4CES'
+      };
+
+      firebaseApp = initializeApp(firebaseConfig);
+      db = getDatabase(firebaseApp);
+
+      // Attempt anonymous sign-in in case Firebase rules use "auth != null"
+      try {
+        auth = getAuth(firebaseApp);
+        onAuthStateChanged(auth, () => updateDiagnosticsUI());
+        await signInAnonymously(auth);
+      } catch (authErr) {
+        // Anonymous auth is optional if rules allow public school path access
+      }
+
+      const schoolId = getSchoolId();
+
+      // Monitor real-time connection status
+      const connectedRef = ref(db, '.info/connected');
+      onValue(connectedRef, async (snap) => {
+        if (snap.val() === true) {
+          isFirebaseOnline = true;
+          if (!hasFirebasePermissionError) {
+            setSyncBadge(true, 'Cloud Live');
+            await flushPendingFirebaseOps();
+            if (window.currentUser) registerUserPresence();
+          }
+        } else {
+          isFirebaseOnline = false;
+          if (!hasFirebasePermissionError) {
+            setSyncBadge(false, 'Local Only');
+          }
+        }
+      });
+
+      await syncFromFirebase();
+
+      // Real-time subscription for live multi-user updates
+      const schoolRef = ref(db, `schools/${schoolId}`);
+      onValue(schoolRef, (snapshot) => {
+        isFirebaseOnline = true;
+        hasFirebasePermissionError = false;
+        setSyncBadge(true, 'Cloud Live');
+        if (!snapshot.exists()) return;
+        applyRemoteSchoolSnapshot(snapshot.val());
+      }, (err) => {
+        lastFirebaseErrorMsg = err && err.message ? err.message : String(err);
+        if (String(lastFirebaseErrorMsg).toLowerCase().includes('permission_denied') || String(lastFirebaseErrorMsg).toLowerCase().includes('permission denied')) {
+          hasFirebasePermissionError = true;
+          isFirebaseOnline = false;
+          setSyncBadge(false, 'Rules Blocked', true);
+        } else {
+          isFirebaseOnline = false;
+          setSyncBadge(false, 'Local Only');
+        }
+      });
     }
 
     async function initApp() {
       ensureInitialData();
-      setSyncBadge(false, 'Local Only');
-      await syncFromFirebase();
-      const authRef = ref(db, `schools/${SCHOOL_ID}`);
-      onValue(authRef, (snapshot) => {
-        if (!snapshot.exists()) return;
-        const data = snapshot.val();
-        if (data && data.teachers) {
-          window.teachers = Object.values(data.teachers).map(normalizeTeacher);
-          renderTeacherList();
-          populateTeacherDropdown();
-          saveLocal(TEACHER_KEY, window.teachers);
+      setSyncBadge(false, 'Connecting...');
+      await setupFirebaseConnection();
+
+      // If Google Sheets webhook is configured, pull initial records & poll every 30s
+      if (cloudConfig.sheetsWebhookUrl) {
+        await pullFromGoogleSheets();
+      }
+      setInterval(() => {
+        if (cloudConfig.sheetsWebhookUrl && cloudConfig.autoSheetsSync) {
+          pullFromGoogleSheets();
         }
-        if (data && data.students) {
-          window.students = Object.values(data.students).map(normalizeStudent);
-          saveLocal(LOCAL_KEY, window.students);
-          renderTable();
-          updateStats();
-        }
-      }, () => setSyncBadge(false, 'Local Only'));
+      }, 30000);
     }
 
+    // Export globals for HTML event handlers
     window.loginUser = loginUser;
     window.logoutUser = logoutUser;
     window.addTeacher = addTeacher;
@@ -1163,12 +2176,29 @@
     window.deleteStudent = deleteStudent;
     window.bulkDeleteVisibleStudents = bulkDeleteVisibleStudents;
     window.filterByStatus = filterByStatus;
+    window.handleStatusDropdownChange = handleStatusDropdownChange;
     window.renderTable = renderTable;
     window.exportToExcel = exportToExcel;
     window.handleExcelImport = handleExcelImport;
     window.openReminder = openReminder;
     window.closeReminderModal = closeReminderModal;
     window.copyReminderText = copyReminderText;
+    window.openConfirmModal = openConfirmModal;
+    window.closeConfirmModal = closeConfirmModal;
+    window.executeConfirmedAction = executeConfirmedAction;
+    window.openCloudSetupModal = openCloudSetupModal;
+    window.closeCloudSetupModal = closeCloudSetupModal;
+    window.switchCloudTab = switchCloudTab;
+    window.copyFirebaseRulesText = copyFirebaseRulesText;
+    window.copyAppsScriptCode = copyAppsScriptCode;
+    window.saveFirebaseEndpointConfig = saveFirebaseEndpointConfig;
+    window.pushAllToFirebase = pushAllToFirebase;
+    window.pullAllFromFirebase = pullAllFromFirebase;
+    window.saveSheetsConfig = saveSheetsConfig;
+    window.pullFromGoogleSheets = pullFromGoogleSheets;
+    window.pushAllToGoogleSheets = pushAllToGoogleSheets;
+    window.pullDirectGoogleSheetCsv = pullDirectGoogleSheetCsv;
+    window.forceSyncNow = forceSyncNow;
 
     initApp();
   </script>
