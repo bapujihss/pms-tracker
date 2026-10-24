@@ -5,25 +5,7 @@
     "schools": {
       "$schoolId": {
         ".read": true,
-        ".write": true,
-        "students": {
-          "$studentId": {
-            ".validate": "newData.hasChildren(['id', 'name', 'rollNo']) && newData.child('name').isString() && newData.child('rollNo').isString()"
-          }
-        },
-        "teachers": {
-          "$teacherId": {
-            ".validate": "newData.hasChildren(['id', 'name', 'username', 'role']) && newData.child('username').isString()"
-          }
-        },
-        "meta": {
-          ".validate": "newData.hasChildren(['updatedAt'])"
-        },
-        "presence": {
-          "$sessionId": {
-            ".validate": "newData.hasChildren(['online', 'updatedAt'])"
-          }
-        }
+        ".write": true
       }
     }
   }
