@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PMS Tracker | Online Sync</title>
+    <title>PMS Tracker | Firebase Sync</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,19 +12,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .glass { backdrop-filter: blur(10px); }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
     <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-violet-800 to-sky-600 p-4">
         <div class="w-full max-w-md">
-            <div class="bg-white/10 border border-white/15 shadow-2xl rounded-3xl p-6 glass">
+            <div class="bg-white/10 border border-white/15 shadow-2xl rounded-3xl p-6 backdrop-blur-sm">
                 <div class="text-center mb-6">
                     <div class="mx-auto w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mb-4 border border-white/10">
                         <i class="fa-solid fa-graduation-cap text-3xl text-amber-300"></i>
                     </div>
                     <h1 class="text-2xl font-extrabold text-white">PMS Tracker</h1>
-                    <p class="text-sky-100 text-sm mt-1">Online synced scholarship document management</p>
+                    <p class="text-sky-100 text-sm mt-1">Firebase synced scholarship document management</p>
                 </div>
 
                 <div class="space-y-4">
@@ -316,14 +314,30 @@
         </div>
     </div>
 
-    <script>
-        const STORAGE_KEY = 'pms_tracker_local_state_v2';
-        const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
+        import { getDatabase, ref, get, set, onValue } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8HX-nCadL5uuvnEyiQBgv5eRHrTJD5uo",
+            authDomain: "bapujihss.firebaseapp.com",
+            databaseURL: "https://bapujihss-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "bapujihss",
+            storageBucket: "bapujihss.firebasestorage.app",
+            messagingSenderId: "174183270330",
+            appId: "1:174183270330:web:0d10fb4e6f31096f55bf83",
+            measurementId: "G-526Z0V4CES"
+        };
+
+        const firebaseApp = initializeApp(firebaseConfig);
+        const db = getDatabase(firebaseApp);
+
+        const STORAGE_KEY = 'pms_tracker_local_backup';
         const DEFAULT_TEACHERS = [
             { id: 'admin-1', name: 'Hemant', username: 'Hemant', password: 'Abcd@1234', role: 'admin' },
             { id: 'teacher-1', name: 'Bapujihss', username: 'Bapujihss', password: '1962', role: 'teacher' }
         ];
+
         const DEFAULT_STUDENTS = [
             {
                 id: 'student-1',
@@ -360,14 +374,13 @@
             }
         ];
 
-        const isSupabaseConfigured = !!(SUPABASE_URL && SUPABASE_ANON_KEY && !SUPABASE_URL.includes('YOUR_PROJECT') && !SUPABASE_ANON_KEY.includes('YOUR_'));
-        let supabase = null;
-        if (isSupabaseConfigured) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        }
+        const appState = {
+            teachers: [],
+            students: []
+        };
 
-        let appState = { teachers: [], students: [] };
         let currentUser = null;
+        let firebaseReady = false;
 
         function normalizeStudent(raw) {
             const checklist = raw.checklist || {};
@@ -394,146 +407,148 @@
         function computeDerivedStatus(student) {
             if (!student) return 'Incomplete';
             const c = student.checklist || {};
-            const hasAadhaarIssue = !!c.aadhaarMissing;
-            const hasDocIssue = !!c.incomeOutdated || !!c.casteMissing || !!c.bankMissing;
-            if (hasAadhaarIssue) return 'Aadhaar Issue';
-            if (hasDocIssue) return 'Doc Issue';
+            if (c.aadhaarMissing) return 'Aadhaar Issue';
+            if (c.incomeOutdated || c.casteMissing || c.bankMissing) return 'Doc Issue';
             if (student.status === 'Completed' || student.verified === 'Verified') return 'Completed';
             return 'Incomplete';
         }
 
-        function getLocalDefaultState() {
+        function getLocalFallbackData() {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
                     return {
-                        teachers: Array.isArray(parsed.teachers) && parsed.teachers.length ? parsed.teachers : DEFAULT_TEACHERS,
-                        students: Array.isArray(parsed.students) && parsed.students.length ? parsed.students : DEFAULT_STUDENTS
+                        teachers: parsed.teachers || DEFAULT_TEACHERS,
+                        students: parsed.students || DEFAULT_STUDENTS
                     };
-                } catch (error) {}
+                } catch (error) {
+                    return { teachers: DEFAULT_TEACHERS, students: DEFAULT_STUDENTS };
+                }
             }
             return { teachers: DEFAULT_TEACHERS, students: DEFAULT_STUDENTS };
         }
 
-        async function seedSupabaseDefaults() {
-            if (!supabase) return;
+        async function ensureDefaultsInFirebase() {
             try {
-                const { data: teacherRows } = await supabase.from('teachers').select('id');
-                if (!teacherRows || !teacherRows.length) {
-                    const teachersToInsert = DEFAULT_TEACHERS.map(t => ({ ...t }));
-                    await supabase.from('teachers').insert(teachersToInsert);
+                const teachersRef = ref(db, 'teachers');
+                const studentsRef = ref(db, 'students');
+
+                const teachersSnap = await get(teachersRef);
+                const studentsSnap = await get(studentsRef);
+
+                if (!teachersSnap.exists()) {
+                    await set(teachersRef, DEFAULT_TEACHERS.reduce((acc, teacher) => {
+                        acc[teacher.id] = teacher;
+                        return acc;
+                    }, {}));
                 }
 
-                const { data: studentRows } = await supabase.from('students').select('id');
-                if (!studentRows || !studentRows.length) {
-                    const studentsToInsert = DEFAULT_STUDENTS.map(s => ({
-                        id: s.id,
-                        roll: s.roll,
-                        name: s.name,
-                        section: s.section,
-                        teacher: s.teacher,
-                        status: s.status,
-                        verified: s.verified,
-                        remarks: s.remarks,
-                        aadhaar_missing: !!s.checklist.aadhaarMissing,
-                        income_outdated: !!s.checklist.incomeOutdated,
-                        caste_missing: !!s.checklist.casteMissing,
-                        bank_missing: !!s.checklist.bankMissing
-                    }));
-                    await supabase.from('students').insert(studentsToInsert);
+                if (!studentsSnap.exists()) {
+                    await set(studentsRef, DEFAULT_STUDENTS.reduce((acc, student) => {
+                        acc[student.id] = student;
+                        return acc;
+                    }, {}));
                 }
             } catch (error) {
-                console.warn('Supabase seed failed', error);
+                console.warn('Firebase default init failed:', error);
             }
         }
 
-        async function loadDataFromSupabase() {
-            if (!supabase) {
-                appState = getLocalDefaultState();
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-                return;
-            }
-
-            try {
-                const { data: teacherRows, error: teacherError } = await supabase.from('teachers').select('*').order('username', { ascending: true });
-                const { data: studentRows, error: studentError } = await supabase.from('students').select('*').order('roll', { ascending: true });
-
-                if (teacherError) throw teacherError;
-                if (studentError) throw studentError;
-
-                if ((!teacherRows || !teacherRows.length) && (!studentRows || !studentRows.length)) {
-                    await seedSupabaseDefaults();
-                    const result = await Promise.all([
-                        supabase.from('teachers').select('*').order('username', { ascending: true }),
-                        supabase.from('students').select('*').order('roll', { ascending: true })
-                    ]);
-                    appState = {
-                        teachers: (result[0].data || DEFAULT_TEACHERS),
-                        students: (result[1].data || DEFAULT_STUDENTS).map(row => normalizeStudent({
-                            id: row.id,
-                            roll: row.roll,
-                            name: row.name,
-                            section: row.section,
-                            teacher: row.teacher,
-                            status: row.status,
-                            verified: row.verified,
-                            remarks: row.remarks,
-                            checklist: {
-                                aadhaarMissing: !!row.aadhaar_missing,
-                                incomeOutdated: !!row.income_outdated,
-                                casteMissing: !!row.caste_missing,
-                                bankMissing: !!row.bank_missing
-                            }
-                        }))
-                    };
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-                    return;
-                }
-
-                appState = {
-                    teachers: (teacherRows && teacherRows.length ? teacherRows : DEFAULT_TEACHERS).map(t => ({
-                        id: t.id || `teacher-${Date.now()}`,
-                        name: t.name,
-                        username: t.username,
-                        password: t.password,
-                        role: t.role || 'teacher'
-                    })),
-                    students: (studentRows && studentRows.length ? studentRows : DEFAULT_STUDENTS).map(row => normalizeStudent({
-                        id: row.id,
-                        roll: row.roll,
-                        name: row.name,
-                        section: row.section,
-                        teacher: row.teacher,
-                        status: row.status,
-                        verified: row.verified,
-                        remarks: row.remarks,
-                        checklist: {
-                            aadhaarMissing: !!row.aadhaar_missing,
-                            incomeOutdated: !!row.income_outdated,
-                            casteMissing: !!row.caste_missing,
-                            bankMissing: !!row.bank_missing
-                        }
-                    }))
-                };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-            } catch (error) {
-                console.warn('Supabase failed, using local fallback', error);
-                appState = getLocalDefaultState();
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-            }
-        }
-
-        function setSyncBadge() {
+        function syncBadge() {
             const badge = document.getElementById('syncBadge');
             if (!badge) return;
-            if (supabase) {
+            if (firebaseReady) {
                 badge.textContent = 'Online Synced';
                 badge.className = 'bg-emerald-400 text-indigo-950 px-2 py-0.5 rounded-full text-[10px] font-bold';
             } else {
                 badge.textContent = 'Local Backup';
                 badge.className = 'bg-amber-300 text-indigo-950 px-2 py-0.5 rounded-full text-[10px] font-bold';
             }
+        }
+
+        function convertFirebaseTeachers(data) {
+            if (!data) return [];
+            return Object.values(data).map(item => ({
+                id: item.id || `teacher-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                name: item.name,
+                username: item.username,
+                password: item.password,
+                role: item.role || 'teacher'
+            }));
+        }
+
+        function convertFirebaseStudents(data) {
+            if (!data) return [];
+            return Object.values(data).map(item => normalizeStudent({
+                id: item.id,
+                roll: item.roll,
+                name: item.name,
+                section: item.section,
+                teacher: item.teacher,
+                status: item.status,
+                verified: item.verified,
+                remarks: item.remarks,
+                checklist: {
+                    aadhaarMissing: !!item.checklist?.aadhaarMissing,
+                    incomeOutdated: !!item.checklist?.incomeOutdated,
+                    casteMissing: !!item.checklist?.casteMissing,
+                    bankMissing: !!item.checklist?.bankMissing
+                }
+            }));
+        }
+
+        function saveLocalBackup() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                teachers: appState.teachers,
+                students: appState.students
+            }));
+        }
+
+        function loadFromFirebase() {
+            const teachersRef = ref(db, 'teachers');
+            const studentsRef = ref(db, 'students');
+
+            onValue(teachersRef, (snapshot) => {
+                const data = snapshot.val();
+                appState.teachers = convertFirebaseTeachers(data);
+                if (!appState.teachers.length) {
+                    appState.teachers = DEFAULT_TEACHERS;
+                }
+                saveLocalBackup();
+                renderTeacherList();
+            }, () => {
+                const fallback = getLocalFallbackData();
+                appState.teachers = fallback.teachers;
+                saveLocalBackup();
+                renderTeacherList();
+            });
+
+            onValue(studentsRef, (snapshot) => {
+                const data = snapshot.val();
+                appState.students = convertFirebaseStudents(data);
+                if (!appState.students.length) {
+                    appState.students = DEFAULT_STUDENTS.map(normalizeStudent);
+                }
+                saveLocalBackup();
+                renderVerificationPanel();
+                renderTable();
+                updateStats();
+            }, () => {
+                const fallback = getLocalFallbackData();
+                appState.students = fallback.students.map(normalizeStudent);
+                saveLocalBackup();
+                renderVerificationPanel();
+                renderTable();
+                updateStats();
+            });
+        }
+
+        async function initData() {
+            await ensureDefaultsInFirebase();
+            firebaseReady = true;
+            syncBadge();
+            loadFromFirebase();
         }
 
         function showToast(message) {
@@ -545,8 +560,7 @@
         }
 
         function hideToast() {
-            const toast = document.getElementById('toast');
-            if (toast) toast.classList.add('hidden');
+            document.getElementById('toast').classList.add('hidden');
         }
 
         function loginUser() {
@@ -585,14 +599,9 @@
             document.getElementById('loginPassword').value = '';
         }
 
-        function getTeacherOptions() {
-            return appState.teachers.filter(t => t.role === 'teacher' || t.username === 'Bapujihss');
-        }
-
         function renderTeacherList() {
             const list = document.getElementById('teacherList');
             if (!list) return;
-
             if (!appState.teachers.length) {
                 list.innerHTML = '<p class="text-sm text-slate-500">No teacher found.</p>';
                 return;
@@ -622,12 +631,12 @@
                 return;
             }
 
-            const confirmed = confirm('Delete this teacher and their students assignment?');
+            const confirmed = confirm('Delete this teacher and their student assignments?');
             if (!confirmed) return;
 
             appState.teachers = appState.teachers.filter(t => t.id !== id);
             appState.students = appState.students.filter(s => s.teacher !== username);
-            persistState();
+            persistData();
             showToast('Teacher removed.');
         }
 
@@ -642,31 +651,27 @@
                 return;
             }
 
-            const exists = appState.teachers.some(t => t.username.toLowerCase() === username.toLowerCase());
-            if (exists) {
+            if (appState.teachers.some(t => t.username.toLowerCase() === username.toLowerCase())) {
                 showToast('Teacher username already exists.');
                 return;
             }
 
-            const teacherEntry = {
+            appState.teachers.push({
                 id: `teacher-${Date.now()}`,
                 name,
                 username,
                 password,
                 role: 'teacher'
-            };
+            });
 
-            appState.teachers.push(teacherEntry);
             document.getElementById('teacherForm').reset();
-            await persistState();
-            renderTeacherList();
+            await persistData();
             showToast('Teacher added successfully.');
         }
 
         function renderVerificationPanel() {
             const panel = document.getElementById('verificationPanel');
             if (!panel) return;
-
             const pending = appState.students.filter(student => student.verified !== 'Verified');
             if (!pending.length) {
                 panel.innerHTML = '<div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-2 rounded-xl text-sm">All student entries verified.</div>';
@@ -682,14 +687,6 @@
                     <span class="px-2 py-1 rounded-full text-[10px] font-bold ${student.verified === 'Rejected' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}">${student.verified}</span>
                 </div>
             `).join('');
-        }
-
-        function updateStats() {
-            document.getElementById('statTotal').innerText = appState.students.length;
-            document.getElementById('statCompleted').innerText = appState.students.filter(s => computeDerivedStatus(s) === 'Completed').length;
-            document.getElementById('statIncomplete').innerText = appState.students.filter(s => computeDerivedStatus(s) === 'Incomplete').length;
-            document.getElementById('statAadhaar').innerText = appState.students.filter(s => computeDerivedStatus(s) === 'Aadhaar Issue').length;
-            document.getElementById('statDocIssues').innerText = appState.students.filter(s => computeDerivedStatus(s) === 'Doc Issue').length;
         }
 
         function getVisibleStudents() {
@@ -708,6 +705,15 @@
                 const sectionMatch = sectionFilter === 'all' || student.section === sectionFilter;
                 return searchText && statusMatch && sectionMatch;
             });
+        }
+
+        function updateStats() {
+            const total = appState.students.length;
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statCompleted').innerText = appState.students.filter(s => computeDerivedStatus(s) === 'Completed').length;
+            document.getElementById('statIncomplete').innerText = appState.students.filter(s => computeDerivedStatus(s) === 'Incomplete').length;
+            document.getElementById('statAadhaar').innerText = appState.students.filter(s => computeDerivedStatus(s) === 'Aadhaar Issue').length;
+            document.getElementById('statDocIssues').innerText = appState.students.filter(s => computeDerivedStatus(s) === 'Doc Issue').length;
         }
 
         function renderTable() {
@@ -768,7 +774,7 @@
         function populateTeacherDropdown() {
             const select = document.getElementById('modalTeacher');
             if (!select) return;
-            const teachers = getTeacherOptions();
+            const teachers = appState.teachers.filter(t => t.role === 'teacher' || t.username === 'Bapujihss');
             select.innerHTML = teachers.map(t => `<option value="${t.username}">${t.name}</option>`).join('');
         }
 
@@ -793,7 +799,6 @@
         function openEditStudentModal(roll) {
             const student = appState.students.find(s => String(s.roll) === String(roll));
             if (!student) return;
-
             populateTeacherDropdown();
             document.getElementById('modalTitle').innerText = 'Edit Student';
             document.getElementById('studentIndex').value = student.roll;
@@ -837,25 +842,24 @@
         async function saveStudent(event) {
             event.preventDefault();
             const formStudent = buildStudentFromForm();
-            const existingRoll = document.getElementById('studentIndex').value;
-
             if (!formStudent.name || !formStudent.roll) {
                 showToast('Student name and roll are required.');
                 return;
             }
 
             const studentEntry = normalizeStudent(formStudent);
+            const existingRoll = document.getElementById('studentIndex').value;
 
             if (!existingRoll) {
-                const existing = appState.students.some(student => String(student.roll) === String(formStudent.roll));
-                if (existing) {
+                const exists = appState.students.some(st => String(st.roll) === String(formStudent.roll));
+                if (exists) {
                     showToast('This roll number already exists.');
                     return;
                 }
                 appState.students.push(studentEntry);
                 showToast('Student added successfully.');
             } else {
-                const index = appState.students.findIndex(student => String(student.roll) === String(existingRoll));
+                const index = appState.students.findIndex(st => String(st.roll) === String(existingRoll));
                 if (index >= 0) {
                     appState.students[index] = studentEntry;
                     showToast('Student updated successfully.');
@@ -863,13 +867,13 @@
             }
 
             closeStudentModal();
-            await persistState();
+            await persistData();
         }
 
         function deleteStudent(roll) {
             if (!confirm('Are you sure you want to delete this student?')) return;
             appState.students = appState.students.filter(student => String(student.roll) !== String(roll));
-            persistState();
+            persistData();
             showToast('Student deleted.');
         }
 
@@ -883,56 +887,58 @@
             const confirmed = confirm(`Delete ${visible.length} visible students?`);
             if (!confirmed) return;
 
-            const visibleRolls = visible.map(s => String(s.roll));
-            appState.students = appState.students.filter(student => !visibleRolls.includes(String(student.roll)));
-            persistState();
+            const rolls = visible.map(s => String(s.roll));
+            appState.students = appState.students.filter(student => !rolls.includes(String(student.roll)));
+            persistData();
             showToast('Visible students deleted.');
         }
 
         function bulkVerifyStudents() {
-            appState.students = appState.students.map(student => ({ ...student, verified: 'Verified', status: computeDerivedStatus(student) }));
-            persistState();
+            appState.students = appState.students.map(student => ({
+                ...student,
+                verified: 'Verified',
+                status: computeDerivedStatus(student)
+            }));
+            persistData();
             showToast('All student records verified.');
         }
 
-        async function persistState() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-            renderTeacherList();
-            renderVerificationPanel();
-            renderTable();
-            updateStats();
-
-            if (!supabase) return;
+        async function persistData() {
+            saveLocalBackup();
+            if (!firebaseReady) return;
 
             try {
-                const teachersForDb = appState.teachers.map(t => ({
-                    id: t.id,
-                    name: t.name,
-                    username: t.username,
-                    password: t.password,
-                    role: t.role || 'teacher'
-                }));
+                const teachersObj = appState.teachers.reduce((acc, teacher) => {
+                    acc[teacher.id] = teacher;
+                    return acc;
+                }, {});
 
-                const studentsForDb = appState.students.map(student => ({
-                    id: student.id,
-                    roll: student.roll,
-                    name: student.name,
-                    section: student.section,
-                    teacher: student.teacher,
-                    status: computeDerivedStatus(student),
-                    verified: student.verified || 'Pending',
-                    remarks: student.remarks || '',
-                    aadhaar_missing: !!student.checklist?.aadhaarMissing,
-                    income_outdated: !!student.checklist?.incomeOutdated,
-                    caste_missing: !!student.checklist?.casteMissing,
-                    bank_missing: !!student.checklist?.bankMissing
-                }));
+                const studentsObj = appState.students.reduce((acc, student) => {
+                    acc[student.id] = {
+                        id: student.id,
+                        roll: student.roll,
+                        name: student.name,
+                        section: student.section,
+                        teacher: student.teacher,
+                        status: computeDerivedStatus(student),
+                        verified: student.verified || 'Pending',
+                        remarks: student.remarks || '',
+                        checklist: {
+                            aadhaarMissing: !!student.checklist?.aadhaarMissing,
+                            incomeOutdated: !!student.checklist?.incomeOutdated,
+                            casteMissing: !!student.checklist?.casteMissing,
+                            bankMissing: !!student.checklist?.bankMissing
+                        }
+                    };
+                    return acc;
+                }, {});
 
-                await supabase.from('teachers').upsert(teachersForDb, { onConflict: 'id' });
-                await supabase.from('students').upsert(studentsForDb, { onConflict: 'id' });
+                await set(ref(db, 'teachers'), teachersObj);
+                await set(ref(db, 'students'), studentsObj);
+                showToast('Cloud data synced successfully.');
             } catch (error) {
-                console.warn('Supabase sync failed', error);
-                showToast('Saved locally. Supabase sync pending.');
+                console.warn('Firebase save failed:', error);
+                showToast('Saved locally. Firebase sync pending.');
             }
         }
 
@@ -953,20 +959,20 @@
                         const name = String(row.Name || row.Student_Name || row['Student Name'] || '').trim();
                         if (!roll || !name) return;
 
-                        const existingStudent = appState.students.find(student => String(student.roll) === roll);
-                        if (existingStudent) {
-                            existingStudent.name = name;
-                            existingStudent.section = row.Section || existingStudent.section || 'Section A';
-                            existingStudent.teacher = row.Teacher || row['Allocated Teacher'] || existingStudent.teacher || 'Bapujihss';
-                            existingStudent.remarks = row.Remarks || row['Remarks'] || existingStudent.remarks || '';
-                            existingStudent.checklist = {
-                                aadhaarMissing: !!row['Aadhaar Card Missing'] || !!row.Aadhaar || !!existingStudent.checklist?.aadhaarMissing,
-                                incomeOutdated: !!row['Income Certificate outdated'] || !!row.Income || !!existingStudent.checklist?.incomeOutdated,
-                                casteMissing: !!row['Caste Certificate missing'] || !!row.Caste || !!existingStudent.checklist?.casteMissing,
-                                bankMissing: !!row['Bank Passbook / IFSC missing'] || !!row.Bank || !!existingStudent.checklist?.bankMissing
+                        const existing = appState.students.find(s => String(s.roll) === String(roll));
+                        if (existing) {
+                            existing.name = name;
+                            existing.section = row.Section || existing.section || 'Section A';
+                            existing.teacher = row.Teacher || row['Allocated Teacher'] || existing.teacher || 'Bapujihss';
+                            existing.remarks = row.Remarks || row['Remarks'] || existing.remarks || '';
+                            existing.checklist = {
+                                aadhaarMissing: !!row['Aadhaar Card Missing'] || !!row.Aadhaar || !!existing.checklist?.aadhaarMissing,
+                                incomeOutdated: !!row['Income Certificate outdated'] || !!row.Income || !!existing.checklist?.incomeOutdated,
+                                casteMissing: !!row['Caste Certificate missing'] || !!row.Caste || !!existing.checklist?.casteMissing,
+                                bankMissing: !!row['Bank Passbook / IFSC missing'] || !!row.Bank || !!existing.checklist?.bankMissing
                             };
-                            existingStudent.verified = row.Verified || existingStudent.verified || 'Pending';
-                            existingStudent.status = computeDerivedStatus(existingStudent);
+                            existing.verified = row.Verified || existing.verified || 'Pending';
+                            existing.status = computeDerivedStatus(existing);
                         } else {
                             appState.students.push(normalizeStudent({
                                 id: `student-${Date.now()}-${Math.random().toString(16).slice(2)}`,
@@ -987,7 +993,7 @@
                         }
                     });
 
-                    persistState();
+                    persistData();
                     showToast('Excel imported successfully.');
                 } catch (error) {
                     showToast('Excel import failed. Please check the file format.');
@@ -1019,14 +1025,33 @@
             showToast('Student data exported successfully.');
         }
 
+        window.loginUser = loginUser;
+        window.logoutUser = logoutUser;
+        window.addTeacher = addTeacher;
+        window.removeTeacher = removeTeacher;
+        window.filterByStatus = filterByStatus;
+        window.renderTable = renderTable;
+        window.openAddStudentModal = openAddStudentModal;
+        window.openEditStudentModal = openEditStudentModal;
+        window.closeStudentModal = closeStudentModal;
+        window.saveStudent = saveStudent;
+        window.deleteStudent = deleteStudent;
+        window.bulkDeleteVisibleStudents = bulkDeleteVisibleStudents;
+        window.bulkVerifyStudents = bulkVerifyStudents;
+        window.handleExcelImport = handleExcelImport;
+        window.exportStudentsExcel = exportStudentsExcel;
+        window.hideToast = hideToast;
+
         document.addEventListener('DOMContentLoaded', async () => {
-            await loadDataFromSupabase();
-            setSyncBadge();
-            populateTeacherDropdown();
+            const fallback = getLocalFallbackData();
+            appState.teachers = fallback.teachers;
+            appState.students = fallback.students.map(normalizeStudent);
+            syncBadge();
             renderTeacherList();
             renderVerificationPanel();
-            renderTable();
             updateStats();
+            renderTable();
+            await initData();
         });
     </script>
 </body>
