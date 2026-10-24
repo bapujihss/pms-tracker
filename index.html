@@ -191,11 +191,35 @@
 
     <!-- Script Logic -->
     <script>
+        const STATUS_ALIASES = {
+            'Incomplete / Pending Docs': 'Incomplete',
+            'Incomplete / Pending docs': 'Incomplete',
+            'Pending Docs': 'Incomplete',
+            'Pending Documents': 'Incomplete'
+        };
+
+        function normalizeStatus(status) {
+            const value = String(status || '').trim();
+            if (!value) return 'Incomplete';
+            return STATUS_ALIASES[value] || value;
+        }
+
+        function normalizeStudent(student) {
+            return {
+                roll: String(student.roll || ''),
+                name: student.name || '',
+                section: student.section || 'Section A',
+                status: normalizeStatus(student.status),
+                remarks: student.remarks || ''
+            };
+        }
+
         let students = JSON.parse(localStorage.getItem('pms_students')) || [
             { roll: '101', name: 'Rahul Majhi', section: 'Section A', status: 'Completed', remarks: 'All documents verified' },
             { roll: '102', name: 'Priya Patel', section: 'Section B', status: 'Incomplete', remarks: 'Bank passbook pending' },
             { roll: '103', name: 'Subrat Kumar', section: 'Section A', status: 'Aadhaar Issue', remarks: 'Seeding failed' }
         ];
+        students = students.map(normalizeStudent);
 
         function showToast(message) {
             const toast = document.getElementById('toast');
@@ -210,10 +234,10 @@
 
         function updateStats() {
             document.getElementById('statTotal').innerText = students.length;
-            document.getElementById('statCompleted').innerText = students.filter(s => s.status === 'Completed').length;
-            document.getElementById('statIncomplete').innerText = students.filter(s => s.status === 'Incomplete').length;
-            document.getElementById('statAadhaar').innerText = students.filter(s => s.status === 'Aadhaar Issue').length;
-            document.getElementById('statDocIssues').innerText = students.filter(s => s.status === 'Doc Issue').length;
+            document.getElementById('statCompleted').innerText = students.filter(s => normalizeStatus(s.status) === 'Completed').length;
+            document.getElementById('statIncomplete').innerText = students.filter(s => normalizeStatus(s.status) === 'Incomplete').length;
+            document.getElementById('statAadhaar').innerText = students.filter(s => normalizeStatus(s.status) === 'Aadhaar Issue').length;
+            document.getElementById('statDocIssues').innerText = students.filter(s => normalizeStatus(s.status) === 'Doc Issue').length;
             localStorage.setItem('pms_students', JSON.stringify(students));
         }
 
@@ -226,8 +250,9 @@
             tbody.innerHTML = '';
 
             const filtered = students.filter(s => {
+                const normalizedStatus = normalizeStatus(s.status);
                 const matchesSearch = s.name.toLowerCase().includes(search) || s.roll.toLowerCase().includes(search);
-                const matchesStatus = statusF === 'all' || s.status === statusF;
+                const matchesStatus = statusF === 'all' || normalizedStatus === statusF;
                 const matchesSection = sectionF === 'all' || s.section === sectionF;
                 return matchesSearch && matchesStatus && matchesSection;
             });
@@ -239,11 +264,12 @@
             }
 
             filtered.forEach((s, index) => {
+                const status = normalizeStatus(s.status);
                 let badgeColor = 'bg-slate-100 text-slate-700';
-                if(s.status === 'Completed') badgeColor = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
-                if(s.status === 'Incomplete') badgeColor = 'bg-amber-50 text-amber-700 border border-amber-200';
-                if(s.status === 'Aadhaar Issue') badgeColor = 'bg-rose-50 text-rose-700 border border-rose-200';
-                if(s.status === 'Doc Issue') badgeColor = 'bg-purple-50 text-purple-700 border border-purple-200';
+                if(status === 'Completed') badgeColor = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+                if(status === 'Incomplete') badgeColor = 'bg-amber-50 text-amber-700 border border-amber-200';
+                if(status === 'Aadhaar Issue') badgeColor = 'bg-rose-50 text-rose-700 border border-rose-200';
+                if(status === 'Doc Issue') badgeColor = 'bg-purple-50 text-purple-700 border border-purple-200';
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50/80 transition";
@@ -251,7 +277,7 @@
                     <td class="p-4 font-semibold text-slate-700">${s.roll}</td>
                     <td class="p-4 font-medium text-slate-900">${s.name}</td>
                     <td class="p-4 text-slate-600">${s.section}</td>
-                    <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${badgeColor}">${s.status}</span></td>
+                    <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${badgeColor}">${status}</span></td>
                     <td class="p-4 text-slate-500 text-xs">${s.remarks || '-'}</td>
                     <td class="p-4 text-right space-x-2">
                         <button onclick="openEditStudentModal(${students.indexOf(s)})" class="text-indigo-600 hover:text-indigo-800 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -274,6 +300,8 @@
             document.getElementById('studentIndex').value = '';
             document.getElementById('modalName').value = '';
             document.getElementById('modalRoll').value = '';
+            document.getElementById('modalSection').value = 'Section A';
+            document.getElementById('modalStatus').value = 'Incomplete';
             document.getElementById('modalRemarks').value = '';
             document.getElementById('studentModal').classList.remove('hidden');
         }
@@ -285,7 +313,7 @@
             document.getElementById('modalName').value = s.name;
             document.getElementById('modalRoll').value = s.roll;
             document.getElementById('modalSection').value = s.section;
-            document.getElementById('modalStatus').value = s.status;
+            document.getElementById('modalStatus').value = normalizeStatus(s.status);
             document.getElementById('modalRemarks').value = s.remarks;
             document.getElementById('studentModal').classList.remove('hidden');
         }
@@ -301,7 +329,7 @@
                 roll: document.getElementById('modalRoll').value,
                 name: document.getElementById('modalName').value,
                 section: document.getElementById('modalSection').value,
-                status: document.getElementById('modalStatus').value,
+                status: normalizeStatus(document.getElementById('modalStatus').value),
                 remarks: document.getElementById('modalRemarks').value
             };
 
@@ -342,7 +370,7 @@
                             roll: String(row.Roll || row.ID || Math.floor(Math.random()*1000)),
                             name: row.Name || row.Student_Name || 'Unknown',
                             section: row.Section || 'Section A',
-                            status: row.Status || 'Incomplete',
+                            status: normalizeStatus(row.Status || 'Incomplete'),
                             remarks: row.Remarks || 'Imported via Excel'
                         });
                     });
