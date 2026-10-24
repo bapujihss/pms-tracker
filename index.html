@@ -78,7 +78,7 @@
           <div>
             <div class="flex items-center gap-2">
               <h1 class="text-xl font-bold tracking-tight">PMS Tracker</h1>
-              <span id="syncBadge" class="bg-amber-400 text-indigo-950 px-2 py-0.5 rounded-full text-[10px] font-bold">Connecting...</span>
+              <span id="syncBadge" class="bg-amber-400 text-indigo-950 px-2 py-0.5 rounded-full text-[10px] font-bold">Checking sync...</span>
             </div>
             <p id="appSubtitle" class="text-xs text-indigo-100">School scholarship management</p>
           </div>
@@ -467,13 +467,15 @@
       localStorage.setItem(key, JSON.stringify(value));
     }
 
-    function setSyncBadge(online) {
+    function setSyncBadge(online, labelOverride = null) {
       const badge = document.getElementById('syncBadge');
       if (!badge) return;
-      badge.textContent = online ? 'Cloud Live' : 'Offline Mode';
+
+      const text = labelOverride || (online ? 'Cloud Live' : 'Local Only');
+      badge.textContent = text;
       badge.className = online
         ? 'bg-emerald-400 text-emerald-950 px-2 py-0.5 rounded-full text-[10px] font-bold'
-        : 'bg-rose-400 text-rose-950 px-2 py-0.5 rounded-full text-[10px] font-bold';
+        : 'bg-amber-400 text-amber-950 px-2 py-0.5 rounded-full text-[10px] font-bold';
     }
 
     function ensureInitialData() {
@@ -1081,8 +1083,8 @@
         await set(ref(db, `schools/${SCHOOL_ID}`), schoolRecord);
         setSyncBadge(true);
       } catch (error) {
-        console.warn('Firebase save failed, local-only mode enabled:', error);
-        setSyncBadge(false);
+        console.warn('Firebase write failed; continuing in local mode:', error);
+        setSyncBadge(false, 'Local Only');
       }
     }
 
@@ -1113,19 +1115,21 @@
           renderTable();
           updateStats();
           setSyncBadge(true);
-        } else {
-          ensureInitialData();
-          await persistData();
+          return;
         }
-      } catch (error) {
-        console.warn('Firebase unavailable; using local storage.', error);
+
         ensureInitialData();
-        setSyncBadge(false);
+        await persistData();
+      } catch (error) {
+        console.warn('Firebase unreachable; using local storage.', error);
+        ensureInitialData();
+        setSyncBadge(false, 'Local Only');
       }
     }
 
     async function initApp() {
       ensureInitialData();
+      setSyncBadge(false, 'Local Only');
       await syncFromFirebase();
       const authRef = ref(db, `schools/${SCHOOL_ID}`);
       onValue(authRef, (snapshot) => {
@@ -1143,7 +1147,7 @@
           renderTable();
           updateStats();
         }
-      }, () => setSyncBadge(false));
+      }, () => setSyncBadge(false, 'Local Only'));
     }
 
     window.loginUser = loginUser;
