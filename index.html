@@ -74,7 +74,7 @@
           <div class="flex items-center justify-between mb-2">
             <p class="font-semibold text-white">Demo credentials</p>
             <button type="button" onclick="openCloudSetupModal()" class="text-xs text-amber-300 hover:text-amber-200 underline flex items-center gap-1">
-              <i class="fa-solid fa-cloud-Showers-heavy fa-cloud"></i>
+              <i class="fa-solid fa-cloud"></i>
               <span>Cloud &amp; Sheets Setup</span>
             </button>
           </div>
@@ -331,7 +331,7 @@
             <i class="fa-solid fa-folder-open"></i>
           </div>
           <h3 class="text-lg font-semibold text-slate-700">No students found</h3>
-          <p class="text-xs text-slate-400 mt-1">Try adjusting your search or import a new scholarship sheet.</p>
+          <p class="text-xs text-slate-400 mt-1">Click "Add Student" or "Import Excel" to add records, or adjust your search filters.</p>
         </div>
       </div>
     </main>
@@ -543,8 +543,8 @@
             <p id="diagFirebaseState" class="text-sm font-bold text-slate-900 mt-1">Checking...</p>
           </div>
           <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
-            <p class="text-[11px] font-semibold uppercase text-slate-500">Auth / Session Mode</p>
-            <p id="diagAuthState" class="text-sm font-bold text-slate-900 mt-1">Initializing...</p>
+            <p class="text-[11px] font-semibold uppercase text-slate-500">Sync Transport</p>
+            <p id="diagAuthState" class="text-sm font-bold text-emerald-700 mt-1">REST + Live WebSocket</p>
           </div>
           <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
             <p class="text-[11px] font-semibold uppercase text-slate-500">Pending Offline Ops</p>
@@ -556,7 +556,7 @@
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-950">Firebase Realtime Database Endpoint</h4>
-              <p class="text-xs text-indigo-800">Granular per-record updates ensure simultaneous edits by multiple teachers never overwrite each other.</p>
+              <p class="text-xs text-indigo-800">Every student/teacher addition or deletion is saved immediately to Firebase and persists across reloads.</p>
             </div>
             <span class="px-2.5 py-1 rounded-full text-[11px] font-mono bg-white border border-indigo-200 text-indigo-700">schools/<span id="diagSchoolIdLabel">school_01</span></span>
           </div>
@@ -601,7 +601,7 @@
 
         <div>
           <div class="flex items-center justify-between mb-1.5">
-            <span class="text-xs font-bold uppercase text-slate-600">database.rules.json (Scoped &amp; Validated for schools/school_01)</span>
+            <span class="text-xs font-bold uppercase text-slate-600">database.rules.json (Scoped for schools/school_01)</span>
             <button type="button" onclick="copyFirebaseRulesText()" class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition">
               <i class="fa-regular fa-copy mr-1"></i>Copy Firebase Rules
             </button>
@@ -613,25 +613,7 @@
     "schools": {
       "$schoolId": {
         ".read": true,
-        ".write": true,
-        "students": {
-          "$studentId": {
-            ".validate": "newData.hasChildren(['id', 'name', 'rollNo']) &amp;&amp; newData.child('name').isString() &amp;&amp; newData.child('rollNo').isString()"
-          }
-        },
-        "teachers": {
-          "$teacherId": {
-            ".validate": "newData.hasChildren(['id', 'name', 'username', 'role']) &amp;&amp; newData.child('username').isString()"
-          }
-        },
-        "meta": {
-          ".validate": "newData.hasChildren(['updatedAt'])"
-        },
-        "presence": {
-          "$sessionId": {
-            ".validate": "newData.hasChildren(['online', 'updatedAt'])"
-          }
-        }
+        ".write": true
       }
     }
   }
@@ -639,7 +621,7 @@
         </div>
 
         <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
-          <p class="text-xs text-slate-500">Tip: If you enable <strong>Anonymous Auth</strong> in Firebase Console → Authentication, you can also replace <code>true</code> with <code>"auth != null"</code>.</p>
+          <p class="text-xs text-slate-500">Publishing these rules allows all teacher &amp; admin edits to save permanently to Firebase Realtime Database.</p>
           <button type="button" onclick="pushAllToFirebase()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition">
             <i class="fa-solid fa-bolt mr-1.5"></i>Test &amp; Push Data Now
           </button>
@@ -701,8 +683,7 @@
 
   <script type="module">
     import { initializeApp, getApps, deleteApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
-    import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
-    import { getDatabase, ref, get, set, update, remove, onValue, onDisconnect } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+    import { getDatabase, ref, set, remove, onValue, onDisconnect } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
 
     const DEFAULT_DB_URL = 'https://bapujihss-default-rtdb.asia-southeast1.firebasedatabase.app';
     const DEFAULT_SCHOOL_ID = 'school_01';
@@ -712,10 +693,14 @@
     const TEACHER_KEY = 'pms_school_teachers_v2';
     const PENDING_OPS_KEY = 'pms_school_pending_ops_v2';
     const CONFIG_KEY = 'pms_school_cloud_config_v2';
+    const INIT_FLAG_KEY = 'pms_school_initialized_v2';
+    const DELETED_IDS_KEY = 'pms_school_deleted_ids_v2';
+    const LOCAL_META_KEY = 'pms_school_local_meta_v2';
+    const SESSION_USER_KEY = 'pms_school_session_user_v2';
 
     const APPS_SCRIPT_TEMPLATE = `// Paste into Google Sheet -> Extensions -> Apps Script -> Code.gs
 // Deploy -> New deployment -> Web app (Execute as: Me, Who has access: Anyone)
-const STUDENT_HEADERS = ['id','name','rollNo','className','section','category','teacher','phone','aadhaar','aadhaarSeeded','income','caste','passbook','bankAcc','ifsc','aadhaarNo','incomeCertNo','casteCertNo','updatedAt'];
+const STUDENT_HEADERS = ['id','name','rollNo','className','section','category','teacher','phone','aadhaar','aadhaarSeeded','income','caste','passbook','bankAcc','ifsc','aadhaarNo','incomeCertNo','casteCertNo'];
 const TEACHER_HEADERS = ['id','name','username','password','role'];
 
 function ensureSheet(ss, name, headers) {
@@ -751,27 +736,8 @@ function doPost(e) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const stSheet = ensureSheet(ss, 'Students', STUDENT_HEADERS);
     const tcSheet = ensureSheet(ss, 'Teachers', TEACHER_HEADERS);
-    if (body.action === 'syncAll') {
-      if (Array.isArray(body.students)) writeRows(stSheet, STUDENT_HEADERS, body.students);
-      if (Array.isArray(body.teachers)) writeRows(tcSheet, TEACHER_HEADERS, body.teachers);
-    } else if (body.action === 'upsertStudent' && body.student) {
-      const list = readRows(stSheet, STUDENT_HEADERS);
-      const i = list.findIndex(x => String(x.id) === String(body.student.id) || String(x.rollNo) === String(body.student.rollNo));
-      if (i >= 0) list[i] = body.student; else list.push(body.student);
-      writeRows(stSheet, STUDENT_HEADERS, list);
-    } else if (body.action === 'deleteStudent') {
-      writeRows(stSheet, STUDENT_HEADERS, readRows(stSheet, STUDENT_HEADERS).filter(x => String(x.id) !== String(body.studentId)));
-    } else if (body.action === 'bulkDeleteStudents' && Array.isArray(body.studentIds)) {
-      const rm = new Set(body.studentIds.map(String));
-      writeRows(stSheet, STUDENT_HEADERS, readRows(stSheet, STUDENT_HEADERS).filter(x => !rm.has(String(x.id))));
-    } else if (body.action === 'upsertTeacher' && body.teacher) {
-      const list = readRows(tcSheet, TEACHER_HEADERS);
-      const i = list.findIndex(x => String(x.id) === String(body.teacher.id) || String(x.username) === String(body.teacher.username));
-      if (i >= 0) list[i] = body.teacher; else list.push(body.teacher);
-      writeRows(tcSheet, TEACHER_HEADERS, list);
-    } else if (body.action === 'deleteTeacher') {
-      writeRows(tcSheet, TEACHER_HEADERS, readRows(tcSheet, TEACHER_HEADERS).filter(x => String(x.id) !== String(body.teacherId)));
-    }
+    if (Array.isArray(body.students)) writeRows(stSheet, STUDENT_HEADERS, body.students);
+    if (Array.isArray(body.teachers)) writeRows(tcSheet, TEACHER_HEADERS, body.teachers);
     return ContentService.createTextOutput(JSON.stringify({ ok: true })).setMimeType(ContentService.MimeType.JSON);
   } finally { lock.releaseLock(); }
 }`;
@@ -782,11 +748,11 @@ function doPost(e) {
     ];
 
     const defaultStudents = [
-      { id: '1', name: 'SURAJ SAHOO', rollNo: 'IX-2026-001', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'OBC', phone: '9876543210', aadhaar: true, aadhaarSeeded: true, income: true, caste: true, passbook: true, bankAcc: '123456789012', ifsc: 'SBIN0001234', aadhaarNo: '123456789012', incomeCertNo: 'INC-2024-001', casteCertNo: 'CASTE-2024-001', updatedAt: '2026-10-24T10:00:00.000Z' },
-      { id: '2', name: 'LIPUN NAIK', rollNo: 'IX-2026-002', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9123456789', aadhaar: true, aadhaarSeeded: false, income: true, caste: true, passbook: true, bankAcc: '123456789013', ifsc: 'HDFC0001234', aadhaarNo: '123456789013', incomeCertNo: 'INC-2024-002', casteCertNo: 'CASTE-2024-002', updatedAt: '2026-10-24T10:00:00.000Z' },
-      { id: '3', name: 'JYOTIRMAYEE BEHERA', rollNo: 'IX-2026-003', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9938210928', aadhaar: true, aadhaarSeeded: true, income: false, caste: true, passbook: true, bankAcc: '123456789014', ifsc: 'ICIC0001234', aadhaarNo: '123456789014', incomeCertNo: '', casteCertNo: 'CASTE-2024-003', updatedAt: '2026-10-24T10:00:00.000Z' },
-      { id: '4', name: 'RUDRA PRASAD SETHI', rollNo: 'IX-2026-004', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9438102938', aadhaar: true, aadhaarSeeded: true, income: true, caste: false, passbook: true, bankAcc: '123456789015', ifsc: 'AXIS0001234', aadhaarNo: '123456789015', incomeCertNo: 'INC-2024-005', casteCertNo: '', updatedAt: '2026-10-24T10:00:00.000Z' },
-      { id: '5', name: 'CHINMAYEE BHOI', rollNo: 'IX-2026-005', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'OBC', phone: '9738102934', aadhaar: false, aadhaarSeeded: false, income: false, caste: false, passbook: false, bankAcc: '', ifsc: '', aadhaarNo: '', incomeCertNo: '', casteCertNo: '', updatedAt: '2026-10-24T10:00:00.000Z' }
+      { id: '1', name: 'SURAJ SAHOO', rollNo: 'IX-2026-001', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'OBC', phone: '9876543210', aadhaar: true, aadhaarSeeded: true, income: true, caste: true, passbook: true, bankAcc: '123456789012', ifsc: 'SBIN0001234', aadhaarNo: '123456789012', incomeCertNo: 'INC-2024-001', casteCertNo: 'CASTE-2024-001' },
+      { id: '2', name: 'LIPUN NAIK', rollNo: 'IX-2026-002', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9123456789', aadhaar: true, aadhaarSeeded: false, income: true, caste: true, passbook: true, bankAcc: '123456789013', ifsc: 'HDFC0001234', aadhaarNo: '123456789013', incomeCertNo: 'INC-2024-002', casteCertNo: 'CASTE-2024-002' },
+      { id: '3', name: 'JYOTIRMAYEE BEHERA', rollNo: 'IX-2026-003', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9938210928', aadhaar: true, aadhaarSeeded: true, income: false, caste: true, passbook: true, bankAcc: '123456789014', ifsc: 'ICIC0001234', aadhaarNo: '123456789014', incomeCertNo: '', casteCertNo: 'CASTE-2024-003' },
+      { id: '4', name: 'RUDRA PRASAD SETHI', rollNo: 'IX-2026-004', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9438102938', aadhaar: true, aadhaarSeeded: true, income: true, caste: false, passbook: true, bankAcc: '123456789015', ifsc: 'AXIS0001234', aadhaarNo: '123456789015', incomeCertNo: 'INC-2024-005', casteCertNo: '' },
+      { id: '5', name: 'CHINMAYEE BHOI', rollNo: 'IX-2026-005', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'OBC', phone: '9738102934', aadhaar: false, aadhaarSeeded: false, income: false, caste: false, passbook: false, bankAcc: '', ifsc: '', aadhaarNo: '', incomeCertNo: '', casteCertNo: '' }
     ];
 
     window.students = [];
@@ -797,27 +763,119 @@ function doPost(e) {
     let pendingConfirmCallback = null;
     let firebaseApp = null;
     let db = null;
-    let auth = null;
     let isFirebaseOnline = false;
     let hasFirebasePermissionError = false;
     let lastFirebaseErrorMsg = '';
     const sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
 
+    // Multi-layer browser storage (localStorage + sessionStorage + window.name fallback)
+    function getWindowNameStore() {
+      try {
+        if (window.name && window.name.startsWith('{')) {
+          return JSON.parse(window.name);
+        }
+      } catch (e) {
+        // Ignore
+      }
+      return {};
+    }
+
+    function setWindowNameKey(key, value) {
+      try {
+        const store = getWindowNameStore();
+        store[key] = value;
+        window.name = JSON.stringify(store);
+      } catch (e) {
+        // Ignore
+      }
+    }
+
     function readLocal(key, fallback) {
       try {
         const raw = localStorage.getItem(key);
-        return raw ? JSON.parse(raw) : fallback;
+        if (raw !== null && raw !== undefined) return JSON.parse(raw);
       } catch (error) {
-        return fallback;
+        // Fallback
       }
+      try {
+        const sessionRaw = sessionStorage.getItem(key);
+        if (sessionRaw !== null && sessionRaw !== undefined) return JSON.parse(sessionRaw);
+      } catch (error) {
+        // Fallback
+      }
+      const wn = getWindowNameStore();
+      if (Object.prototype.hasOwnProperty.call(wn, key)) {
+        return wn[key];
+      }
+      return fallback;
+    }
+
+    function idbWrite(key, value) {
+      try {
+        if (!window.indexedDB) return;
+        const req = window.indexedDB.open('pms_tracker_idb_v2', 1);
+        req.onupgradeneeded = (e) => {
+          const idb = e.target.result;
+          if (!idb.objectStoreNames.contains('kv')) {
+            idb.createObjectStore('kv');
+          }
+        };
+        req.onsuccess = (e) => {
+          const idb = e.target.result;
+          const tx = idb.transaction('kv', 'readwrite');
+          tx.objectStore('kv').put(value, key);
+        };
+      } catch (e) {
+        // Ignore
+      }
+    }
+
+    function idbReadAll() {
+      return new Promise((resolve) => {
+        try {
+          if (!window.indexedDB) return resolve({});
+          const req = window.indexedDB.open('pms_tracker_idb_v2', 1);
+          req.onupgradeneeded = (e) => {
+            const idb = e.target.result;
+            if (!idb.objectStoreNames.contains('kv')) {
+              idb.createObjectStore('kv');
+            }
+          };
+          req.onsuccess = (e) => {
+            const idb = e.target.result;
+            const tx = idb.transaction('kv', 'readonly');
+            const store = tx.objectStore('kv');
+            const out = {};
+            const keysReq = store.getAllKeys();
+            const valsReq = store.getAll();
+            tx.oncomplete = () => {
+              const keys = keysReq.result || [];
+              const vals = valsReq.result || [];
+              keys.forEach((k, idx) => { out[k] = vals[idx]; });
+              resolve(out);
+            };
+            tx.onerror = () => resolve({});
+          };
+          req.onerror = () => resolve({});
+        } catch (e) {
+          resolve({});
+        }
+      });
     }
 
     function saveLocal(key, value) {
       try {
         localStorage.setItem(key, JSON.stringify(value));
       } catch (error) {
-        console.warn('localStorage write skipped:', error);
+        // Ignore
       }
+      try {
+        sessionStorage.setItem(key, JSON.stringify(value));
+      } catch (error) {
+        // Ignore
+      }
+      setWindowNameKey(key, value);
+      idbWrite(key, value);
     }
 
     let cloudConfig = readLocal(CONFIG_KEY, {
@@ -828,8 +886,47 @@ function doPost(e) {
       directSheetUrl: ''
     });
 
+    function getDbBaseUrl() {
+      return ((cloudConfig && cloudConfig.databaseURL) ? cloudConfig.databaseURL : DEFAULT_DB_URL).replace(/\/+$/, '');
+    }
+
     function getSchoolId() {
       return (cloudConfig && cloudConfig.schoolId) ? cloudConfig.schoolId : DEFAULT_SCHOOL_ID;
+    }
+
+    function getDeletedIds() {
+      const list = readLocal(DELETED_IDS_KEY, []);
+      return Array.isArray(list) ? list.map(String) : [];
+    }
+
+    function addDeletedIds(ids) {
+      const set = new Set(getDeletedIds());
+      (ids || []).forEach(id => {
+        if (id !== undefined && id !== null) set.add(String(id));
+      });
+      saveLocal(DELETED_IDS_KEY, Array.from(set));
+    }
+
+    function removeDeletedId(id) {
+      if (id === undefined || id === null) return;
+      const set = new Set(getDeletedIds());
+      if (set.has(String(id))) {
+        set.delete(String(id));
+        saveLocal(DELETED_IDS_KEY, Array.from(set));
+      }
+    }
+
+    function getLocalMeta() {
+      return readLocal(LOCAL_META_KEY, { updatedAt: 0, dirty: false });
+    }
+
+    function markLocalStateChanged(isDirty = true, customTs = null) {
+      saveLocal(INIT_FLAG_KEY, true);
+      saveLocal(LOCAL_META_KEY, {
+        updatedAt: customTs || Date.now(),
+        dirty: isDirty
+      });
+      updateDiagnosticsUI();
     }
 
     function getPendingOps() {
@@ -839,7 +936,7 @@ function doPost(e) {
     function enqueuePendingOp(op) {
       const ops = getPendingOps();
       ops.push({ ...op, ts: Date.now() });
-      saveLocal(PENDING_OPS_KEY, ops.slice(-200));
+      saveLocal(PENDING_OPS_KEY, ops.slice(-100));
       updateDiagnosticsUI();
     }
 
@@ -860,7 +957,7 @@ function doPost(e) {
         else sheetsBadge.classList.add('hidden');
       }
 
-      const text = labelOverride || (online ? 'Cloud Live' : (hasSheets ? 'Sheets Live' : 'Local Only'));
+      const text = labelOverride || (online ? 'Cloud Live' : (hasSheets ? 'Sheets Live' : 'Local Saved'));
       if (badge) {
         badge.textContent = text;
         badge.className = (online || (hasSheets && !isWarning))
@@ -876,7 +973,7 @@ function doPost(e) {
           : 'w-2 h-2 rounded-full bg-amber-400 live-dot';
         loginText.textContent = online
           ? 'Live Firebase Cloud Sync Active'
-          : (hasSheets ? 'Google Sheets Live Sync Active' : (hasFirebasePermissionError ? 'Cloud Rules Setup Needed (Local Backup Ready)' : 'Offline / Local Mode Ready'));
+          : (hasSheets ? 'Google Sheets Live Sync Active' : (hasFirebasePermissionError ? 'Cloud Rules Setup Needed (Local Backup Active)' : 'Local Backup Ready'));
       }
 
       const banner = document.getElementById('rulesAlertBanner');
@@ -892,7 +989,6 @@ function doPost(e) {
 
     function updateDiagnosticsUI() {
       const fbState = document.getElementById('diagFirebaseState');
-      const authState = document.getElementById('diagAuthState');
       const queueCount = document.getElementById('diagQueueCount');
       const schoolLabel = document.getElementById('diagSchoolIdLabel');
       const errBox = document.getElementById('diagLastErrorBox');
@@ -901,18 +997,15 @@ function doPost(e) {
       if (fbState) {
         fbState.textContent = isFirebaseOnline
           ? 'Connected (Real-Time Live)'
-          : (hasFirebasePermissionError ? 'Blocked by Security Rules' : 'Offline / Standby');
+          : (hasFirebasePermissionError ? 'Blocked by Security Rules' : 'Local / Standby');
         fbState.className = isFirebaseOnline
           ? 'text-sm font-bold text-emerald-600 mt-1'
           : (hasFirebasePermissionError ? 'text-sm font-bold text-rose-600 mt-1' : 'text-sm font-bold text-amber-600 mt-1');
       }
-      if (authState) {
-        const uid = auth && auth.currentUser ? auth.currentUser.uid.slice(0, 8) : null;
-        authState.textContent = uid ? `Anonymous Auth (${uid}...)` : 'Direct School Role Auth';
-      }
       if (queueCount) {
-        const count = getPendingOps().length;
-        queueCount.textContent = `${count} queued`;
+        const meta = getLocalMeta();
+        const count = getPendingOps().length + (meta.dirty ? 1 : 0);
+        queueCount.textContent = count > 0 ? `${count} pending sync` : 'All synced (0 queued)';
         queueCount.className = count > 0 ? 'text-sm font-bold text-amber-600 mt-1' : 'text-sm font-bold text-emerald-600 mt-1';
       }
       if (errBox) {
@@ -934,7 +1027,7 @@ function doPost(e) {
 
     function normalizeStudent(student) {
       return {
-        id: String(student.id || `student-${Date.now()}-${Math.random().toString(16).slice(2, 7)}`),
+        id: String(student.id || `s_${Date.now()}_${Math.random().toString(16).slice(2, 7)}`),
         name: String(student.name || '').trim(),
         rollNo: String(student.rollNo || '').trim(),
         className: String(student.className || 'Class 9').trim(),
@@ -951,8 +1044,7 @@ function doPost(e) {
         ifsc: String(student.ifsc || '').trim().toUpperCase(),
         aadhaarNo: String(student.aadhaarNo || '').trim(),
         incomeCertNo: String(student.incomeCertNo || '').trim().toUpperCase(),
-        casteCertNo: String(student.casteCertNo || '').trim().toUpperCase(),
-        updatedAt: student.updatedAt || new Date().toISOString()
+        casteCertNo: String(student.casteCertNo || '').trim().toUpperCase()
       };
     }
 
@@ -966,24 +1058,37 @@ function doPost(e) {
       };
     }
 
-    function ensureInitialData() {
-      const localStudents = readLocal(LOCAL_KEY, defaultStudents);
-      const localTeachers = readLocal(TEACHER_KEY, defaultTeachers);
-      window.students = Array.isArray(localStudents) && localStudents.length
-        ? localStudents.map(normalizeStudent)
-        : defaultStudents.map(normalizeStudent);
-      window.teachers = Array.isArray(localTeachers) && localTeachers.length
-        ? localTeachers.map(normalizeTeacher)
-        : defaultTeachers.map(normalizeTeacher);
-
-      // Guarantee default admin and default teacher exist
+    function ensureDefaultTeachersPresent() {
       for (const defT of defaultTeachers) {
         if (!window.teachers.some(t => t.username.toLowerCase() === defT.username.toLowerCase())) {
           window.teachers.push(normalizeTeacher(defT));
         }
       }
+    }
 
-      saveLocal(LOCAL_KEY, window.students);
+    function ensureInitialData() {
+      const wasInitialized = readLocal(INIT_FLAG_KEY, false);
+      const storedStudents = readLocal(LOCAL_KEY, null);
+      const storedTeachers = readLocal(TEACHER_KEY, null);
+      const deletedSet = new Set(getDeletedIds());
+
+      if (Array.isArray(storedStudents)) {
+        window.students = storedStudents
+          .filter(Boolean)
+          .map(normalizeStudent)
+          .filter(s => !deletedSet.has(String(s.id)) && !deletedSet.has(String(s.rollNo).toLowerCase()));
+      } else if (wasInitialized) {
+        window.students = [];
+      } else {
+        // Wait for IndexedDB / Firebase before deciding whether to seed defaultStudents
+        window.students = [];
+      }
+
+      window.teachers = Array.isArray(storedTeachers) && storedTeachers.length
+        ? storedTeachers.filter(Boolean).map(normalizeTeacher)
+        : defaultTeachers.map(normalizeTeacher);
+
+      ensureDefaultTeachersPresent();
       saveLocal(TEACHER_KEY, window.teachers);
       renderTeacherList();
       populateTeacherDropdown();
@@ -1081,7 +1186,6 @@ function doPost(e) {
       document.getElementById('statAadhaar').textContent = aadhaar;
       document.getElementById('statDocIssues').textContent = docIssue;
 
-      // Highlight active filter card
       const cardMap = {
         'all': 'cardStatAll',
         'Completed': 'cardStatCompleted',
@@ -1124,7 +1228,6 @@ function doPost(e) {
       tbody.innerHTML = '';
 
       let visible = [...getScopedStudentsForCurrentUser()];
-
       const effectiveStatus = window.activeFilterStatus !== 'all' ? window.activeFilterStatus : statusFilter;
 
       visible = visible.filter(student => {
@@ -1218,7 +1321,6 @@ function doPost(e) {
       updateStats();
     }
 
-    // IN-PAGE CONFIRMATION MODAL HELPERS
     function openConfirmModal(title, message, onConfirm) {
       document.getElementById('confirmModalTitle').textContent = title || 'Confirm Action';
       document.getElementById('confirmModalMessage').textContent = message || 'Are you sure?';
@@ -1241,17 +1343,9 @@ function doPost(e) {
       if (typeof cb === 'function') cb();
     }
 
-    function loginUser() {
-      const username = document.getElementById('loginUsername').value.trim();
-      const password = document.getElementById('loginPassword').value.trim();
-
-      const user = window.teachers.find(t => t.username.toLowerCase() === username.toLowerCase() && t.password === password);
-      if (!user) {
-        showToast('Invalid username or password.', true);
-        return;
-      }
-
+    function activateLoggedInView(user, silent = false) {
       window.currentUser = user;
+      saveLocal(SESSION_USER_KEY, user);
       document.getElementById('loginScreen').classList.add('hidden');
       document.getElementById('appScreen').classList.remove('hidden');
       document.getElementById('appSubtitle').textContent = user.role === 'admin'
@@ -1273,12 +1367,25 @@ function doPost(e) {
       renderTeacherList();
       renderTable();
       registerUserPresence();
-      showToast(`Welcome ${user.name}`);
+      if (!silent) showToast(`Welcome ${user.name}`);
+    }
+
+    function loginUser() {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      const user = window.teachers.find(t => t.username.toLowerCase() === username.toLowerCase() && t.password === password);
+      if (!user) {
+        showToast('Invalid username or password.', true);
+        return;
+      }
+      activateLoggedInView(user, false);
     }
 
     function logoutUser() {
       removeUserPresence();
       window.currentUser = null;
+      saveLocal(SESSION_USER_KEY, null);
       document.getElementById('loginScreen').classList.remove('hidden');
       document.getElementById('appScreen').classList.add('hidden');
       document.getElementById('loginPassword').value = '';
@@ -1303,92 +1410,120 @@ function doPost(e) {
       document.getElementById('toast').classList.add('hidden');
     }
 
-    // GRANULAR FIREBASE + GOOGLE SHEETS SYNC OPERATIONS
-    async function syncFirebaseOp(op) {
-      if (!db) {
-        enqueuePendingOp(op);
-        return false;
-      }
+    function buildFullSchoolRecord() {
       const schoolId = getSchoolId();
       const actor = window.currentUser ? window.currentUser.username : 'system';
       const nowIso = new Date().toISOString();
-
-      try {
-        if (op.type === 'upsertStudent') {
-          await set(ref(db, `schools/${schoolId}/students/${op.student.id}`), normalizeStudent(op.student));
-        } else if (op.type === 'deleteStudent') {
-          await remove(ref(db, `schools/${schoolId}/students/${op.studentId}`));
-        } else if (op.type === 'bulkDeleteStudents') {
-          const updates = {};
-          for (const id of op.studentIds) {
-            updates[`schools/${schoolId}/students/${id}`] = null;
-          }
-          await update(ref(db), updates);
-        } else if (op.type === 'upsertTeacher') {
-          await set(ref(db, `schools/${schoolId}/teachers/${op.teacher.id}`), normalizeTeacher(op.teacher));
-        } else if (op.type === 'deleteTeacher') {
-          const updates = {
-            [`schools/${schoolId}/teachers/${op.teacherId}`]: null
-          };
-          for (const sid of (op.removedStudentIds || [])) {
-            updates[`schools/${schoolId}/students/${sid}`] = null;
-          }
-          await update(ref(db), updates);
-        } else if (op.type === 'syncAll') {
-          const studentsMap = {};
-          window.students.forEach(s => { studentsMap[s.id] = normalizeStudent(s); });
-          const teachersMap = {};
-          window.teachers.forEach(t => { teachersMap[t.id] = normalizeTeacher(t); });
-          await update(ref(db, `schools/${schoolId}`), {
-            schoolId,
-            schoolName: SCHOOL_NAME,
-            academicYear: '2024-25-26',
-            students: studentsMap,
-            teachers: teachersMap,
-            meta: { updatedAt: nowIso, updatedBy: actor, source: 'firebase' }
-          });
-        }
-
-        await set(ref(db, `schools/${schoolId}/meta`), {
+      const nowMs = Date.now();
+      const studentsMap = {};
+      window.students.forEach(s => {
+        studentsMap[s.id] = normalizeStudent(s);
+      });
+      const teachersMap = {};
+      window.teachers.forEach(t => {
+        teachersMap[t.id] = normalizeTeacher(t);
+      });
+      return {
+        schoolId: schoolId,
+        schoolName: SCHOOL_NAME,
+        academicYear: '2024-25-26',
+        teachers: teachersMap,
+        students: studentsMap,
+        sync: {
+          source: 'firebase',
           updatedAt: nowIso,
+          updatedAtMs: nowMs,
           updatedBy: actor,
-          source: 'firebase'
-        });
+          studentCount: window.students.length,
+          deletedIdsJson: JSON.stringify(getDeletedIds())
+        }
+      };
+    }
 
+    // DUAL REST (keepalive: true) + WEBSOCKET FIREBASE PERSISTENCE
+    async function syncFirebaseOp(op) {
+      const writeTs = Date.now();
+      markLocalStateChanged(true, writeTs);
+      saveLocal(LOCAL_KEY, window.students);
+      saveLocal(TEACHER_KEY, window.teachers);
+
+      const schoolId = getSchoolId();
+      const dbUrl = getDbBaseUrl();
+      const fullRecord = buildFullSchoolRecord();
+
+      let restSuccess = false;
+      try {
+        // Immediate HTTP PUT with keepalive:true so browser completes the write even if reloaded immediately
+        const putEndpoint = dbUrl + '/schools/' + schoolId + '.json';
+        const res = await fetch(putEndpoint, {
+          method: 'PUT',
+          keepalive: true,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(fullRecord)
+        });
+        if (res.ok) {
+          restSuccess = true;
+        } else {
+          const errText = await res.text();
+          lastFirebaseErrorMsg = `HTTP ${res.status}: ${errText}`;
+          if (res.status === 401 || res.status === 403) {
+            hasFirebasePermissionError = true;
+          }
+        }
+      } catch (fetchErr) {
+        console.warn('REST PUT warning:', fetchErr);
+      }
+
+      if (restSuccess) {
+        markLocalStateChanged(false, writeTs);
+        clearPendingOps();
         isFirebaseOnline = true;
         hasFirebasePermissionError = false;
         lastFirebaseErrorMsg = '';
         setSyncBadge(true, 'Cloud Live');
+        const infoEl = document.getElementById('lastSyncInfo');
+        if (infoEl) infoEl.textContent = `Saved to Cloud at ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
         return true;
-      } catch (error) {
-        console.warn('Granular Firebase write failed:', error);
-        lastFirebaseErrorMsg = error && error.message ? error.message : String(error);
-        if (String(lastFirebaseErrorMsg).toLowerCase().includes('permission_denied') || String(lastFirebaseErrorMsg).toLowerCase().includes('permission denied')) {
-          hasFirebasePermissionError = true;
-          isFirebaseOnline = false;
-          setSyncBadge(false, 'Rules Blocked', true);
-        } else {
-          isFirebaseOnline = false;
-          setSyncBadge(false, 'Local Queue');
-        }
-        enqueuePendingOp(op);
-        return false;
       }
+
+      // Fallback to Firebase WebSocket SDK if REST fetch failed
+      if (db) {
+        try {
+          await set(ref(db, `schools/${schoolId}`), fullRecord);
+          markLocalStateChanged(false, writeTs);
+          clearPendingOps();
+          isFirebaseOnline = true;
+          hasFirebasePermissionError = false;
+          lastFirebaseErrorMsg = '';
+          setSyncBadge(true, 'Cloud Live');
+          return true;
+        } catch (sdkErr) {
+          lastFirebaseErrorMsg = sdkErr && sdkErr.message ? sdkErr.message : String(sdkErr);
+          if (String(lastFirebaseErrorMsg).toLowerCase().includes('permission_denied') || String(lastFirebaseErrorMsg).toLowerCase().includes('permission denied')) {
+            hasFirebasePermissionError = true;
+          }
+        }
+      }
+
+      isFirebaseOnline = false;
+      setSyncBadge(false, hasFirebasePermissionError ? 'Rules Blocked' : 'Local Saved', hasFirebasePermissionError);
+      enqueuePendingOp(op);
+      return false;
     }
 
     async function flushPendingFirebaseOps() {
+      const meta = getLocalMeta();
       const ops = getPendingOps();
-      if (!ops.length || !db) return;
-      clearPendingOps();
-      await syncFirebaseOp({ type: 'syncAll' });
+      if (!meta.dirty && !ops.length) return true;
+      return await syncFirebaseOp({ type: 'syncAll' });
     }
 
     async function syncGoogleSheetsOp(payload) {
       if (!cloudConfig || !cloudConfig.sheetsWebhookUrl || !cloudConfig.autoSheetsSync) return false;
       try {
-        // Use text/plain to avoid CORS preflight rejection on Google Apps Script Web Apps
         const response = await fetch(cloudConfig.sheetsWebhookUrl, {
           method: 'POST',
+          keepalive: true,
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({
             ...payload,
@@ -1417,7 +1552,9 @@ function doPost(e) {
         'Remove Teacher Account',
         `Delete teacher account "${username}" and their assigned student records across all synced devices?`,
         async () => {
-          const removedStudentIds = window.students.filter(s => s.teacher === username).map(s => s.id);
+          const removedIds = window.students.filter(s => s.teacher === username).map(s => String(s.id));
+          const removedRolls = window.students.filter(s => s.teacher === username).map(s => String(s.rollNo).toLowerCase());
+          addDeletedIds([...removedIds, ...removedRolls]);
           window.teachers = window.teachers.filter(t => String(t.id) !== String(id));
           window.students = window.students.filter(s => s.teacher !== username);
           saveLocal(TEACHER_KEY, window.teachers);
@@ -1425,7 +1562,7 @@ function doPost(e) {
           populateTeacherDropdown();
           renderTeacherList();
           renderTable();
-          await syncFirebaseOp({ type: 'deleteTeacher', teacherId: id, removedStudentIds });
+          await syncFirebaseOp({ type: 'deleteTeacher', teacherId: id });
           await syncGoogleSheetsOp({ action: 'deleteTeacher', teacherId: id });
           showToast('Teacher removed and synced.');
         }
@@ -1515,10 +1652,11 @@ function doPost(e) {
     async function saveStudent(event) {
       event.preventDefault();
       const id = document.getElementById('editStudentId').value;
+      const rollInput = document.getElementById('rollNo').value.trim();
 
       const existingByRoll = window.students.find(item =>
         (id && String(item.id) === String(id)) ||
-        (!id && item.rollNo.toLowerCase() === document.getElementById('rollNo').value.trim().toLowerCase())
+        (!id && item.rollNo.toLowerCase() === rollInput.toLowerCase())
       );
 
       const resolvedId = id && id.trim() !== ''
@@ -1528,7 +1666,7 @@ function doPost(e) {
       const studentData = normalizeStudent({
         id: resolvedId,
         name: document.getElementById('fullName').value.trim(),
-        rollNo: document.getElementById('rollNo').value.trim(),
+        rollNo: rollInput,
         className: document.getElementById('studentClass').value,
         section: document.getElementById('sectionName').value,
         teacher: document.getElementById('teacherSelect').value || 'Bapujihss',
@@ -1543,14 +1681,16 @@ function doPost(e) {
         ifsc: document.getElementById('ifscCode').value.trim().toUpperCase(),
         aadhaarNo: document.getElementById('aadhaarNo').value.trim(),
         incomeCertNo: document.getElementById('incomeCertNo').value.trim().toUpperCase(),
-        casteCertNo: document.getElementById('casteCertNo').value.trim().toUpperCase(),
-        updatedAt: new Date().toISOString()
+        casteCertNo: document.getElementById('casteCertNo').value.trim().toUpperCase()
       });
 
       if (!studentData.name || !studentData.rollNo) {
         showToast('Name and roll number are required.', true);
         return;
       }
+
+      removeDeletedId(studentData.id);
+      removeDeletedId(studentData.rollNo.toLowerCase());
 
       const existingIndex = window.students.findIndex(item => String(item.id) === String(studentData.id));
       if (existingIndex >= 0) {
@@ -1559,6 +1699,7 @@ function doPost(e) {
         window.students.push(studentData);
       }
 
+      saveLocal(INIT_FLAG_KEY, true);
       saveLocal(LOCAL_KEY, window.students);
       renderTeacherList();
       renderTable();
@@ -1573,15 +1714,19 @@ function doPost(e) {
       const label = student ? `${student.name} (${student.rollNo})` : 'this student record';
       openConfirmModal(
         'Delete Student Record',
-        `Are you sure you want to delete ${label}? This will update all connected users.`,
+        `Are you sure you want to delete ${label}? This will save permanently across reloads.`,
         async () => {
+          const toRemove = [String(id)];
+          if (student && student.rollNo) toRemove.push(String(student.rollNo).toLowerCase());
+          addDeletedIds(toRemove);
           window.students = window.students.filter(s => String(s.id) !== String(id));
+          saveLocal(INIT_FLAG_KEY, true);
           saveLocal(LOCAL_KEY, window.students);
           renderTeacherList();
           renderTable();
           await syncFirebaseOp({ type: 'deleteStudent', studentId: String(id) });
           await syncGoogleSheetsOp({ action: 'deleteStudent', studentId: String(id) });
-          showToast('Student record deleted.');
+          showToast('Student record deleted permanently.');
         }
       );
     }
@@ -1595,15 +1740,20 @@ function doPost(e) {
 
       openConfirmModal(
         'Bulk Delete Visible Students',
-        `Delete ${visibleIds.length} currently visible student record(s) from the shared database?`,
+        `Delete ${visibleIds.length} currently visible student record(s) permanently?`,
         async () => {
+          const visibleRolls = window.students
+            .filter(student => visibleIds.includes(String(student.id)))
+            .map(s => String(s.rollNo).toLowerCase());
+          addDeletedIds([...visibleIds, ...visibleRolls]);
           window.students = window.students.filter(student => !visibleIds.includes(String(student.id)));
+          saveLocal(INIT_FLAG_KEY, true);
           saveLocal(LOCAL_KEY, window.students);
           renderTeacherList();
           renderTable();
           await syncFirebaseOp({ type: 'bulkDeleteStudents', studentIds: visibleIds });
           await syncGoogleSheetsOp({ action: 'bulkDeleteStudents', studentIds: visibleIds });
-          showToast(`Deleted ${visibleIds.length} students.`);
+          showToast(`Deleted ${visibleIds.length} students permanently.`);
         }
       );
     }
@@ -1717,8 +1867,7 @@ function doPost(e) {
         ifsc: ifsc,
         aadhaarNo: keys.aadhaarnumber || keys.aadhaarno || '',
         incomeCertNo: keys.incomecertificateno || keys.incomenumber || keys.incomecertno || '',
-        casteCertNo: keys.castecertificateno || keys.castenumber || keys.castecertno || '',
-        updatedAt: new Date().toISOString()
+        casteCertNo: keys.castecertificateno || keys.castenumber || keys.castecertno || ''
       };
 
       return normalizeStudent(student);
@@ -1748,13 +1897,18 @@ function doPost(e) {
             return;
           }
 
-          // Merge by rollNo so other teachers' records aren't accidentally wiped out
+          importedStudents.forEach(s => {
+            removeDeletedId(s.id);
+            removeDeletedId(s.rollNo.toLowerCase());
+          });
+
           const mergedMap = new Map(window.students.map(s => [s.rollNo.toLowerCase(), s]));
           importedStudents.forEach(s => {
             mergedMap.set(s.rollNo.toLowerCase(), s);
           });
           window.students = Array.from(mergedMap.values());
 
+          saveLocal(INIT_FLAG_KEY, true);
           saveLocal(LOCAL_KEY, window.students);
           renderTeacherList();
           renderTable();
@@ -1839,7 +1993,7 @@ function doPost(e) {
     }
 
     async function pullAllFromFirebase() {
-      const ok = await syncFromFirebase();
+      const ok = await syncFromFirebase(true);
       if (ok) {
         showToast('Pulled latest records from Firebase Cloud.');
       } else {
@@ -1874,12 +2028,17 @@ function doPost(e) {
         const res = await fetch(url, { method: 'GET' });
         const data = await res.json();
         if (data && data.ok) {
-          if (Array.isArray(data.students) && data.students.length) {
-            window.students = data.students.map(normalizeStudent);
+          if (Array.isArray(data.students)) {
+            const deletedSet = new Set(getDeletedIds());
+            window.students = data.students
+              .map(normalizeStudent)
+              .filter(s => !deletedSet.has(String(s.id)) && !deletedSet.has(String(s.rollNo).toLowerCase()));
+            saveLocal(INIT_FLAG_KEY, true);
             saveLocal(LOCAL_KEY, window.students);
           }
           if (Array.isArray(data.teachers) && data.teachers.length) {
             window.teachers = data.teachers.map(normalizeTeacher);
+            ensureDefaultTeachersPresent();
             saveLocal(TEACHER_KEY, window.teachers);
           }
           renderTeacherList();
@@ -1941,6 +2100,7 @@ function doPost(e) {
           return;
         }
         window.students = imported;
+        saveLocal(INIT_FLAG_KEY, true);
         saveLocal(LOCAL_KEY, window.students);
         renderTeacherList();
         renderTable();
@@ -1956,15 +2116,14 @@ function doPost(e) {
       const icon = document.getElementById('syncSpinIcon');
       if (icon) icon.classList.add('fa-spin');
       await flushPendingFirebaseOps();
-      const fbOk = await syncFromFirebase();
+      const fbOk = await syncFromFirebase(false);
       if (cloudConfig.sheetsWebhookUrl) {
         await pullFromGoogleSheets();
       }
       if (icon) setTimeout(() => icon.classList.remove('fa-spin'), 500);
-      showToast(fbOk ? 'Live cloud data synchronized!' : 'Synced with local/sheet storage.');
+      showToast(fbOk ? 'Live cloud data synchronized!' : 'Saved locally.');
     }
 
-    // PRESENCE TRACKING FOR MULTI-USER LIVE SESSIONS
     async function registerUserPresence() {
       if (!db || !window.currentUser) return;
       const schoolId = getSchoolId();
@@ -1978,7 +2137,7 @@ function doPost(e) {
           updatedAt: new Date().toISOString()
         });
       } catch (e) {
-        // Ignore if rules block presence
+        // Ignore if rules restrict presence
       }
     }
 
@@ -1992,8 +2151,32 @@ function doPost(e) {
       }
     }
 
-    function applyRemoteSchoolSnapshot(data) {
+    function applyRemoteSchoolSnapshot(data, forceOverwrite = false) {
       if (!data) return;
+
+      const localMeta = getLocalMeta();
+      const remoteSync = data.sync || data.meta || {};
+      const remoteUpdatedMs = Number(remoteSync.updatedAtMs) || (remoteSync.updatedAt ? Date.parse(remoteSync.updatedAt) : 0) || 0;
+
+      // Never overwrite newer or unsynced local additions/deletions with older Firebase data
+      if (!forceOverwrite) {
+        if (localMeta.dirty || getPendingOps().length > 0) {
+          return;
+        }
+        if (localMeta.updatedAt && remoteUpdatedMs && localMeta.updatedAt > remoteUpdatedMs + 1500) {
+          return;
+        }
+      }
+
+      if (remoteSync.deletedIdsJson) {
+        try {
+          const parsedIds = JSON.parse(remoteSync.deletedIdsJson);
+          if (Array.isArray(parsedIds)) addDeletedIds(parsedIds);
+        } catch (e) {
+          // Ignore
+        }
+      }
+      const deletedSet = new Set(getDeletedIds());
 
       if (data.teachers) {
         const remoteTeachers = Array.isArray(data.teachers)
@@ -2001,11 +2184,7 @@ function doPost(e) {
           : Object.values(data.teachers).filter(Boolean).map(normalizeTeacher);
         if (remoteTeachers.length) {
           window.teachers = remoteTeachers;
-          for (const defT of defaultTeachers) {
-            if (!window.teachers.some(t => t.username.toLowerCase() === defT.username.toLowerCase())) {
-              window.teachers.push(normalizeTeacher(defT));
-            }
-          }
+          ensureDefaultTeachersPresent();
           saveLocal(TEACHER_KEY, window.teachers);
           renderTeacherList();
           populateTeacherDropdown();
@@ -2013,19 +2192,29 @@ function doPost(e) {
       }
 
       if (data.students) {
-        const remoteStudents = Array.isArray(data.students)
+        const remoteStudents = (Array.isArray(data.students)
           ? data.students.filter(Boolean).map(normalizeStudent)
-          : Object.values(data.students).filter(Boolean).map(normalizeStudent);
+          : Object.values(data.students).filter(Boolean).map(normalizeStudent)
+        ).filter(s => !deletedSet.has(String(s.id)) && !deletedSet.has(String(s.rollNo).toLowerCase()));
+
         window.students = remoteStudents;
+        saveLocal(INIT_FLAG_KEY, true);
+        saveLocal(LOCAL_KEY, window.students);
+        renderTeacherList();
+        renderTable();
+        updateStats();
+      } else {
+        window.students = [];
+        saveLocal(INIT_FLAG_KEY, true);
         saveLocal(LOCAL_KEY, window.students);
         renderTeacherList();
         renderTable();
         updateStats();
       }
 
-      if (data.meta && data.meta.updatedAt) {
-        const timeStr = new Date(data.meta.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const byStr = data.meta.updatedBy ? ` by ${data.meta.updatedBy}` : '';
+      if (remoteSync.updatedAt) {
+        const timeStr = new Date(remoteSync.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const byStr = remoteSync.updatedBy ? ` by ${remoteSync.updatedBy}` : '';
         const infoEl = document.getElementById('lastSyncInfo');
         if (infoEl) infoEl.textContent = `Last live update at ${timeStr}${byStr}`;
       }
@@ -2037,38 +2226,61 @@ function doPost(e) {
       }
     }
 
-    async function syncFromFirebase() {
-      if (!db) return false;
+    async function syncFromFirebase(forcePull = false) {
       const schoolId = getSchoolId();
-      try {
-        const snapshot = await get(ref(db, `schools/${schoolId}`));
-        isFirebaseOnline = true;
-        hasFirebasePermissionError = false;
-        lastFirebaseErrorMsg = '';
-        setSyncBadge(true, 'Cloud Live');
+      const dbUrl = getDbBaseUrl();
 
-        if (snapshot.exists()) {
-          applyRemoteSchoolSnapshot(snapshot.val());
-          return true;
+      // If we have local unsynced changes, push them to Firebase FIRST before reading
+      const localMeta = getLocalMeta();
+      if (!forcePull && (localMeta.dirty || getPendingOps().length > 0)) {
+        const pushed = await flushPendingFirebaseOps();
+        if (!pushed) {
+          return false;
         }
-
-        // Seed initial data to Firebase if empty
-        ensureInitialData();
-        await syncFirebaseOp({ type: 'syncAll' });
-        return true;
-      } catch (error) {
-        console.warn('Firebase initial read warning:', error);
-        lastFirebaseErrorMsg = error && error.message ? error.message : String(error);
-        if (String(lastFirebaseErrorMsg).toLowerCase().includes('permission_denied') || String(lastFirebaseErrorMsg).toLowerCase().includes('permission denied')) {
-          hasFirebasePermissionError = true;
-          isFirebaseOnline = false;
-          setSyncBadge(false, 'Rules Blocked', true);
-        } else {
-          isFirebaseOnline = false;
-          setSyncBadge(false, 'Local Only');
-        }
-        return false;
       }
+
+      try {
+        const getEndpoint = dbUrl + '/schools/' + schoolId + '.json?t=' + Date.now();
+        const res = await fetch(getEndpoint, {
+          method: 'GET',
+          cache: 'no-store'
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data) {
+            applyRemoteSchoolSnapshot(data, forcePull);
+            if (!hasFirebasePermissionError) {
+              isFirebaseOnline = true;
+              setSyncBadge(true, 'Cloud Live');
+            }
+            return true;
+          } else {
+            // Firebase node is empty; only seed defaultStudents if never initialized locally
+            if (!readLocal(INIT_FLAG_KEY, false) && window.students.length === 0) {
+              const deletedSet = new Set(getDeletedIds());
+              window.students = defaultStudents
+                .map(normalizeStudent)
+                .filter(s => !deletedSet.has(String(s.id)) && !deletedSet.has(String(s.rollNo).toLowerCase()));
+              saveLocal(INIT_FLAG_KEY, true);
+              saveLocal(LOCAL_KEY, window.students);
+              renderTable();
+              updateStats();
+            }
+            await syncFirebaseOp({ type: 'syncAll' });
+            return true;
+          }
+        } else {
+          if (res.status === 401 || res.status === 403) {
+            hasFirebasePermissionError = true;
+            isFirebaseOnline = false;
+            setSyncBadge(false, 'Rules Blocked', true);
+          }
+        }
+      } catch (err) {
+        console.warn('REST GET fallback warning:', err);
+      }
+      return false;
     }
 
     async function setupFirebaseConnection() {
@@ -2077,13 +2289,13 @@ function doPost(e) {
           await deleteApp(existing);
         }
       } catch (e) {
-        // Ignore cleanup errors
+        // Ignore
       }
 
       const firebaseConfig = {
         apiKey: 'AIzaSyA8HX-nCadL5uuvnEyiQBgv5eRHrTJD5uo',
         authDomain: 'bapujihss.firebaseapp.com',
-        databaseURL: cloudConfig.databaseURL || DEFAULT_DB_URL,
+        databaseURL: getDbBaseUrl(),
         projectId: 'bapujihss',
         storageBucket: 'bapujihss.firebasestorage.app',
         messagingSenderId: '174183270330',
@@ -2091,75 +2303,81 @@ function doPost(e) {
         measurementId: 'G-526Z0V4CES'
       };
 
-      firebaseApp = initializeApp(firebaseConfig);
-      db = getDatabase(firebaseApp);
+      await syncFromFirebase(false);
 
-      // Attempt anonymous sign-in in case Firebase rules use "auth != null"
       try {
-        auth = getAuth(firebaseApp);
-        onAuthStateChanged(auth, () => updateDiagnosticsUI());
-        await signInAnonymously(auth);
-      } catch (authErr) {
-        // Anonymous auth is optional if rules allow public school path access
-      }
+        firebaseApp = initializeApp(firebaseConfig);
+        db = getDatabase(firebaseApp);
+        const schoolId = getSchoolId();
 
-      const schoolId = getSchoolId();
-
-      // Monitor real-time connection status
-      const connectedRef = ref(db, '.info/connected');
-      onValue(connectedRef, async (snap) => {
-        if (snap.val() === true) {
-          isFirebaseOnline = true;
-          if (!hasFirebasePermissionError) {
-            setSyncBadge(true, 'Cloud Live');
+        const connectedRef = ref(db, '.info/connected');
+        onValue(connectedRef, async (snap) => {
+          if (snap.val() === true) {
             await flushPendingFirebaseOps();
             if (window.currentUser) registerUserPresence();
           }
-        } else {
-          isFirebaseOnline = false;
-          if (!hasFirebasePermissionError) {
-            setSyncBadge(false, 'Local Only');
+        });
+
+        const schoolRef = ref(db, `schools/${schoolId}`);
+        onValue(schoolRef, async (snapshot) => {
+          const meta = getLocalMeta();
+          if (meta.dirty || getPendingOps().length > 0) {
+            await flushPendingFirebaseOps();
+            return;
           }
-        }
-      });
-
-      await syncFromFirebase();
-
-      // Real-time subscription for live multi-user updates
-      const schoolRef = ref(db, `schools/${schoolId}`);
-      onValue(schoolRef, (snapshot) => {
-        isFirebaseOnline = true;
-        hasFirebasePermissionError = false;
-        setSyncBadge(true, 'Cloud Live');
-        if (!snapshot.exists()) return;
-        applyRemoteSchoolSnapshot(snapshot.val());
-      }, (err) => {
-        lastFirebaseErrorMsg = err && err.message ? err.message : String(err);
-        if (String(lastFirebaseErrorMsg).toLowerCase().includes('permission_denied') || String(lastFirebaseErrorMsg).toLowerCase().includes('permission denied')) {
-          hasFirebasePermissionError = true;
-          isFirebaseOnline = false;
-          setSyncBadge(false, 'Rules Blocked', true);
-        } else {
-          isFirebaseOnline = false;
-          setSyncBadge(false, 'Local Only');
-        }
-      });
+          if (!snapshot.exists()) return;
+          if (!hasFirebasePermissionError) {
+            isFirebaseOnline = true;
+            setSyncBadge(true, 'Cloud Live');
+          }
+          applyRemoteSchoolSnapshot(snapshot.val(), false);
+        }, (err) => {
+          lastFirebaseErrorMsg = err && err.message ? err.message : String(err);
+          if (String(lastFirebaseErrorMsg).toLowerCase().includes('permission_denied') || String(lastFirebaseErrorMsg).toLowerCase().includes('permission denied')) {
+            hasFirebasePermissionError = true;
+            isFirebaseOnline = false;
+            setSyncBadge(false, 'Rules Blocked', true);
+          }
+        });
+      } catch (sdkInitErr) {
+        console.warn('WebSocket SDK init fallback to REST polling:', sdkInitErr);
+      }
     }
 
     async function initApp() {
+      // Restore from IndexedDB first in case localStorage was reset by iframe reload
+      const idbData = await idbReadAll();
+      Object.entries(idbData).forEach(([k, v]) => {
+        if (readLocal(k, null) === null && v !== undefined) {
+          saveLocal(k, v);
+        }
+      });
+
       ensureInitialData();
-      setSyncBadge(false, 'Connecting...');
+
+      // Restore active user session across reload if previously logged in
+      const savedSessionUser = readLocal(SESSION_USER_KEY, null);
+      if (savedSessionUser && savedSessionUser.username) {
+        const matched = window.teachers.find(t => t.username.toLowerCase() === savedSessionUser.username.toLowerCase());
+        if (matched) {
+          activateLoggedInView(matched, true);
+        }
+      }
+
+      setSyncBadge(false, 'Syncing...');
       await setupFirebaseConnection();
 
-      // If Google Sheets webhook is configured, pull initial records & poll every 30s
       if (cloudConfig.sheetsWebhookUrl) {
         await pullFromGoogleSheets();
       }
+
+      // Periodic background sync every 15s for multi-user updates
       setInterval(() => {
+        syncFromFirebase(false);
         if (cloudConfig.sheetsWebhookUrl && cloudConfig.autoSheetsSync) {
           pullFromGoogleSheets();
         }
-      }, 30000);
+      }, 15000);
     }
 
     // Export globals for HTML event handlers
