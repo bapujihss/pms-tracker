@@ -28,7 +28,7 @@
                 <div>
                     <div class="flex items-center space-x-2">
                         <h1 class="text-xl font-bold tracking-tight">PMS Tracker & Cloud Audit</h1>
-                        <span id="syncBadge" class="bg-amber-400 text-indigo-950 px-2 py-0.5 rounded-full text-[10px] font-bold animate-pulse">Connecting...</span>
+                        <span id="syncBadge" class="bg-emerald-400 text-indigo-950 px-2.5 py-0.5 rounded-full text-[10px] font-bold">Synced Locally</span>
                     </div>
                     <p class="text-xs text-indigo-200">Pre-Metric Scholarship Management for Teachers</p>
                 </div>
@@ -108,10 +108,255 @@
                 <select id="statusFilter" onchange="renderTable()" class="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     <option value="all">All Statuses</option>
                     <option value="Completed">Completed</option>
-                    <option value="Incomplete">Incomplete / Pending Docs</option>
+                    <option value="Incomplete">Incomplete</option>
+                    <option value="Aadhaar Issue">Aadhaar Issue</option>
+                    <option value="Doc Issue">Doc Issue</option>
                 </select>
                 <select id="sectionFilter" onchange="renderTable()" class="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     <option value="all">All Sections (A & B)</option>
                     <option value="Section A">Section A</option>
                     <option value="Section B">Section B</option>
                 </select>
+            </div>
+        </div>
+
+        <!-- Students Table Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex-1 flex flex-col">
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50 text-slate-500 uppercase text-[11px] font-bold tracking-wider border-b border-slate-200 sticky top-0">
+                        <tr>
+                            <th class="p-4">Roll / ID</th>
+                            <th class="p-4">Student Name</th>
+                            <th class="p-4">Section</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4">Remarks</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody" class="divide-y divide-slate-100 text-sm">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for Adding/Editing Student -->
+    <div id="studentModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 id="modalTitle" class="text-lg font-bold text-slate-900">Add New Student</h3>
+                <button onclick="closeStudentModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="studentForm" onsubmit="saveStudent(event)" class="space-y-4">
+                <input type="hidden" id="studentIndex">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Student Name</label>
+                    <input type="text" id="modalName" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Roll / ID</label>
+                        <input type="text" id="modalRoll" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Section</label>
+                        <select id="modalSection" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="Section A">Section A</option>
+                            <option value="Section B">Section B</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Status</label>
+                    <select id="modalStatus" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="Completed">Completed</option>
+                        <option value="Incomplete">Incomplete</option>
+                        <option value="Aadhaar Issue">Aadhaar Issue</option>
+                        <option value="Doc Issue">Doc Issue</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Remarks</label>
+                    <input type="text" id="modalRemarks" placeholder="Optional notes..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeStudentModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition shadow-sm">Save Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        let students = JSON.parse(localStorage.getItem('pms_students')) || [
+            { roll: '101', name: 'Rahul Majhi', section: 'Section A', status: 'Completed', remarks: 'All documents verified' },
+            { roll: '102', name: 'Priya Patel', section: 'Section B', status: 'Incomplete', remarks: 'Bank passbook pending' },
+            { roll: '103', name: 'Subrat Kumar', section: 'Section A', status: 'Aadhaar Issue', remarks: 'Seeding failed' }
+        ];
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').innerText = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        function hideToast() {
+            document.getElementById('toast').classList.add('hidden');
+        }
+
+        function updateStats() {
+            document.getElementById('statTotal').innerText = students.length;
+            document.getElementById('statCompleted').innerText = students.filter(s => s.status === 'Completed').length;
+            document.getElementById('statIncomplete').innerText = students.filter(s => s.status === 'Incomplete').length;
+            document.getElementById('statAadhaar').innerText = students.filter(s => s.status === 'Aadhaar Issue').length;
+            document.getElementById('statDocIssues').innerText = students.filter(s => s.status === 'Doc Issue').length;
+            localStorage.setItem('pms_students', JSON.stringify(students));
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('studentTableBody');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const statusF = document.getElementById('statusFilter').value;
+            const sectionF = document.getElementById('sectionFilter').value;
+
+            tbody.innerHTML = '';
+
+            const filtered = students.filter(s => {
+                const matchesSearch = s.name.toLowerCase().includes(search) || s.roll.toLowerCase().includes(search);
+                const matchesStatus = statusF === 'all' || s.status === statusF;
+                const matchesSection = sectionF === 'all' || s.section === sectionF;
+                return matchesSearch && matchesStatus && matchesSection;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">No students found.</td></tr>`;
+                updateStats();
+                return;
+            }
+
+            filtered.forEach((s, index) => {
+                let badgeColor = 'bg-slate-100 text-slate-700';
+                if(s.status === 'Completed') badgeColor = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+                if(s.status === 'Incomplete') badgeColor = 'bg-amber-50 text-amber-700 border border-amber-200';
+                if(s.status === 'Aadhaar Issue') badgeColor = 'bg-rose-50 text-rose-700 border border-rose-200';
+                if(s.status === 'Doc Issue') badgeColor = 'bg-purple-50 text-purple-700 border border-purple-200';
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition";
+                tr.innerHTML = `
+                    <td class="p-4 font-semibold text-slate-700">${s.roll}</td>
+                    <td class="p-4 font-medium text-slate-900">${s.name}</td>
+                    <td class="p-4 text-slate-600">${s.section}</td>
+                    <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-semibold ${badgeColor}">${s.status}</span></td>
+                    <td class="p-4 text-slate-500 text-xs">${s.remarks || '-'}</td>
+                    <td class="p-4 text-right space-x-2">
+                        <button onclick="openEditStudentModal(${students.indexOf(s)})" class="text-indigo-600 hover:text-indigo-800 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteStudent(${students.indexOf(s)})" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateStats();
+        }
+
+        function filterByStatus(status) {
+            document.getElementById('statusFilter').value = status;
+            renderTable();
+        }
+
+        function openAddStudentModal() {
+            document.getElementById('modalTitle').innerText = 'Add New Student';
+            document.getElementById('studentIndex').value = '';
+            document.getElementById('modalName').value = '';
+            document.getElementById('modalRoll').value = '';
+            document.getElementById('modalRemarks').value = '';
+            document.getElementById('studentModal').classList.remove('hidden');
+        }
+
+        function openEditStudentModal(index) {
+            const s = students[index];
+            document.getElementById('modalTitle').innerText = 'Edit Student Details';
+            document.getElementById('studentIndex').value = index;
+            document.getElementById('modalName').value = s.name;
+            document.getElementById('modalRoll').value = s.roll;
+            document.getElementById('modalSection').value = s.section;
+            document.getElementById('modalStatus').value = s.status;
+            document.getElementById('modalRemarks').value = s.remarks;
+            document.getElementById('studentModal').classList.remove('hidden');
+        }
+
+        function closeStudentModal() {
+            document.getElementById('studentModal').classList.add('hidden');
+        }
+
+        function saveStudent(event) {
+            event.preventDefault();
+            const index = document.getElementById('studentIndex').value;
+            const studentData = {
+                roll: document.getElementById('modalRoll').value,
+                name: document.getElementById('modalName').value,
+                section: document.getElementById('modalSection').value,
+                status: document.getElementById('modalStatus').value,
+                remarks: document.getElementById('modalRemarks').value
+            };
+
+            if (index === '') {
+                students.push(studentData);
+                showToast('Student added successfully.');
+            } else {
+                students[index] = studentData;
+                showToast('Student updated successfully.');
+            }
+
+            closeStudentModal();
+            renderTable();
+        }
+
+        function deleteStudent(index) {
+            if(confirm('Are you sure you want to delete this student?')) {
+                students.splice(index, 1);
+                showToast('Student deleted.');
+                renderTable();
+            }
+        }
+
+        function handleExcelImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const json = XLSX.utils.sheet_to_json(worksheet);
+                
+                if(json && json.length > 0) {
+                    json.forEach(row => {
+                        students.push({
+                            roll: String(row.Roll || row.ID || Math.floor(Math.random()*1000)),
+                            name: row.Name || row.Student_Name || 'Unknown',
+                            section: row.Section || 'Section A',
+                            status: row.Status || 'Incomplete',
+                            remarks: row.Remarks || 'Imported via Excel'
+                        });
+                    });
+                    renderTable();
+                    showToast(`Successfully imported ${json.length} records!`);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            renderTable();
+        };
+    </script>
+</body>
+</html>
