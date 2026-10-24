@@ -1,1146 +1,1172 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PMS Student Status Tracker (Cloud Synchronized)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .soft-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
-        .soft-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PMS Tracker | School Scholarship Sync</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --primary: #312e81;
+      --primary-soft: #eef2ff;
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --border: #e2e8f0;
+      --muted: #64748b;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #eef4ff 0%, #f8fafc 20%, #f8fafc 100%);
+    }
+
+    .soft-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+    .soft-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+    .soft-scroll::-webkit-scrollbar-track { background: #f8fafc; }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-800 h-full flex flex-col">
-
-    <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-violet-800 to-sky-600 p-4">
-        <div class="w-full max-w-md">
-            <div class="bg-white/10 border border-white/15 shadow-2xl rounded-3xl p-6 backdrop-blur-sm">
-                <div class="text-center mb-6">
-                    <div class="mx-auto w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mb-4 border border-white/10">
-                        <i class="fa-solid fa-graduation-cap text-3xl text-amber-300"></i>
-                    </div>
-                    <h1 class="text-2xl font-extrabold text-white">PMS Tracker</h1>
-                    <p class="text-sky-100 text-sm mt-1">Admin & Teacher scholarship management</p>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wide text-sky-100 mb-1">Username</label>
-                        <input id="loginUsername" type="text" value="Hemant" class="w-full px-4 py-3 rounded-xl border border-white/20 bg-white/10 text-white placeholder:text-sky-100/80 focus:outline-none focus:ring-2 focus:ring-amber-300">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wide text-sky-100 mb-1">Password</label>
-                        <input id="loginPassword" type="password" value="Abcd@1234" class="w-full px-4 py-3 rounded-xl border border-white/20 bg-white/10 text-white placeholder:text-sky-100/80 focus:outline-none focus:ring-2 focus:ring-amber-300">
-                    </div>
-                    <button onclick="loginUser()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold py-3 px-4 rounded-xl transition-all shadow-lg shadow-amber-500/20">
-                        <i class="fa-solid fa-right-to-bracket mr-2"></i>Login
-                    </button>
-                </div>
-
-                <div class="mt-6 bg-white/5 border border-white/10 rounded-xl p-3 text-sm text-sky-100">
-                    <p class="font-semibold text-white mb-2">Demo Credentials</p>
-                    <div class="space-y-1">
-                        <p><span class="font-medium">Admin:</span> Hemant / Abcd@1234</p>
-                        <p><span class="font-medium">Teacher:</span> Bapujihss / 1962</p>
-                    </div>
-                </div>
-            </div>
+<body class="text-slate-800 h-full">
+  <div id="loginScreen" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-950 via-violet-900 to-sky-700 p-4">
+    <div class="w-full max-w-md">
+      <div class="bg-white/10 border border-white/15 rounded-3xl p-6 shadow-2xl backdrop-blur-md">
+        <div class="text-center mb-6">
+          <div class="mx-auto w-16 h-16 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center mb-4">
+            <i class="fa-solid fa-graduation-cap text-3xl text-amber-300"></i>
+          </div>
+          <h1 class="text-3xl font-black text-white">PMS Tracker</h1>
+          <p class="mt-2 text-sm text-sky-100">School scholarship & student document sync</p>
         </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wide text-sky-100 mb-1">Username</label>
+            <input id="loginUsername" type="text" value="Hemant" class="w-full px-4 py-3 rounded-xl border border-white/20 bg-white/10 text-white placeholder:text-sky-100/80 focus:outline-none focus:ring-2 focus:ring-amber-300" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold uppercase tracking-wide text-sky-100 mb-1">Password</label>
+            <input id="loginPassword" type="password" value="Abcd@1234" class="w-full px-4 py-3 rounded-xl border border-white/20 bg-white/10 text-white placeholder:text-sky-100/80 focus:outline-none focus:ring-2 focus:ring-amber-300" />
+          </div>
+          <button type="button" onclick="loginUser()" class="w-full bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold py-3 rounded-xl shadow-lg shadow-amber-500/20 transition">
+            <i class="fa-solid fa-right-to-bracket mr-2"></i>Login
+          </button>
+        </div>
+
+        <div class="mt-6 rounded-2xl border border-white/10 bg-white/5 p-3 text-sm text-sky-100">
+          <p class="font-semibold text-white mb-2">Demo credentials</p>
+          <div class="space-y-1">
+            <p><span class="font-medium">Admin:</span> Hemant / Abcd@1234</p>
+            <p><span class="font-medium">Teacher:</span> Bapujihss / 1962</p>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div id="appScreen" class="hidden bg-slate-50 text-slate-800 h-full flex flex-col">
-        <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-white/10 p-2.5 rounded-xl">
-                        <i class="fa-solid fa-graduation-cap text-2xl text-amber-300"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center space-x-2">
-                            <h1 class="text-xl font-bold tracking-tight">PMS Tracker & Cloud Audit</h1>
-                            <span id="syncBadge" class="bg-amber-400 text-indigo-950 px-2 py-0.5 rounded-full text-[10px] font-bold animate-pulse">Connecting...</span>
-                        </div>
-                        <p id="appSubtitle" class="text-xs text-indigo-200">Pre-Metric Scholarship Management for Teachers (AY 2024-25-26)</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-3">
-                    <button onclick="openAddStudentModal()" class="bg-amber-400 hover:bg-amber-500 text-indigo-950 px-4 py-2 rounded-lg font-semibold text-sm transition shadow-sm flex items-center space-x-2">
-                        <i class="fa-solid fa-user-plus"></i>
-                        <span>Add Student</span>
-                    </button>
-                    <label class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium text-sm transition cursor-pointer flex items-center space-x-2">
-                        <i class="fa-solid fa-file-excel text-emerald-400"></i>
-                        <span>Import Excel</span>
-                        <input type="file" id="excelUpload" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelImport(event)">
-                    </label>
-                    <button onclick="logoutUser()" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium text-sm transition">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        <span>Logout</span>
-                    </button>
-                </div>
+  <div id="appScreen" class="hidden min-h-screen bg-slate-50">
+    <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col lg:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center">
+            <i class="fa-solid fa-school text-xl text-amber-300"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl font-bold tracking-tight">PMS Tracker</h1>
+              <span id="syncBadge" class="bg-amber-400 text-indigo-950 px-2 py-0.5 rounded-full text-[10px] font-bold">Connecting...</span>
             </div>
-        </header>
+            <p id="appSubtitle" class="text-xs text-indigo-100">School scholarship management</p>
+          </div>
+        </div>
 
-        <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6 flex flex-col gap-6 overflow-y-auto">
-            <div id="toast" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl flex items-center justify-between shadow-sm">
-                <div class="flex items-center space-x-3">
-                    <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
-                    <span id="toastMessage" class="text-sm font-medium">Action completed successfully.</span>
-                </div>
-                <button onclick="hideToast()" class="text-emerald-500 hover:text-emerald-700"><i class="fa-solid fa-xmark"></i></button>
-            </div>
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <button onclick="openAddStudentModal()" class="bg-amber-400 hover:bg-amber-300 text-indigo-950 px-4 py-2 rounded-lg font-semibold text-sm transition shadow-sm flex items-center gap-2">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Add Student</span>
+          </button>
 
-            <div id="adminPanel" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
-                <div class="flex flex-col lg:flex-row gap-6">
-                    <div class="w-full lg:w-[420px]">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-bold text-slate-800">Teacher Management</h2>
-                            <span class="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full text-xs font-semibold">Admin</span>
-                        </div>
+          <label class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium text-sm cursor-pointer flex items-center gap-2">
+            <i class="fa-solid fa-file-excel text-emerald-400"></i>
+            <span>Import Excel</span>
+            <input id="excelUpload" type="file" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleExcelImport(event)" />
+          </label>
 
-                        <form id="teacherForm" onsubmit="addTeacher(event)" class="space-y-3">
-                            <div>
-                                <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Teacher Name</label>
-                                <input id="teacherName" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. Ravi Sharma">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Username</label>
-                                <input id="teacherUsername" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. teacher01">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Password</label>
-                                <input id="teacherPassword" required type="password" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Set a password">
-                            </div>
-                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-sm shadow-sm">
-                                <i class="fa-solid fa-user-plus mr-2"></i>Add Teacher
-                            </button>
-                        </form>
-                    </div>
+          <button onclick="logoutUser()" class="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-medium text-sm transition">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
+    </header>
 
-                    <div class="flex-1">
-                        <h3 class="text-sm font-bold uppercase tracking-wide text-slate-500 mb-3">Teacher List</h3>
-                        <div id="teacherList" class="space-y-2 max-h-72 overflow-y-auto soft-scroll"></div>
-                    </div>
-                </div>
+    <main class="max-w-7xl mx-auto px-4 py-6 flex flex-col gap-6">
+      <div id="toast" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3 flex items-center justify-between shadow-sm">
+        <div class="flex items-center gap-3">
+          <i class="fa-solid fa-circle-check text-emerald-600"></i>
+          <span id="toastMessage">Action completed successfully.</span>
+        </div>
+        <button onclick="hideToast()" class="text-emerald-600 hover:text-emerald-700"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div id="adminPanel" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+        <div class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-bold text-slate-800">Teacher Management</h2>
+              <span class="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full text-xs font-semibold">Admin</span>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div onclick="filterByStatus('all')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 cursor-pointer hover:border-indigo-400 transition">
-                    <div class="flex justify-between items-start">
-                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Students</p>
-                        <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg"><i class="fa-solid fa-users"></i></div>
-                    </div>
-                    <h3 id="statTotal" class="text-2xl font-bold mt-2 text-slate-900">0</h3>
-                </div>
-                <div onclick="filterByStatus('Completed')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 cursor-pointer hover:border-emerald-400 transition">
-                    <div class="flex justify-between items-start">
-                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Completed</p>
-                        <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg"><i class="fa-solid fa-circle-check"></i></div>
-                    </div>
-                    <h3 id="statCompleted" class="text-2xl font-bold mt-2 text-emerald-600">0</h3>
-                </div>
-                <div onclick="filterByStatus('Incomplete')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 cursor-pointer hover:border-amber-400 transition">
-                    <div class="flex justify-between items-start">
-                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Incomplete</p>
-                        <div class="p-2 bg-amber-50 text-amber-600 rounded-lg"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    </div>
-                    <h3 id="statIncomplete" class="text-2xl font-bold mt-2 text-amber-600">0</h3>
-                </div>
-                <div onclick="filterByStatus('Aadhaar Issue')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 cursor-pointer hover:border-rose-400 transition">
-                    <div class="flex justify-between items-start">
-                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Aadhaar / Seeding</p>
-                        <div class="p-2 bg-rose-50 text-rose-600 rounded-lg"><i class="fa-solid fa-id-card-clip"></i></div>
-                    </div>
-                    <h3 id="statAadhaar" class="text-2xl font-bold mt-2 text-rose-600">0</h3>
-                </div>
-                <div onclick="filterByStatus('Doc Issue')" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 cursor-pointer hover:border-purple-400 transition">
-                    <div class="flex justify-between items-start">
-                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Income/Caste Issues</p>
-                        <div class="p-2 bg-purple-50 text-purple-600 rounded-lg"><i class="fa-solid fa-file-invoice"></i></div>
-                    </div>
-                    <h3 id="statDocIssues" class="text-2xl font-bold mt-2 text-purple-600">0</h3>
-                </div>
-            </div>
-
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="flex items-center w-full md:w-80 relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-slate-400"></i>
-                    <input type="text" id="searchInput" oninput="renderTable()" placeholder="Search student, roll, or teacher..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                </div>
-                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                    <select id="statusFilter" onchange="renderTable()" class="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="all">All Statuses</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Incomplete">Incomplete / Pending Docs</option>
-                    </select>
-                    <select id="sectionFilter" onchange="renderTable()" class="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="all">All Sections (A & B)</option>
-                        <option value="Section A">Section A</option>
-                        <option value="Section B">Section B</option>
-                    </select>
-                    <select id="classFilter" onchange="renderTable()" class="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="all">All Classes</option>
-                        <option value="Class 6">Class 6</option>
-                        <option value="Class 7">Class 7</option>
-                        <option value="Class 8">Class 8</option>
-                        <option value="Class 9">Class 9</option>
-                        <option value="Class 10">Class 10</option>
-                    </select>
-                    <button onclick="exportToExcel()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm transition flex items-center space-x-2">
-                        <i class="fa-solid fa-download text-slate-600"></i>
-                        <span>Export</span>
-                    </button>
-                    <button id="bulkDeleteBtn" onclick="bulkDeleteVisibleStudents()" class="hidden bg-rose-600 hover:bg-rose-500 text-white px-3 py-2.5 rounded-xl text-sm font-semibold shadow-sm">
-                        <i class="fa-solid fa-trash mr-2"></i>Delete Visible
-                    </button>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                <th class="py-3.5 px-4">Student & Roll No</th>
-                                <th class="py-3.5 px-4">Class, Cat & Section</th>
-                                <th class="py-3.5 px-4">Allocated Teacher</th>
-                                <th class="py-3.5 px-4">Application Status</th>
-                                <th class="py-3.5 px-4">Document Deficiencies</th>
-                                <th class="py-3.5 px-4">Bank & IFSC</th>
-                                <th class="py-3.5 px-4 text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="studentTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
-                    </table>
-                </div>
-                <div id="emptyState" class="hidden flex flex-col items-center justify-center p-12 text-center">
-                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 text-2xl mb-3">
-                        <i class="fa-solid fa-folder-open"></i>
-                    </div>
-                    <h3 class="font-semibold text-slate-700 text-base">No students found</h3>
-                    <p class="text-xs text-slate-400 mt-1">Try adjusting your filters or add a new student record.</p>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <div id="studentModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4 overflow-y-auto">
-        <div class="bg-white rounded-3xl shadow-xl max-w-2xl w-full p-6 sm:p-8 relative my-8">
-            <div class="flex justify-between items-center pb-4 border-b border-slate-100">
-                <h3 id="modalTitle" class="text-lg font-bold text-slate-900">Add New Student Record</h3>
-                <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <form id="studentForm" onsubmit="saveStudent(event)" class="space-y-4 pt-4">
-                <input type="hidden" id="editStudentId">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Student Full Name *</label>
-                        <input type="text" id="fullName" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Roll Number / Reg No *</label>
-                        <input type="text" id="rollNo" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Class *</label>
-                        <select id="studentClass" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="Class 6">Class 6</option>
-                            <option value="Class 7">Class 7</option>
-                            <option value="Class 8">Class 8</option>
-                            <option value="Class 9" selected>Class 9</option>
-                            <option value="Class 10">Class 10</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Section *</label>
-                        <select id="sectionName" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="Section A">Section A</option>
-                            <option value="Section B">Section B</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Category *</label>
-                        <select id="category" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="SC">SC</option>
-                            <option value="ST">ST</option>
-                            <option value="OBC">OBC</option>
-                            <option value="SEBC">SEBC</option>
-                            <option value="Minority">Minority</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Allocated Teacher *</label>
-                        <select id="teacherSelect" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Contact Phone</label>
-                        <input type="text" id="phone" placeholder="Parent mobile" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                </div>
-
-                <div class="border-t border-slate-100 pt-4">
-                    <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Document & Verification Checklist</h4>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200 mb-4">
-                        <label class="flex items-center space-x-3 cursor-pointer">
-                            <input type="checkbox" id="chkAadhaar" checked class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
-                            <span class="text-sm font-medium text-slate-700">Aadhaar Card Submitted</span>
-                        </label>
-                        <label class="flex items-center space-x-3 cursor-pointer">
-                            <input type="checkbox" id="chkAadhaarSeeded" checked class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
-                            <span class="text-sm font-medium text-slate-700">Aadhaar Bank Seeded (NPCI)</span>
-                        </label>
-                        <label class="flex items-center space-x-3 cursor-pointer">
-                            <input type="checkbox" id="chkIncome" checked class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
-                            <span class="text-sm font-medium text-slate-700">Income Certificate Valid (2024-25-26)</span>
-                        </label>
-                        <label class="flex items-center space-x-3 cursor-pointer">
-                            <input type="checkbox" id="chkCaste" checked class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
-                            <span class="text-sm font-medium text-slate-700">Caste Certificate Valid (Issued post-2020)</span>
-                        </label>
-                        <label class="flex items-center space-x-3 cursor-pointer sm:col-span-2">
-                            <input type="checkbox" id="chkPassbook" checked class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500">
-                            <span class="text-sm font-medium text-slate-700">Bank Passbook & IFSC Verified</span>
-                        </label>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
-                        <div>
-                            <label class="block text-[11px] font-bold text-indigo-900 uppercase mb-1">Aadhaar Number</label>
-                            <input type="text" id="aadhaarNo" placeholder="12-digit Aadhaar" maxlength="12" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-indigo-900 uppercase mb-1">Income Cert. No.</label>
-                            <input type="text" id="incomeCertNo" placeholder="Income Cert No." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-indigo-900 uppercase mb-1">Caste Cert. No.</label>
-                            <input type="text" id="casteCertNo" placeholder="Caste Cert No." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Bank Account No</label>
-                        <input type="text" id="bankAcc" placeholder="Account Number" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">IFSC Code</label>
-                        <input type="text" id="ifscCode" placeholder="e.g. SBIN0001234" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase">
-                    </div>
-                </div>
-
-                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
-                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 font-medium text-sm text-slate-600 hover:bg-slate-100 transition">Cancel</button>
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-medium text-sm text-white transition shadow-sm">Save Record</button>
-                </div>
+            <form id="teacherForm" onsubmit="addTeacher(event)" class="space-y-3">
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Teacher Name</label>
+                <input id="teacherName" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Username</label>
+                <input id="teacherUsername" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Password</label>
+                <input id="teacherPassword" type="password" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              </div>
+              <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-semibold text-sm shadow-sm">
+                <i class="fa-solid fa-user-plus mr-2"></i> Add Teacher
+              </button>
             </form>
+          </div>
+
+          <div>
+            <h3 class="text-sm font-bold uppercase tracking-wide text-slate-500 mb-3">Teacher List</h3>
+            <div id="teacherList" class="space-y-2 max-h-72 overflow-y-auto soft-scroll"></div>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <div id="reminderModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-3xl shadow-xl max-w-md w-full p-6 relative">
-            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                <h3 class="text-lg font-bold text-slate-900">Document Deficiencies Notice</h3>
-                <button type="button" onclick="closeReminderModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+        <div onclick="filterByStatus('all')" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-indigo-300 transition">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Total</p>
+              <h3 id="statTotal" class="text-2xl font-bold text-slate-900 mt-2">0</h3>
             </div>
-            <div class="py-4 space-y-3">
-                <p class="text-xs text-slate-500">Review the deficiencies below and copy or send the reminder message to the parent.</p>
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm font-mono text-slate-700 whitespace-pre-wrap" id="reminderTextContent"></div>
-            </div>
-            <div class="flex space-x-3 pt-2">
-                <button type="button" onclick="copyReminderText()" class="flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center space-x-2">
-                    <i class="fa-regular fa-copy"></i>
-                    <span>Copy Text</span>
-                </button>
-                <a id="whatsappBtn" href="#" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center space-x-2">
-                    <i class="fa-brands fa-whatsapp text-lg"></i>
-                    <span>WhatsApp</span>
-                </a>
-            </div>
+            <div class="bg-indigo-50 text-indigo-600 rounded-lg p-2"><i class="fa-solid fa-users"></i></div>
+          </div>
         </div>
+
+        <div onclick="filterByStatus('Completed')" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-emerald-300 transition">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Completed</p>
+              <h3 id="statCompleted" class="text-2xl font-bold text-emerald-600 mt-2">0</h3>
+            </div>
+            <div class="bg-emerald-50 text-emerald-600 rounded-lg p-2"><i class="fa-solid fa-circle-check"></i></div>
+          </div>
+        </div>
+
+        <div onclick="filterByStatus('Incomplete')" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-amber-300 transition">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Pending</p>
+              <h3 id="statIncomplete" class="text-2xl font-bold text-amber-600 mt-2">0</h3>
+            </div>
+            <div class="bg-amber-50 text-amber-600 rounded-lg p-2"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          </div>
+        </div>
+
+        <div onclick="filterByStatus('Aadhaar Issue')" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-rose-300 transition">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Aadhaar</p>
+              <h3 id="statAadhaar" class="text-2xl font-bold text-rose-600 mt-2">0</h3>
+            </div>
+            <div class="bg-rose-50 text-rose-600 rounded-lg p-2"><i class="fa-solid fa-id-card-clip"></i></div>
+          </div>
+        </div>
+
+        <div onclick="filterByStatus('Doc Issue')" class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm cursor-pointer hover:border-purple-300 transition">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Income/Caste</p>
+              <h3 id="statDocIssues" class="text-2xl font-bold text-purple-600 mt-2">0</h3>
+            </div>
+            <div class="bg-purple-50 text-purple-600 rounded-lg p-2"><i class="fa-solid fa-file-invoice"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="relative w-full md:w-80">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400"></i>
+          <input id="searchInput" type="text" oninput="renderTable()" placeholder="Search student, roll or teacher..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          <select id="statusFilter" onchange="renderTable()" class="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="all">All Statuses</option>
+            <option value="Completed">Completed</option>
+            <option value="Incomplete">Incomplete / Pending</option>
+          </select>
+
+          <select id="sectionFilter" onchange="renderTable()" class="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="all">All Sections</option>
+            <option value="Section A">Section A</option>
+            <option value="Section B">Section B</option>
+          </select>
+
+          <select id="classFilter" onchange="renderTable()" class="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="all">All Classes</option>
+            <option value="Class 6">Class 6</option>
+            <option value="Class 7">Class 7</option>
+            <option value="Class 8">Class 8</option>
+            <option value="Class 9">Class 9</option>
+            <option value="Class 10">Class 10</option>
+          </select>
+
+          <button onclick="exportToExcel()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2">
+            <i class="fa-solid fa-download"></i>
+            <span>Export</span>
+          </button>
+
+          <button id="bulkDeleteBtn" onclick="bulkDeleteVisibleStudents()" class="hidden bg-rose-600 hover:bg-rose-500 text-white px-3 py-2.5 rounded-xl text-sm font-semibold shadow-sm">
+            <i class="fa-solid fa-trash mr-2"></i>Delete Visible
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <th class="py-3.5 px-4 text-left">Student</th>
+                <th class="py-3.5 px-4 text-left">Class / Category</th>
+                <th class="py-3.5 px-4 text-left">Teacher</th>
+                <th class="py-3.5 px-4 text-left">Status</th>
+                <th class="py-3.5 px-4 text-left">Deficiencies</th>
+                <th class="py-3.5 px-4 text-left">Bank / IFSC</th>
+                <th class="py-3.5 px-4 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+
+        <div id="emptyState" class="hidden px-8 py-12 text-center">
+          <div class="mx-auto mb-4 w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 text-2xl">
+            <i class="fa-solid fa-folder-open"></i>
+          </div>
+          <h3 class="text-lg font-semibold text-slate-700">No students found</h3>
+          <p class="text-xs text-slate-400 mt-1">Try adjusting your search or import a new scholarship sheet.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="studentModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl shadow-xl max-w-2xl w-full p-6 sm:p-8 relative my-8">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <h3 id="modalTitle" class="text-lg font-bold text-slate-900">Add New Student Record</h3>
+        <button type="button" onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="studentForm" onsubmit="saveStudent(event)" class="space-y-4 pt-4">
+        <input type="hidden" id="editStudentId" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Student Full Name *</label>
+            <input id="fullName" type="text" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Roll Number / Reg No *</label>
+            <input id="rollNo" type="text" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Class *</label>
+            <select id="studentClass" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="Class 6">Class 6</option>
+              <option value="Class 7">Class 7</option>
+              <option value="Class 8">Class 8</option>
+              <option value="Class 9" selected>Class 9</option>
+              <option value="Class 10">Class 10</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Section *</label>
+            <select id="sectionName" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="Section A">Section A</option>
+              <option value="Section B">Section B</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Category *</label>
+            <select id="category" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="SC">SC</option>
+              <option value="ST">ST</option>
+              <option value="OBC">OBC</option>
+              <option value="SEBC">SEBC</option>
+              <option value="Minority">Minority</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Allocated Teacher *</label>
+            <select id="teacherSelect" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Contact Phone</label>
+            <input id="phone" type="text" placeholder="Parent mobile" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+        </div>
+
+        <div class="border-t border-slate-100 pt-4">
+          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Document & verification checklist</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200 mb-4">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" id="chkAadhaar" checked class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500" />
+              <span class="text-sm font-medium text-slate-700">Aadhaar card submitted</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" id="chkAadhaarSeeded" checked class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500" />
+              <span class="text-sm font-medium text-slate-700">Aadhaar bank seeded</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" id="chkIncome" checked class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500" />
+              <span class="text-sm font-medium text-slate-700">Income certificate valid</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" id="chkCaste" checked class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500" />
+              <span class="text-sm font-medium text-slate-700">Caste certificate valid</span>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer sm:col-span-2">
+              <input type="checkbox" id="chkPassbook" checked class="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500" />
+              <span class="text-sm font-medium text-slate-700">Bank passbook & IFSC verified</span>
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
+            <div>
+              <label class="block text-[11px] font-bold text-indigo-900 uppercase mb-1">Aadhaar Number</label>
+              <input id="aadhaarNo" type="text" maxlength="12" placeholder="12-digit Aadhaar" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-indigo-900 uppercase mb-1">Income Cert. No.</label>
+              <input id="incomeCertNo" type="text" placeholder="Income cert no." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-indigo-900 uppercase mb-1">Caste Cert. No.</label>
+              <input id="casteCertNo" type="text" placeholder="Caste cert no." class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Bank Account No</label>
+            <input id="bankAcc" type="text" placeholder="Account Number" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">IFSC Code</label>
+            <input id="ifscCode" type="text" placeholder="e.g. SBIN0001234" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+          <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 font-medium text-sm text-slate-600 hover:bg-slate-100 transition">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-medium text-sm text-white transition shadow-sm">Save Record</button>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
-        import { getDatabase, ref, get, set, onValue } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+  <div id="reminderModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl shadow-xl max-w-md w-full p-6 relative">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <h3 class="text-lg font-bold text-slate-900">Document Deficiency Notice</h3>
+        <button type="button" onclick="closeReminderModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyA8HX-nCadL5uuvnEyiQBgv5eRHrTJD5uo",
-            authDomain: "bapujihss.firebaseapp.com",
-            databaseURL: "https://bapujihss-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "bapujihss",
-            storageBucket: "bapujihss.firebasestorage.app",
-            messagingSenderId: "174183270330",
-            appId: "1:174183270330:web:0d10fb4e6f31096f55bf83",
-            measurementId: "G-526Z0V4CES"
+      <div class="py-4 space-y-3">
+        <p class="text-xs text-slate-500">Review the pending items below and send the reminder message to the parent.</p>
+        <div id="reminderTextContent" class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm font-mono text-slate-700 whitespace-pre-wrap"></div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="button" onclick="copyReminderText()" class="flex-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2">
+          <i class="fa-regular fa-copy"></i>
+          <span>Copy</span>
+        </button>
+        <a id="whatsappBtn" href="#" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2">
+          <i class="fa-brands fa-whatsapp text-lg"></i>
+          <span>WhatsApp</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
+    import { getDatabase, ref, get, set, onValue } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyA8HX-nCadL5uuvnEyiQBgv5eRHrTJD5uo',
+      authDomain: 'bapujihss.firebaseapp.com',
+      databaseURL: 'https://bapujihss-default-rtdb.asia-southeast1.firebasedatabase.app',
+      projectId: 'bapujihss',
+      storageBucket: 'bapujihss.firebasestorage.app',
+      messagingSenderId: '174183270330',
+      appId: '1:174183270330:web:0d10fb4e6f31096f55bf83',
+      measurementId: 'G-526Z0V4CES'
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const SCHOOL_ID = 'school_01';
+    const SCHOOL_NAME = 'Bapuji Higher Secondary School';
+    const LOCAL_KEY = 'pms_school_students_v2';
+    const TEACHER_KEY = 'pms_school_teachers_v2';
+
+    const defaultTeachers = [
+      { id: 'admin-1', name: 'Hemant', username: 'Hemant', password: 'Abcd@1234', role: 'admin' },
+      { id: 'teacher-1', name: 'Bapujihss', username: 'Bapujihss', password: '1962', role: 'teacher' }
+    ];
+
+    const defaultStudents = [
+      { id: '1', name: 'SURAJ SAHOO', rollNo: 'IX-2026-001', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'OBC', phone: '9876543210', aadhaar: true, aadhaarSeeded: true, income: true, caste: true, passbook: true, bankAcc: '123456789012', ifsc: 'SBIN0001234', aadhaarNo: '123456789012', incomeCertNo: 'INC-2024-001', casteCertNo: 'CASTE-2024-001' },
+      { id: '2', name: 'LIPUN NAIK', rollNo: 'IX-2026-002', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9123456789', aadhaar: true, aadhaarSeeded: false, income: true, caste: true, passbook: true, bankAcc: '123456789013', ifsc: 'HDFC0001234', aadhaarNo: '123456789013', incomeCertNo: 'INC-2024-002', casteCertNo: 'CASTE-2024-002' },
+      { id: '3', name: 'JYOTIRMAYEE BEHERA', rollNo: 'IX-2026-003', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9938210928', aadhaar: true, aadhaarSeeded: true, income: false, caste: true, passbook: true, bankAcc: '123456789014', ifsc: 'ICIC0001234', aadhaarNo: '123456789014', incomeCertNo: '', casteCertNo: 'CASTE-2024-003' },
+      { id: '4', name: 'RUDRA PRASAD SETHI', rollNo: 'IX-2026-004', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9438102938', aadhaar: true, aadhaarSeeded: true, income: true, caste: false, passbook: true, bankAcc: '123456789015', ifsc: 'AXIS0001234', aadhaarNo: '123456789015', incomeCertNo: 'INC-2024-005', casteCertNo: '' },
+      { id: '5', name: 'CHINMAYEE BHOI', rollNo: 'IX-2026-005', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'OBC', phone: '9738102934', aadhaar: false, aadhaarSeeded: false, income: false, caste: false, passbook: false, bankAcc: '', ifsc: '', aadhaarNo: '', incomeCertNo: '', casteCertNo: '' }
+    ];
+
+    window.students = [];
+    window.teachers = [];
+    window.currentUser = null;
+    window.activeFilterStatus = 'all';
+
+    function readLocal(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function saveLocal(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function setSyncBadge(online) {
+      const badge = document.getElementById('syncBadge');
+      if (!badge) return;
+      badge.textContent = online ? 'Cloud Live' : 'Offline Mode';
+      badge.className = online
+        ? 'bg-emerald-400 text-emerald-950 px-2 py-0.5 rounded-full text-[10px] font-bold'
+        : 'bg-rose-400 text-rose-950 px-2 py-0.5 rounded-full text-[10px] font-bold';
+    }
+
+    function ensureInitialData() {
+      const localStudents = readLocal(LOCAL_KEY, defaultStudents);
+      const localTeachers = readLocal(TEACHER_KEY, defaultTeachers);
+      window.students = Array.isArray(localStudents) && localStudents.length ? localStudents : defaultStudents;
+      window.teachers = Array.isArray(localTeachers) && localTeachers.length ? localTeachers : defaultTeachers;
+      saveLocal(LOCAL_KEY, window.students);
+      saveLocal(TEACHER_KEY, window.teachers);
+      renderTeacherList();
+      populateTeacherDropdown();
+      renderTable();
+      updateStats();
+    }
+
+    function populateTeacherDropdown() {
+      const select = document.getElementById('teacherSelect');
+      if (!select) return;
+
+      const options = window.teachers.filter(t => t.role === 'teacher' || t.username === 'Bapujihss');
+      select.innerHTML = options.map(t => `<option value="${t.username}">${t.name}</option>`).join('');
+
+      if (window.currentUser && window.currentUser.role === 'teacher') {
+        select.value = window.currentUser.username;
+      }
+    }
+
+    function renderTeacherList() {
+      const list = document.getElementById('teacherList');
+      if (!list) return;
+
+      list.innerHTML = window.teachers.map(t => {
+        const isLocked = t.role === 'admin' || t.username === 'Bapujihss';
+        const deleteButton = isLocked
+          ? '<button disabled class="opacity-40 px-2 py-1 rounded text-xs bg-slate-100 text-slate-500">Locked</button>'
+          : `<button onclick="removeTeacher('${t.id}', '${t.username}')" class="px-2 py-1 rounded text-xs bg-rose-100 text-rose-600 hover:bg-rose-200">Delete</button>`;
+
+        return `
+          <div class="flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
+            <div>
+              <div class="font-semibold text-slate-800">${t.name}</div>
+              <div class="text-xs text-slate-500">${t.username} • ${t.role}</div>
+            </div>
+            ${deleteButton}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function normalizeStudent(student) {
+      return {
+        id: student.id || `student-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        name: student.name || '',
+        rollNo: student.rollNo || '',
+        className: student.className || 'Class 9',
+        section: student.section || 'Section A',
+        teacher: student.teacher || 'Bapujihss',
+        category: student.category || 'OBC',
+        phone: student.phone || '',
+        aadhaar: !!student.aadhaar,
+        aadhaarSeeded: !!student.aadhaarSeeded,
+        income: !!student.income,
+        caste: !!student.caste,
+        passbook: !!student.passbook,
+        bankAcc: student.bankAcc || '',
+        ifsc: student.ifsc || '',
+        aadhaarNo: student.aadhaarNo || '',
+        incomeCertNo: student.incomeCertNo || '',
+        casteCertNo: student.casteCertNo || ''
+      };
+    }
+
+    function normalizeTeacher(teacher) {
+      return {
+        id: teacher.id || `teacher-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        name: teacher.name || '',
+        username: teacher.username || '',
+        password: teacher.password || '',
+        role: teacher.role || 'teacher'
+      };
+    }
+
+    function evaluateStudent(student) {
+      const issues = [];
+      if (!student.aadhaar) issues.push('Aadhaar card missing');
+      if (student.aadhaar && !student.aadhaarSeeded) issues.push('Aadhaar not seeded');
+      if (!student.income) issues.push('Income certificate missing');
+      if (!student.caste) issues.push('Caste certificate missing');
+      if (!student.passbook || !student.ifsc || student.ifsc.trim() === '') issues.push('Bank passbook/IFSC missing');
+      return { isCompleted: issues.length === 0, issues };
+    }
+
+    function updateStats() {
+      const total = window.students.length;
+      let completed = 0;
+      let incomplete = 0;
+      let aadhaar = 0;
+      let docIssue = 0;
+
+      for (const student of window.students) {
+        const result = evaluateStudent(student);
+        if (result.isCompleted) completed++;
+        else {
+          incomplete++;
+          if (!student.aadhaar || !student.aadhaarSeeded) aadhaar++;
+          if (!student.income || !student.caste) docIssue++;
+        }
+      }
+
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statCompleted').textContent = completed;
+      document.getElementById('statIncomplete').textContent = incomplete;
+      document.getElementById('statAadhaar').textContent = aadhaar;
+      document.getElementById('statDocIssues').textContent = docIssue;
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('studentTableBody');
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const statusFilter = document.getElementById('statusFilter').value;
+      const sectionFilter = document.getElementById('sectionFilter').value;
+      const classFilter = document.getElementById('classFilter').value;
+      const emptyState = document.getElementById('emptyState');
+
+      tbody.innerHTML = '';
+      let visible = [...window.students];
+
+      if (window.currentUser && window.currentUser.role !== 'admin') {
+        visible = visible.filter(s => s.teacher === window.currentUser.username);
+      }
+
+      visible = visible.filter(student => {
+        const result = evaluateStudent(student);
+        const matchesSearch =
+          (student.name || '').toLowerCase().includes(search) ||
+          (student.rollNo || '').toLowerCase().includes(search) ||
+          (student.teacher || '').toLowerCase().includes(search) ||
+          (student.phone || '').includes(search);
+
+        const matchesSection = sectionFilter === 'all' || student.section === sectionFilter;
+        const matchesClass = classFilter === 'all' || student.className === classFilter;
+
+        let matchesStatus = true;
+        if (statusFilter === 'Completed') matchesStatus = result.isCompleted;
+        if (statusFilter === 'Incomplete') matchesStatus = !result.isCompleted;
+        if (window.activeFilterStatus === 'Completed') matchesStatus = result.isCompleted;
+        if (window.activeFilterStatus === 'Incomplete') matchesStatus = !result.isCompleted;
+        if (window.activeFilterStatus === 'Aadhaar Issue') matchesStatus = (!student.aadhaar || !student.aadhaarSeeded);
+        if (window.activeFilterStatus === 'Doc Issue') matchesStatus = (!student.income || !student.caste);
+
+        return matchesSearch && matchesSection && matchesClass && matchesStatus;
+      });
+
+      if (visible.length === 0) {
+        emptyState.classList.remove('hidden');
+        updateStats();
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      visible.forEach(student => {
+        const result = evaluateStudent(student);
+        const statusBadge = result.isCompleted
+          ? '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200"><i class="fa-solid fa-check mr-1"></i>Completed</span>'
+          : '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Pending</span>';
+
+        const issuesHtml = result.isCompleted
+          ? '<span class="text-xs text-emerald-600 font-medium">All documents verified</span>'
+          : '<ul class="text-xs text-rose-600 space-y-1">' + result.issues.map(i => `<li>• ${i}</li>`).join('') + '</ul>';
+
+        const docNumsHtml = `
+          <div class="text-[11px] text-slate-600 space-y-0.5">
+            <div><span class="font-semibold text-slate-500">Aadhaar:</span> <span class="font-mono">${student.aadhaarNo || 'Not Added'}</span></div>
+            <div><span class="font-semibold text-slate-500">Income:</span> <span class="font-mono">${student.incomeCertNo || 'Not Added'}</span></div>
+            <div><span class="font-semibold text-slate-500">Caste:</span> <span class="font-mono">${student.casteCertNo || 'Not Added'}</span></div>
+          </div>
+        `;
+
+        const bankInfo = student.bankAcc
+          ? `<div class="text-xs font-mono text-slate-700">${student.bankAcc}</div><div class="text-xs font-semibold text-indigo-600">${student.ifsc || 'No IFSC'}</div>`
+          : '<span class="text-xs text-amber-600 italic">Not updated</span>';
+
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-slate-50/80 transition';
+        row.innerHTML = `
+          <td class="py-3.5 px-4">
+            <div class="font-semibold text-slate-900">${student.name}</div>
+            <div class="text-xs text-slate-400 font-mono">${student.rollNo}</div>
+          </td>
+          <td class="py-3.5 px-4">
+            <div class="text-slate-800 font-medium">${student.className}</div>
+            <div class="flex items-center gap-1.5 mt-1">
+              <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] font-bold">${student.category}</span>
+              <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[10px] font-bold">${student.section || 'Section A'}</span>
+            </div>
+          </td>
+          <td class="py-3.5 px-4">
+            <div class="text-xs font-medium text-slate-700 flex items-center gap-1.5">
+              <i class="fa-solid fa-chalkboard-user text-indigo-600"></i>
+              <span>${student.teacher || 'Unassigned'}</span>
+            </div>
+          </td>
+          <td class="py-3.5 px-4 align-top">${statusBadge}</td>
+          <td class="py-3.5 px-4 align-top max-w-xs">
+            ${issuesHtml}
+            <div class="mt-2 pt-2 border-t border-slate-100">${docNumsHtml}</div>
+          </td>
+          <td class="py-3.5 px-4 align-top">${bankInfo}</td>
+          <td class="py-3.5 px-4 text-center align-top">
+            <div class="flex items-center justify-center gap-2">
+              ${!result.isCompleted && student.phone ? `<button type="button" onclick="openReminder('${student.id}')" title="Send WhatsApp reminder" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg transition"><i class="fa-brands fa-whatsapp"></i></button>` : ''}
+              <button type="button" onclick="editStudent('${student.id}')" title="Edit Record" class="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition"><i class="fa-solid fa-pen"></i></button>
+              <button type="button" onclick="deleteStudent('${student.id}')" title="Delete" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      updateStats();
+    }
+
+    function filterByStatus(status) {
+      window.activeFilterStatus = status;
+      document.getElementById('statusFilter').value = status === 'all' ? 'all' : status;
+      renderTable();
+    }
+
+    function loginUser() {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      const user = window.teachers.find(t => t.username === username && t.password === password);
+      if (!user) {
+        showToast('Invalid username or password.');
+        return;
+      }
+
+      window.currentUser = user;
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('appScreen').classList.remove('hidden');
+      document.getElementById('appSubtitle').textContent = user.role === 'admin' ? 'Administrator dashboard' : `Teacher dashboard: ${user.name}`;
+
+      const adminPanel = document.getElementById('adminPanel');
+      const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+
+      if (user.role === 'admin') {
+        adminPanel.classList.remove('hidden');
+        bulkDeleteBtn.classList.remove('hidden');
+      } else {
+        adminPanel.classList.add('hidden');
+        bulkDeleteBtn.classList.add('hidden');
+      }
+
+      populateTeacherDropdown();
+      renderTable();
+      showToast(`Welcome ${user.name}`);
+    }
+
+    function logoutUser() {
+      window.currentUser = null;
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('appScreen').classList.add('hidden');
+      document.getElementById('loginPassword').value = '';
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toastMessage');
+      text.textContent = message;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+
+    function hideToast() {
+      document.getElementById('toast').classList.add('hidden');
+    }
+
+    function removeTeacher(id, username) {
+      if (username === 'Hemant' || username === 'Bapujihss') {
+        showToast('Default account cannot be removed.');
+        return;
+      }
+
+      const confirmed = confirm('Delete this teacher account?');
+      if (!confirmed) return;
+
+      window.teachers = window.teachers.filter(t => t.id !== id);
+      window.students = window.students.filter(s => s.teacher !== username);
+      saveLocal(TEACHER_KEY, window.teachers);
+      saveLocal(LOCAL_KEY, window.students);
+      populateTeacherDropdown();
+      renderTeacherList();
+      renderTable();
+      persistData();
+      showToast('Teacher removed.');
+    }
+
+    async function addTeacher(event) {
+      event.preventDefault();
+      const name = document.getElementById('teacherName').value.trim();
+      const username = document.getElementById('teacherUsername').value.trim();
+      const password = document.getElementById('teacherPassword').value.trim();
+
+      if (!name || !username || !password) {
+        showToast('Please fill all teacher details.');
+        return;
+      }
+
+      if (window.teachers.some(t => t.username.toLowerCase() === username.toLowerCase())) {
+        showToast('Teacher username already exists.');
+        return;
+      }
+
+      window.teachers.push(normalizeTeacher({ id: `teacher-${Date.now()}`, name, username, password, role: 'teacher' }));
+      document.getElementById('teacherForm').reset();
+      populateTeacherDropdown();
+      renderTeacherList();
+      await persistData();
+      showToast('Teacher added successfully.');
+    }
+
+    function openAddStudentModal() {
+      document.getElementById('modalTitle').textContent = 'Add New Student Record';
+      document.getElementById('studentForm').reset();
+      document.getElementById('editStudentId').value = '';
+      document.getElementById('chkAadhaar').checked = true;
+      document.getElementById('chkAadhaarSeeded').checked = true;
+      document.getElementById('chkIncome').checked = true;
+      document.getElementById('chkCaste').checked = true;
+      document.getElementById('chkPassbook').checked = true;
+      document.getElementById('aadhaarNo').value = '';
+      document.getElementById('incomeCertNo').value = '';
+      document.getElementById('casteCertNo').value = '';
+      populateTeacherDropdown();
+      if (window.currentUser && window.currentUser.role === 'teacher') {
+        document.getElementById('teacherSelect').value = window.currentUser.username;
+      }
+      document.getElementById('studentModal').classList.remove('hidden');
+      document.getElementById('studentModal').classList.add('flex');
+    }
+
+    function closeModal() {
+      document.getElementById('studentModal').classList.add('hidden');
+      document.getElementById('studentModal').classList.remove('flex');
+    }
+
+    function editStudent(id) {
+      const student = window.students.find(item => item.id === id);
+      if (!student) return;
+
+      document.getElementById('modalTitle').textContent = 'Edit Student Record';
+      document.getElementById('editStudentId').value = student.id;
+      document.getElementById('fullName').value = student.name;
+      document.getElementById('rollNo').value = student.rollNo;
+      document.getElementById('studentClass').value = student.className;
+      document.getElementById('sectionName').value = student.section || 'Section A';
+      document.getElementById('category').value = student.category;
+      document.getElementById('phone').value = student.phone || '';
+      document.getElementById('chkAadhaar').checked = !!student.aadhaar;
+      document.getElementById('chkAadhaarSeeded').checked = !!student.aadhaarSeeded;
+      document.getElementById('chkIncome').checked = !!student.income;
+      document.getElementById('chkCaste').checked = !!student.caste;
+      document.getElementById('chkPassbook').checked = !!student.passbook;
+      document.getElementById('bankAcc').value = student.bankAcc || '';
+      document.getElementById('ifscCode').value = student.ifsc || '';
+      document.getElementById('aadhaarNo').value = student.aadhaarNo || '';
+      document.getElementById('incomeCertNo').value = student.incomeCertNo || '';
+      document.getElementById('casteCertNo').value = student.casteCertNo || '';
+      populateTeacherDropdown();
+      document.getElementById('teacherSelect').value = student.teacher || 'Bapujihss';
+      document.getElementById('studentModal').classList.remove('hidden');
+      document.getElementById('studentModal').classList.add('flex');
+    }
+
+    function saveStudent(event) {
+      event.preventDefault();
+      const id = document.getElementById('editStudentId').value;
+
+      const studentData = normalizeStudent({
+        id: id && id.trim() !== '' ? String(id) : `s_${Date.now()}${Math.random().toString(36).slice(2,7)}`,
+        name: document.getElementById('fullName').value.trim(),
+        rollNo: document.getElementById('rollNo').value.trim(),
+        className: document.getElementById('studentClass').value,
+        section: document.getElementById('sectionName').value,
+        teacher: document.getElementById('teacherSelect').value || 'Bapujihss',
+        category: document.getElementById('category').value,
+        phone: document.getElementById('phone').value.trim(),
+        aadhaar: document.getElementById('chkAadhaar').checked,
+        aadhaarSeeded: document.getElementById('chkAadhaarSeeded').checked,
+        income: document.getElementById('chkIncome').checked,
+        caste: document.getElementById('chkCaste').checked,
+        passbook: document.getElementById('chkPassbook').checked,
+        bankAcc: document.getElementById('bankAcc').value.trim(),
+        ifsc: document.getElementById('ifscCode').value.trim().toUpperCase(),
+        aadhaarNo: document.getElementById('aadhaarNo').value.trim(),
+        incomeCertNo: document.getElementById('incomeCertNo').value.trim().toUpperCase(),
+        casteCertNo: document.getElementById('casteCertNo').value.trim().toUpperCase()
+      });
+
+      if (!studentData.name || !studentData.rollNo) {
+        showToast('Name and roll number are required.');
+        return;
+      }
+
+      const existingIndex = window.students.findIndex(item => item.id === studentData.id || item.rollNo === studentData.rollNo);
+      if (existingIndex >= 0) {
+        window.students[existingIndex] = studentData;
+      } else {
+        window.students.push(studentData);
+      }
+
+      saveLocal(LOCAL_KEY, window.students);
+      persistData();
+      renderTable();
+      closeModal();
+      showToast('Student record saved successfully!');
+    }
+
+    function deleteStudent(id) {
+      if (!confirm('Are you sure you want to delete this student record?')) return;
+      window.students = window.students.filter(s => String(s.id) !== String(id));
+      saveLocal(LOCAL_KEY, window.students);
+      persistData();
+      renderTable();
+      showToast('Student record deleted.');
+    }
+
+    function bulkDeleteVisibleStudents() {
+      const visibleIds = [...document.querySelectorAll('#studentTableBody tr')].map(row => row.dataset.id).filter(Boolean);
+      if (!visibleIds.length) {
+        showToast('No visible students to delete.');
+        return;
+      }
+
+      const confirmed = confirm(`Delete ${visibleIds.length} visible students?`);
+      if (!confirmed) return;
+
+      window.students = window.students.filter(student => !visibleIds.includes(String(student.id)));
+      saveLocal(LOCAL_KEY, window.students);
+      persistData();
+      renderTable();
+      showToast('Visible students deleted.');
+    }
+
+    function openReminder(id) {
+      const student = window.students.find(item => item.id === id);
+      if (!student) return;
+
+      const result = evaluateStudent(student);
+      const message = `Dear Parent of ${student.name} (${student.className} - ${student.section}),\n\nYour scholarship application has pending documentation:\n` + result.issues.map(issue => `• ${issue}`).join('\n') + '\n\nPlease update the required documents at the earliest.\nThank you.';
+
+      document.getElementById('reminderTextContent').textContent = message;
+      const phoneNum = student.phone && student.phone.startsWith('+') ? student.phone : `+91${student.phone || ''}`;
+      document.getElementById('whatsappBtn').href = `https://wa.me/${phoneNum}?text=${encodeURIComponent(message)}`;
+      document.getElementById('reminderModal').classList.remove('hidden');
+      document.getElementById('reminderModal').classList.add('flex');
+    }
+
+    function closeReminderModal() {
+      document.getElementById('reminderModal').classList.add('hidden');
+      document.getElementById('reminderModal').classList.remove('flex');
+    }
+
+    function copyReminderText() {
+      const text = document.getElementById('reminderTextContent').textContent;
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      textarea.remove();
+      showToast('Reminder copied to clipboard.');
+    }
+
+    function getSpreadsheetRows() {
+      return window.students.map(student => ({
+        'Student Name': student.name,
+        'Roll No': student.rollNo,
+        'Class': student.className,
+        'Section': student.section,
+        'Category': student.category,
+        'Teacher': student.teacher,
+        'Parent Mobile': student.phone,
+        'Aadhaar': student.aadhaar ? 'Yes' : 'No',
+        'Aadhaar Seeded': student.aadhaarSeeded ? 'Yes' : 'No',
+        'Income Certificate': student.income ? 'Yes' : 'No',
+        'Caste Certificate': student.caste ? 'Yes' : 'No',
+        'Bank Account': student.bankAcc,
+        'IFSC': student.ifsc,
+        'Aadhaar Number': student.aadhaarNo,
+        'Income Certificate No': student.incomeCertNo,
+        'Caste Certificate No': student.casteCertNo,
+        'Application Status': evaluateStudent(student).isCompleted ? 'Completed' : 'Incomplete',
+        'Issues': evaluateStudent(student).issues.join('; ') || 'None'
+      }));
+    }
+
+    function exportToExcel() {
+      const rows = getSpreadsheetRows();
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Scholarship Data');
+      XLSX.writeFile(workbook, 'pms-scholarship-sheet.xlsx');
+      showToast('Excel sheet exported.');
+    }
+
+    function normalizeHeader(value) {
+      return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function mapImportedRow(row) {
+      const keys = Object.keys(row).reduce((acc, key) => {
+        acc[normalizeHeader(key)] = row[key];
+        return acc;
+      }, {});
+
+      const student = {
+        id: `s_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        name: keys.studentname || keys.studentfullname || keys.name || '',
+        rollNo: keys.rollno || keys.rollnumber || keys.regno || '',
+        className: keys.class || 'Class 9',
+        section: keys.section || 'Section A',
+        category: keys.category || 'OBC',
+        teacher: keys.teacher || 'Bapujihss',
+        phone: String(keys.parentmobile || keys.phone || '').trim(),
+        aadhaar: String(keys.aadhaar || '').toLowerCase() === 'yes' || String(keys.aadhaar || '').toLowerCase() === 'true',
+        aadhaarSeeded: String(keys.aadhaarseeded || '').toLowerCase() === 'yes' || String(keys.aadhaarseeded || '').toLowerCase() === 'true',
+        income: String(keys.incomecertificate || '').toLowerCase() === 'yes' || String(keys.income || '').toLowerCase() === 'yes',
+        caste: String(keys.castecertificate || '').toLowerCase() === 'yes' || String(keys.caste || '').toLowerCase() === 'yes',
+        bankAcc: keys.bankaccount || keys.accountnumber || '',
+        ifsc: String(keys.ifsc || '').toUpperCase(),
+        aadhaarNo: keys.aadhaarnumber || '',
+        incomeCertNo: keys.incomecertificateno || keys.incomenumber || '',
+        casteCertNo: keys.castecertificateno || keys.castenumber || '',
+        passbook: true
+      };
+
+      return normalizeStudent(student);
+    }
+
+    function handleExcelImport(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+          const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+          if (!rows.length) {
+            showToast('The imported sheet is empty.');
+            return;
+          }
+
+          const importedStudents = rows.map(mapImportedRow).filter(s => s.name && s.rollNo);
+          if (!importedStudents.length) {
+            showToast('No valid student rows were found in the sheet.');
+            return;
+          }
+
+          window.students = importedStudents;
+          saveLocal(LOCAL_KEY, window.students);
+          persistData();
+          renderTable();
+          showToast(`Imported ${importedStudents.length} students.`);
+        } catch (error) {
+          console.error(error);
+          showToast('Imported file could not be parsed. Please use a valid Excel/CSV sheet.');
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+      event.target.value = '';
+    }
+
+    async function persistData() {
+      saveLocal(LOCAL_KEY, window.students);
+      saveLocal(TEACHER_KEY, window.teachers);
+
+      try {
+        const schoolRecord = {
+          schoolId: SCHOOL_ID,
+          schoolName: SCHOOL_NAME,
+          academicYear: '2024-25-26',
+          teachers: window.teachers.reduce((acc, teacher) => {
+            acc[teacher.id] = normalizeTeacher(teacher);
+            return acc;
+          }, {}),
+          students: window.students.reduce((acc, student) => {
+            acc[student.id] = normalizeStudent(student);
+            return acc;
+          }, {}),
+          sync: {
+            source: 'firebase',
+            updatedAt: new Date().toISOString()
+          }
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        window.firebaseDb = db;
+        await set(ref(db, `schools/${SCHOOL_ID}`), schoolRecord);
+        setSyncBadge(true);
+      } catch (error) {
+        console.warn('Firebase save failed, local-only mode enabled:', error);
+        setSyncBadge(false);
+      }
+    }
 
-        const LOCAL_KEY = 'pms_students_cloud_v3';
-        const TEACHER_KEY = 'pms_teachers_cloud_v3';
+    async function syncFromFirebase() {
+      try {
+        const snapshot = await get(ref(db, `schools/${SCHOOL_ID}`));
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          if (data && Array.isArray(data.teachers)) {
+            window.teachers = data.teachers.map(normalizeTeacher);
+          } else if (data && data.teachers && typeof data.teachers === 'object') {
+            window.teachers = Object.values(data.teachers).map(normalizeTeacher);
+          }
 
-        const defaultTeachers = [
-            { id: 'admin-1', name: 'Hemant', username: 'Hemant', password: 'Abcd@1234', role: 'admin' },
-            { id: 'teacher-1', name: 'Bapujihss', username: 'Bapujihss', password: '1962', role: 'teacher' }
-        ];
+          if (data && Array.isArray(data.students)) {
+            window.students = data.students.map(normalizeStudent);
+          } else if (data && data.students && typeof data.students === 'object') {
+            window.students = Object.values(data.students).map(normalizeStudent);
+          }
 
-        const defaultStudents = [
-            { id: '1', name: 'SURAJ SAHOO', rollNo: 'IX-2026-001', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'OBC', phone: '9876543210', aadhaar: true, aadhaarSeeded: true, income: true, caste: true, passbook: true, bankAcc: '38920192831', ifsc: 'SBIN0005231', aadhaarNo: '452189321092', incomeCertNo: 'INC/2025/8912', casteCertNo: 'CST/2023/4412' },
-            { id: '2', name: 'LIPUN NAIK', rollNo: 'IX-2026-002', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9123456789', aadhaar: true, aadhaarSeeded: false, income: false, caste: true, passbook: true, bankAcc: '50192837465', ifsc: 'UBIN0531245', aadhaarNo: '782390124981', incomeCertNo: '', casteCertNo: 'CST/2021/1190' },
-            { id: '3', name: 'JYOTIRMAYEE BEHERA', rollNo: 'IX-2026-003', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9938210928', aadhaar: true, aadhaarSeeded: true, income: true, caste: false, passbook: false, bankAcc: '', ifsc: '', aadhaarNo: '901283746102', incomeCertNo: 'INC/2025/3321', casteCertNo: '' },
-            { id: '4', name: 'RUDRA PRASAD SETHI', rollNo: 'IX-2026-004', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'SC', phone: '9438102938', aadhaar: true, aadhaarSeeded: true, income: true, caste: true, passbook: true, bankAcc: '10293847561', ifsc: 'BARB0CHANDI', aadhaarNo: '331982736410', incomeCertNo: 'INC/2024/9912', casteCertNo: 'CST/2022/8812' },
-            { id: '5', name: 'CHINMAYEE BHOI', rollNo: 'IX-2026-005', className: 'Class 9', section: 'Section A', teacher: 'Bapujihss', category: 'OBC', phone: '9738102934', aadhaar: false, aadhaarSeeded: false, income: true, caste: true, passbook: true, bankAcc: '28392019384', ifsc: 'CBIN0281920', aadhaarNo: '', incomeCertNo: 'INC/2025/1102', casteCertNo: 'CST/2023/9021' },
-            { id: '6', name: 'ANEEK KUMAR ROUT', rollNo: 'IX-2026-008', className: 'Class 9', section: 'Section B', teacher: 'Bapujihss', category: 'OBC', phone: '9438102937', aadhaar: true, aadhaarSeeded: true, income: true, caste: true, passbook: true, bankAcc: '68392019283', ifsc: 'SBIN0001122', aadhaarNo: '662918273645', incomeCertNo: 'INC/2025/4431', casteCertNo: 'CST/2022/5512' },
-            { id: '7', name: 'BARSHA RANI NAYAK', rollNo: 'IX-2026-009', className: 'Class 9', section: 'Section B', teacher: 'Bapujihss', category: 'ST', phone: '9338102938', aadhaar: true, aadhaarSeeded: false, income: false, caste: false, passbook: true, bankAcc: '79201928394', ifsc: 'BKID0004321', aadhaarNo: '128394019283', incomeCertNo: '', casteCertNo: '' },
-            { id: '8', name: 'DEBASIS PATRA', rollNo: 'IX-2026-010', className: 'Class 9', section: 'Section B', teacher: 'Bapujihss', category: 'SC', phone: '9238102939', aadhaar: true, aadhaarSeeded: true, income: true, caste: true, passbook: true, bankAcc: '89201928395', ifsc: 'UBIN0542312', aadhaarNo: '882910394821', incomeCertNo: 'INC/2025/7781', casteCertNo: 'CST/2024/3310' }
-        ];
+          if (!window.teachers.length) window.teachers = defaultTeachers;
+          if (!window.students.length) window.students = defaultStudents;
 
-        window.students = [];
-        window.teachers = [];
-        window.activeFilterStatus = 'all';
-        window.isAdmin = false;
-        let cloudOnline = false;
-        let pendingWrites = 0;
-        let lastSnapshot = '';
-
-        function setSyncBadge(online) {
-            const badge = document.getElementById('syncBadge');
-            if (!badge) return;
-            if (online) {
-                badge.innerText = 'Cloud Live';
-                badge.className = 'bg-emerald-400 text-emerald-950 px-2 py-0.5 rounded-full text-[10px] font-bold';
-            } else {
-                badge.innerText = 'Offline Mode';
-                badge.className = 'bg-rose-400 text-rose-950 px-2 py-0.5 rounded-full text-[10px] font-bold';
-            }
-            cloudOnline = online;
+          saveLocal(LOCAL_KEY, window.students);
+          saveLocal(TEACHER_KEY, window.teachers);
+          renderTeacherList();
+          populateTeacherDropdown();
+          renderTable();
+          updateStats();
+          setSyncBadge(true);
+        } else {
+          ensureInitialData();
+          await persistData();
         }
+      } catch (error) {
+        console.warn('Firebase unavailable; using local storage.', error);
+        ensureInitialData();
+        setSyncBadge(false);
+      }
+    }
 
-        function readLocal(key, fallback) {
-            try {
-                const raw = localStorage.getItem(key);
-                return raw ? JSON.parse(raw) : fallback;
-            } catch (e) {
-                return fallback;
-            }
+    async function initApp() {
+      ensureInitialData();
+      await syncFromFirebase();
+      const authRef = ref(db, `schools/${SCHOOL_ID}`);
+      onValue(authRef, (snapshot) => {
+        if (!snapshot.exists()) return;
+        const data = snapshot.val();
+        if (data && data.teachers) {
+          window.teachers = Object.values(data.teachers).map(normalizeTeacher);
+          renderTeacherList();
+          populateTeacherDropdown();
+          saveLocal(TEACHER_KEY, window.teachers);
         }
-
-        function saveLocal(key, value) {
-            localStorage.setItem(key, JSON.stringify(value));
+        if (data && data.students) {
+          window.students = Object.values(data.students).map(normalizeStudent);
+          saveLocal(LOCAL_KEY, window.students);
+          renderTable();
+          updateStats();
         }
-
-        function loadTeachers() {
-            const saved = readLocal(TEACHER_KEY, defaultTeachers);
-            window.teachers = Array.isArray(saved) && saved.length ? saved : defaultTeachers;
-            populateTeacherDropdown();
-            renderTeacherList();
-        }
-
-        function ensureInitialData() {
-            const local = readLocal(LOCAL_KEY, defaultStudents);
-            window.students = Array.isArray(local) && local.length ? local : defaultStudents;
-            saveLocal(LOCAL_KEY, window.students);
-            saveLocal(TEACHER_KEY, defaultTeachers);
-            loadTeachers();
-            renderTable();
-        }
-
-        function populateTeacherDropdown() {
-            const select = document.getElementById('teacherSelect');
-            if (!select) return;
-            const teacherOptions = window.teachers.filter(t => t.role === 'teacher' || t.username === 'Bapujihss');
-            select.innerHTML = teacherOptions.map(t => `<option value="${t.username}">${t.name}</option>`).join('');
-            if (window.currentUser && window.currentUser.role === 'teacher') {
-                select.value = window.currentUser.username;
-            }
-        }
-
-        function renderTeacherList() {
-            const list = document.getElementById('teacherList');
-            if (!list) return;
-            list.innerHTML = window.teachers.map(t => {
-                const isLocked = t.role === 'admin' || t.username === 'Bapujihss';
-                const deleteButton = isLocked
-                    ? '<button disabled class="opacity-40 px-2 py-1 rounded text-xs bg-slate-100 text-slate-500">Locked</button>'
-                    : `<button onclick="removeTeacher('${t.id}', '${t.username}')" class="px-2 py-1 rounded text-xs bg-rose-100 text-rose-600 hover:bg-rose-200">Delete</button>`;
-
-                return `
-                    <div class="flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
-                        <div>
-                            <div class="font-semibold text-slate-800">${t.name}</div>
-                            <div class="text-xs text-slate-500">${t.username} • ${t.role}</div>
-                        </div>
-                        ${deleteButton}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        async function ensureDefaultsInFirebase() {
-            try {
-                const teachersRef = ref(db, 'teachers');
-                const studentsRef = ref(db, 'students');
-
-                const teachersSnap = await get(teachersRef);
-                if (!teachersSnap.exists()) {
-                    await set(teachersRef, defaultTeachers.reduce((acc, teacher) => {
-                        acc[teacher.id] = teacher;
-                        return acc;
-                    }, {}));
-                }
-
-                const studentsSnap = await get(studentsRef);
-                if (!studentsSnap.exists()) {
-                    await set(studentsRef, defaultStudents.reduce((acc, student) => {
-                        acc[student.id] = student;
-                        return acc;
-                    }, {}));
-                }
-            } catch (error) {
-                console.warn('Firebase defaults not available:', error);
-            }
-        }
-
-        function convertFirebaseTeachers(data) {
-            if (!data) return [];
-            return Object.values(data).map(item => ({
-                id: item.id || `teacher-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-                name: item.name,
-                username: item.username,
-                password: item.password,
-                role: item.role || 'teacher'
-            }));
-        }
-
-        function convertFirebaseStudents(data) {
-            if (!data) return [];
-            return Object.values(data).map(item => ({
-                id: item.id || `student-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-                name: item.name,
-                rollNo: item.rollNo,
-                className: item.className,
-                section: item.section,
-                teacher: item.teacher,
-                category: item.category,
-                phone: item.phone,
-                aadhaar: !!item.aadhaar,
-                aadhaarSeeded: !!item.aadhaarSeeded,
-                income: !!item.income,
-                caste: !!item.caste,
-                passbook: !!item.passbook,
-                bankAcc: item.bankAcc || '',
-                ifsc: item.ifsc || '',
-                aadhaarNo: item.aadhaarNo || '',
-                incomeCertNo: item.incomeCertNo || '',
-                casteCertNo: item.casteCertNo || ''
-            }));
-        }
-
-        function syncFromFirebase() {
-            const teachersRef = ref(db, 'teachers');
-            const studentsRef = ref(db, 'students');
-
-            onValue(teachersRef, (snapshot) => {
-                const data = snapshot.val();
-                const teachers = convertFirebaseTeachers(data);
-                if (teachers.length) {
-                    window.teachers = teachers;
-                    saveLocal(TEACHER_KEY, window.teachers);
-                    renderTeacherList();
-                    populateTeacherDropdown();
-                }
-            }, () => {
-                loadTeachers();
-            });
-
-            onValue(studentsRef, (snapshot) => {
-                const data = snapshot.val();
-                const students = convertFirebaseStudents(data);
-                if (students.length) {
-                    window.students = students;
-                    saveLocal(LOCAL_KEY, window.students);
-                    renderTable();
-                    updateStats();
-                    setSyncBadge(true);
-                }
-            }, () => {
-                setSyncBadge(false);
-            });
-        }
-
-        async function persistData() {
-            saveLocal(LOCAL_KEY, window.students);
-            saveLocal(TEACHER_KEY, window.teachers);
-
-            try {
-                await set(ref(db, 'teachers'), window.teachers.reduce((acc, t) => {
-                    acc[t.id] = t;
-                    return acc;
-                }, {}));
-
-                await set(ref(db, 'students'), window.students.reduce((acc, s) => {
-                    acc[s.id] = s;
-                    return acc;
-                }, {}));
-                setSyncBadge(true);
-            } catch (error) {
-                console.warn('Firebase save failed, using local storage:', error);
-                setSyncBadge(false);
-            }
-        }
-
-        function loginUser() {
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
-
-            const user = window.teachers.find(t => t.username === username && t.password === password);
-            if (!user) {
-                showToast('Invalid username or password.');
-                return;
-            }
-
-            window.currentUser = user;
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('appScreen').classList.remove('hidden');
-            document.getElementById('appSubtitle').textContent = user.role === 'admin' ? 'Administrator dashboard' : `Teacher dashboard: ${user.name}`;
-
-            const adminPanel = document.getElementById('adminPanel');
-            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
-            if (user.role === 'admin') {
-                adminPanel.classList.remove('hidden');
-                bulkDeleteBtn.classList.remove('hidden');
-            } else {
-                adminPanel.classList.add('hidden');
-                bulkDeleteBtn.classList.add('hidden');
-            }
-
-            populateTeacherDropdown();
-            renderTable();
-            showToast(`Welcome ${user.name}`);
-        }
-
-        function logoutUser() {
-            window.currentUser = null;
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('appScreen').classList.add('hidden');
-            document.getElementById('loginPassword').value = '';
-        }
-
-        function removeTeacher(id, username) {
-            if (username === 'Hemant' || username === 'Bapujihss') {
-                showToast('Default account cannot be removed.');
-                return;
-            }
-
-            const confirmed = confirm('Delete this teacher account?');
-            if (!confirmed) return;
-
-            window.teachers = window.teachers.filter(t => t.id !== id);
-            window.students = window.students.filter(s => s.teacher !== username);
-            saveLocal(TEACHER_KEY, window.teachers);
-            saveLocal(LOCAL_KEY, window.students);
-            populateTeacherDropdown();
-            renderTeacherList();
-            renderTable();
-            persistData();
-            showToast('Teacher removed.');
-        }
-
-        async function addTeacher(event) {
-            event.preventDefault();
-            const name = document.getElementById('teacherName').value.trim();
-            const username = document.getElementById('teacherUsername').value.trim();
-            const password = document.getElementById('teacherPassword').value.trim();
-
-            if (!name || !username || !password) {
-                showToast('Please fill all teacher details.');
-                return;
-            }
-
-            if (window.teachers.some(t => t.username.toLowerCase() === username.toLowerCase())) {
-                showToast('Teacher username already exists.');
-                return;
-            }
-
-            window.teachers.push({
-                id: `teacher-${Date.now()}`,
-                name,
-                username,
-                password,
-                role: 'teacher'
-            });
-
-            document.getElementById('teacherForm').reset();
-            populateTeacherDropdown();
-            renderTeacherList();
-            await persistData();
-            showToast('Teacher added successfully.');
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            const msgEl = document.getElementById('toastMessage');
-            msgEl.innerText = msg;
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3000);
-        }
-
-        function hideToast() {
-            document.getElementById('toast').classList.add('hidden');
-        }
-
-        function evaluateStudent(student) {
-            const issues = [];
-            if (!student.aadhaar) issues.push('Aadhaar Card Missing');
-            if (student.aadhaar && !student.aadhaarSeeded) issues.push('Aadhaar Not Seeded with Bank (NPCI)');
-            if (!student.income) issues.push('Outdated Income Certificate (Need 2024-25-26)');
-            if (!student.caste) issues.push('Caste Certificate Pre-2020 or Missing');
-            if (!student.passbook || !student.ifsc || student.ifsc.trim() === '') issues.push('Bank Passbook / IFSC Missing');
-            const isCompleted = issues.length === 0;
-            return { isCompleted, issues };
-        }
-
-        function updateStats() {
-            const total = window.students.length;
-            let completed = 0;
-            let incomplete = 0;
-            let aadhaar = 0;
-            let docIssue = 0;
-
-            for (const s of window.students) {
-                const result = evaluateStudent(s);
-                if (result.isCompleted) completed++;
-                else {
-                    incomplete++;
-                    if (!s.aadhaar || !s.aadhaarSeeded) aadhaar++;
-                    if (!s.income || !s.caste) docIssue++;
-                }
-            }
-
-            document.getElementById('statTotal').innerText = total;
-            document.getElementById('statCompleted').innerText = completed;
-            document.getElementById('statIncomplete').innerText = incomplete;
-            document.getElementById('statAadhaar').innerText = aadhaar;
-            document.getElementById('statDocIssues').innerText = docIssue;
-        }
-
-        function renderTable() {
-            const tbody = document.getElementById('studentTableBody');
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value;
-            const sectionFilter = document.getElementById('sectionFilter').value;
-            const classFilter = document.getElementById('classFilter').value;
-            const emptyState = document.getElementById('emptyState');
-
-            tbody.innerHTML = '';
-
-            let visible = [...window.students];
-
-            if (window.currentUser && window.currentUser.role !== 'admin') {
-                visible = visible.filter(s => s.teacher === window.currentUser.username);
-            }
-
-            visible = visible.filter(student => {
-                const result = evaluateStudent(student);
-                const matchesSearch = 
-                    student.name.toLowerCase().includes(search) ||
-                    student.rollNo.toLowerCase().includes(search) ||
-                    (student.teacher && student.teacher.toLowerCase().includes(search)) ||
-                    (student.phone && student.phone.includes(search));
-
-                const matchesSection = sectionFilter === 'all' || student.section === sectionFilter;
-                const matchesClass = classFilter === 'all' || student.className === classFilter;
-
-                let matchesStatus = true;
-                if (statusFilter === 'Completed') matchesStatus = result.isCompleted;
-                if (statusFilter === 'Incomplete') matchesStatus = !result.isCompleted;
-                if (window.activeFilterStatus === 'Completed') matchesStatus = result.isCompleted;
-                if (window.activeFilterStatus === 'Incomplete') matchesStatus = !result.isCompleted;
-                if (window.activeFilterStatus === 'Aadhaar Issue') matchesStatus = (!student.aadhaar || !student.aadhaarSeeded);
-                if (window.activeFilterStatus === 'Doc Issue') matchesStatus = (!student.income || !student.caste);
-
-                return matchesSearch && matchesSection && matchesClass && matchesStatus;
-            });
-
-            if (visible.length === 0) {
-                emptyState.classList.remove('hidden');
-                updateStats();
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-
-            visible.forEach(student => {
-                const result = evaluateStudent(student);
-                const statusBadge = result.isCompleted
-                    ? '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200"><i class="fa-solid fa-check mr-1.5"></i> Completed</span>'
-                    : '<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Incomplete</span>';
-
-                const issuesHtml = result.isCompleted
-                    ? '<span class="text-xs text-emerald-600 font-medium">All documents verified</span>'
-                    : '<ul class="text-xs text-rose-600 space-y-1">' + result.issues.map(i => `<li>• ${i}</li>`).join('') + '</ul>';
-
-                const docNumsHtml = `
-                    <div class="text-[11px] text-slate-600 space-y-0.5">
-                        <div><span class="font-semibold text-slate-500">Aadhaar:</span> <span class="font-mono">${student.aadhaarNo || 'Not Added'}</span></div>
-                        <div><span class="font-semibold text-slate-500">Income:</span> <span class="font-mono">${student.incomeCertNo || 'Not Added'}</span></div>
-                        <div><span class="font-semibold text-slate-500">Caste:</span> <span class="font-mono">${student.casteCertNo || 'Not Added'}</span></div>
-                    </div>
-                `;
-
-                const bankInfo = student.bankAcc
-                    ? `<div class="text-xs font-mono text-slate-700">${student.bankAcc}</div><div class="text-xs font-semibold text-indigo-600">${student.ifsc || 'No IFSC'}</div>`
-                    : '<span class="text-xs text-amber-600 italic">Not updated</span>';
-
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50/80 transition border-b border-slate-100';
-                tr.innerHTML = `
-                    <td class="py-3.5 px-4">
-                        <div class="font-semibold text-slate-900">${student.name}</div>
-                        <div class="text-xs text-slate-400 font-mono">${student.rollNo}</div>
-                    </td>
-                    <td class="py-3.5 px-4">
-                        <div class="text-slate-800 font-medium">${student.className}</div>
-                        <div class="flex items-center space-x-1.5 mt-0.5">
-                            <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] font-bold">${student.category}</span>
-                            <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[10px] font-bold">${student.section || 'Section A'}</span>
-                        </div>
-                    </td>
-                    <td class="py-3.5 px-4">
-                        <div class="text-xs font-medium text-slate-700 flex items-center space-x-1.5">
-                            <i class="fa-solid fa-chalkboard-user text-indigo-600"></i>
-                            <span>${student.teacher || 'Unassigned'}</span>
-                        </div>
-                    </td>
-                    <td class="py-3.5 px-4 align-top">${statusBadge}</td>
-                    <td class="py-3.5 px-4 align-top max-w-xs">
-                        ${issuesHtml}
-                        <div class="mt-2 pt-2 border-t border-slate-100">${docNumsHtml}</div>
-                    </td>
-                    <td class="py-3.5 px-4 align-top">${bankInfo}</td>
-                    <td class="py-3.5 px-4 text-center align-top">
-                        <div class="flex items-center justify-center space-x-2">
-                            ${!result.isCompleted && student.phone ? `<button type="button" onclick="openReminder('${student.id}')" title="Send WhatsApp Reminder" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-lg transition"><i class="fa-brands fa-whatsapp text-base"></i></button>` : ''}
-                            <button type="button" onclick="editStudent('${student.id}')" title="Edit Record" class="p-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition"><i class="fa-solid fa-pen"></i></button>
-                            <button type="button" onclick="deleteStudent('${student.id}')" title="Delete" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            updateStats();
-        }
-
-        function filterByStatus(status) {
-            window.activeFilterStatus = status;
-            document.getElementById('statusFilter').value = status === 'all' ? 'all' : status;
-            renderTable();
-        }
-
-        function openAddStudentModal() {
-            document.getElementById('modalTitle').innerText = 'Add New Student Record';
-            document.getElementById('studentForm').reset();
-            document.getElementById('editStudentId').value = '';
-            document.getElementById('chkAadhaar').checked = true;
-            document.getElementById('chkAadhaarSeeded').checked = true;
-            document.getElementById('chkIncome').checked = true;
-            document.getElementById('chkCaste').checked = true;
-            document.getElementById('chkPassbook').checked = true;
-            document.getElementById('aadhaarNo').value = '';
-            document.getElementById('incomeCertNo').value = '';
-            document.getElementById('casteCertNo').value = '';
-            populateTeacherDropdown();
-            if (window.currentUser && window.currentUser.role === 'teacher') {
-                document.getElementById('teacherSelect').value = window.currentUser.username;
-            }
-            document.getElementById('studentModal').classList.remove('hidden');
-            document.getElementById('studentModal').classList.add('flex');
-        }
-
-        function closeModal() {
-            document.getElementById('studentModal').classList.add('hidden');
-            document.getElementById('studentModal').classList.remove('flex');
-        }
-
-        function editStudent(id) {
-            const s = window.students.find(item => item.id === id);
-            if (!s) return;
-            document.getElementById('modalTitle').innerText = 'Edit Student Record';
-            document.getElementById('editStudentId').value = s.id;
-            document.getElementById('fullName').value = s.name;
-            document.getElementById('rollNo').value = s.rollNo;
-            document.getElementById('studentClass').value = s.className;
-            document.getElementById('sectionName').value = s.section || 'Section A';
-            document.getElementById('category').value = s.category;
-            document.getElementById('phone').value = s.phone || '';
-            document.getElementById('chkAadhaar').checked = !!s.aadhaar;
-            document.getElementById('chkAadhaarSeeded').checked = !!s.aadhaarSeeded;
-            document.getElementById('chkIncome').checked = !!s.income;
-            document.getElementById('chkCaste').checked = !!s.caste;
-            document.getElementById('chkPassbook').checked = !!s.passbook;
-            document.getElementById('bankAcc').value = s.bankAcc || '';
-            document.getElementById('ifscCode').value = s.ifsc || '';
-            document.getElementById('aadhaarNo').value = s.aadhaarNo || '';
-            document.getElementById('incomeCertNo').value = s.incomeCertNo || '';
-            document.getElementById('casteCertNo').value = s.casteCertNo || '';
-            populateTeacherDropdown();
-            document.getElementById('teacherSelect').value = s.teacher || 'Bapujihss';
-            document.getElementById('studentModal').classList.remove('hidden');
-            document.getElementById('studentModal').classList.add('flex');
-        }
-
-        function saveStudent(e) {
-            e.preventDefault();
-            const id = document.getElementById('editStudentId').value;
-            const studentData = {
-                id: id && id.trim() !== '' ? String(id) : 's_' + Date.now().toString() + Math.random().toString(36).substr(2, 5),
-                name: document.getElementById('fullName').value.trim(),
-                rollNo: document.getElementById('rollNo').value.trim(),
-                className: document.getElementById('studentClass').value,
-                section: document.getElementById('sectionName').value,
-                teacher: document.getElementById('teacherSelect').value || 'Bapujihss',
-                category: document.getElementById('category').value,
-                phone: document.getElementById('phone').value.trim(),
-                aadhaar: document.getElementById('chkAadhaar').checked,
-                aadhaarSeeded: document.getElementById('chkAadhaarSeeded').checked,
-                income: document.getElementById('chkIncome').checked,
-                caste: document.getElementById('chkCaste').checked,
-                passbook: document.getElementById('chkPassbook').checked,
-                bankAcc: document.getElementById('bankAcc').value.trim(),
-                ifsc: document.getElementById('ifscCode').value.trim().toUpperCase(),
-                aadhaarNo: document.getElementById('aadhaarNo').value.trim(),
-                incomeCertNo: document.getElementById('incomeCertNo').value.trim().toUpperCase(),
-                casteCertNo: document.getElementById('casteCertNo').value.trim().toUpperCase()
-            };
-
-            if (!studentData.name || !studentData.rollNo) {
-                showToast('Name and roll number are required.');
-                return;
-            }
-
-            const existingIndex = window.students.findIndex(item => item.id === studentData.id || item.rollNo === studentData.rollNo);
-            if (existingIndex >= 0) {
-                window.students[existingIndex] = studentData;
-            } else {
-                window.students.push(studentData);
-            }
-
-            saveLocal(LOCAL_KEY, window.students);
-            persistData();
-            renderTable();
-            closeModal();
-            showToast('Student record saved successfully!');
-        }
-
-        function deleteStudent(id) {
-            if (!confirm('Are you sure you want to delete this student record?')) return;
-            window.students = window.students.filter(s => String(s.id) !== String(id));
-            saveLocal(LOCAL_KEY, window.students);
-            persistData();
-            renderTable();
-            showToast('Student record deleted.');
-        }
-
-        function bulkDeleteVisibleStudents() {
-            const visibleIds = [...document.querySelectorAll('#studentTableBody tr')].map(row => row.dataset.id).filter(Boolean);
-            if (!visibleIds.length) {
-                showToast('No visible students to delete.');
-                return;
-            }
-            const confirmed = confirm(`Delete ${visibleIds.length} visible students?`);
-            if (!confirmed) return;
-            window.students = window.students.filter(student => !visibleIds.includes(String(student.id)));
-            saveLocal(LOCAL_KEY, window.students);
-            persistData();
-            renderTable();
-            showToast('Visible students deleted.');
-        }
-
-        function openReminder(id) {
-            const s = window.students.find(item => item.id === id);
-            if (!s) return;
-            const evalRes = evaluateStudent(s);
-            const msg = `Dear Parent of ${s.name} (${s.className} - ${s.section}),\n\nYour Pre-Metric Scholarship application has pending document requirements:\n` + evalRes.issues.map(i => `• ${i}`).join('\n') + `\n\nPlease submit the required documents to your allocated teacher (${s.teacher || 'School Office'}) urgently to avoid scholarship rejection for AY 2024-25-26.\n\n- School Authority`;
-
-            document.getElementById('reminderTextContent').innerText = msg;
-            const encoded = encodeURIComponent(msg);
-            const phoneNum = s.phone && s.phone.startsWith('+') ? s.phone : '+91' + (s.phone || '');
-            document.getElementById('whatsappBtn').href = `https://wa.me/${phoneNum}?text=${encoded}`;
-
-            document.getElementById('reminderModal').classList.remove('hidden');
-            document.getElementById('reminderModal').classList.add('flex');
-        }
-
-        function closeReminderModal() {
-            document.getElementById('reminderModal').classList.add('hidden');
-            document.getElementById('reminderModal').classList.remove('flex');
-        }
-
-        function copyReminderText() {
-            const text = document.getElementById('reminderTextContent').innerText;
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                showToast('Reminder message copied to clipboard!');
-            } catch (err) {
-                console.error(err);
-            }
-            document.body.removeChild(textarea);
-        }
-
-        function handleExcelImport(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    const data = new Uint8Array(evt.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const rows = XLSX.utils.sheet_to_json(worksheet);
-
-                    let count = 0;
-                    rows.forEach(row => {
-                        const name = row['Student Name'] || row['Name'] || row['STUDENT_NAME'] || 'Unnamed Student';
-                        const rollNo = row['Roll No'] || row['Registration No'] || row['ROLL'] || `SCH-${Math.floor(1000 + Math.random() * 9000)}`;
-                        const className = row['Class'] || row['CLASS'] || 'Class 9';
-                        const section = row['Section'] || row['SEC'] || 'Section A';
-                        const teacher = row['Teacher'] || row['Allocated Teacher'] || row['TEACHER'] || 'Bapujihss';
-                        const category = row['Category'] || row['CAT'] || 'SC';
-                        const phone = row['Phone'] || row['Mobile'] || row['CONTACT'] || '';
-
-                        const studentObj = {
-                            id: 'imp_' + Date.now().toString() + Math.random().toString(36).substr(2, 5),
-                            name: String(name),
-                            rollNo: String(rollNo),
-                            className: String(className),
-                            section: String(section),
-                            teacher: String(teacher),
-                            category: String(category),
-                            phone: String(phone),
-                            aadhaar: true,
-                            aadhaarSeeded: true,
-                            income: true,
-                            caste: true,
-                            passbook: true,
-                            bankAcc: '',
-                            ifsc: '',
-                            aadhaarNo: '',
-                            incomeCertNo: '',
-                            casteCertNo: ''
-                        };
-
-                        const exists = window.students.findIndex(item => item.rollNo === studentObj.rollNo);
-                        if (exists >= 0) {
-                            window.students[exists] = { ...window.students[exists], ...studentObj, id: window.students[exists].id };
-                        } else {
-                            window.students.push(studentObj);
-                        }
-                        count++;
-                    });
-
-                    saveLocal(LOCAL_KEY, window.students);
-                    persistData();
-                    renderTable();
-                    showToast(`Successfully imported ${count} student records.`);
-                } catch (err) {
-                    console.error(err);
-                    showToast('Error parsing Excel file. Please ensure valid format.');
-                }
-            };
-            reader.readAsArrayBuffer(file);
-            e.target.value = '';
-        }
-
-        function exportToExcel() {
-            const exportData = window.students.map((student, idx) => {
-                const result = evaluateStudent(student);
-                return {
-                    'Sl No': idx + 1,
-                    'Student Name': student.name,
-                    'Roll Number': student.rollNo,
-                    'Class': student.className,
-                    'Section': student.section,
-                    'Allocated Teacher': student.teacher,
-                    'Category': student.category,
-                    'Contact': student.phone,
-                    'Aadhaar Number': student.aadhaarNo || '',
-                    'Income Certificate No': student.incomeCertNo || '',
-                    'Caste Certificate No': student.casteCertNo || '',
-                    'Status': result.isCompleted ? 'Completed' : 'Incomplete',
-                    'Deficiencies': result.issues.join(', '),
-                    'Bank Account': student.bankAcc,
-                    'IFSC Code': student.ifsc
-                };
-            });
-
-            const worksheet = XLSX.utils.json_to_sheet(exportData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, 'PMS_Report');
-            XLSX.writeFile(workbook, 'PMS_Cloud_Student_Report.xlsx');
-            showToast('Report exported as Excel successfully.');
-        }
-
-        function hydrateFromLocal() {
-            const localStudents = readLocal(LOCAL_KEY, defaultStudents);
-            const localTeachers = readLocal(TEACHER_KEY, defaultTeachers);
-            window.students = Array.isArray(localStudents) && localStudents.length ? localStudents : defaultStudents;
-            window.teachers = Array.isArray(localTeachers) && localTeachers.length ? localTeachers : defaultTeachers;
-            renderTeacherList();
-            populateTeacherDropdown();
-            renderTable();
-            updateStats();
-        }
-
-        window.loginUser = loginUser;
-        window.logoutUser = logoutUser;
-        window.addTeacher = addTeacher;
-        window.removeTeacher = removeTeacher;
-        window.filterByStatus = filterByStatus;
-        window.renderTable = renderTable;
-        window.openAddStudentModal = openAddStudentModal;
-        window.editStudent = editStudent;
-        window.closeModal = closeModal;
-        window.saveStudent = saveStudent;
-        window.deleteStudent = deleteStudent;
-        window.bulkDeleteVisibleStudents = bulkDeleteVisibleStudents;
-        window.openReminder = openReminder;
-        window.closeReminderModal = closeReminderModal;
-        window.copyReminderText = copyReminderText;
-        window.handleExcelImport = handleExcelImport;
-        window.exportToExcel = exportToExcel;
-        window.hideToast = hideToast;
-
-        window.addEventListener('DOMContentLoaded', async () => {
-            hydrateFromLocal();
-            await ensureDefaultsInFirebase();
-            syncFromFirebase();
-            const localStudents = readLocal(LOCAL_KEY, defaultStudents);
-            window.students = localStudents;
-            renderTable();
-            updateStats();
-            setSyncBadge(true);
-        });
-    </script>
+      }, () => setSyncBadge(false));
+    }
+
+    window.loginUser = loginUser;
+    window.logoutUser = logoutUser;
+    window.addTeacher = addTeacher;
+    window.removeTeacher = removeTeacher;
+    window.showToast = showToast;
+    window.hideToast = hideToast;
+    window.openAddStudentModal = openAddStudentModal;
+    window.closeModal = closeModal;
+    window.saveStudent = saveStudent;
+    window.editStudent = editStudent;
+    window.deleteStudent = deleteStudent;
+    window.bulkDeleteVisibleStudents = bulkDeleteVisibleStudents;
+    window.filterByStatus = filterByStatus;
+    window.renderTable = renderTable;
+    window.exportToExcel = exportToExcel;
+    window.handleExcelImport = handleExcelImport;
+    window.openReminder = openReminder;
+    window.closeReminderModal = closeReminderModal;
+    window.copyReminderText = copyReminderText;
+
+    initApp();
+  </script>
 </body>
 </html>
