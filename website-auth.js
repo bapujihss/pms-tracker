@@ -12,12 +12,6 @@ const firebaseConfig = {
   appId: '1:174183270330:web:0d10fb4e6f31096f55bf83',
   measurementId: 'G-526Z0V4CES'
 };
-
-// Login identifiers only. Passwords are entered by administrators and are never stored in this file.
-const ADMIN_LOGIN_EMAILS = Object.freeze({
-  hemant: 'hemant@pms-admin.bapujihss.school',
-  bapujihss: 'bapujihss@pms-admin.bapujihss.school'
-});
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const database = getDatabase(app);
@@ -37,7 +31,7 @@ function waitForCurrentUser() {
 async function isAuthorizedSiteAdmin(user, refreshToken = false) {
   if (!user) return false;
   const token = await user.getIdTokenResult(refreshToken);
-  return token.claims.websiteAdmin === true;
+  return token.claims.websiteAdmin === true && token.claims.email_verified === true;
 }
 
 async function adminLabel(user) {
@@ -49,13 +43,13 @@ export async function getCurrentSiteAdmin() {
   return adminLabel(await waitForCurrentUser());
 }
 
-export async function signInSiteAdmin(username, password) {
-  const email = ADMIN_LOGIN_EMAILS[String(username || '').trim().toLowerCase()];
-  if (!email || !password) throw new Error('Invalid username or password.');
-  const credential = await signInWithEmailAndPassword(auth, email, password);
+export async function signInSiteAdmin(email, password) {
+  const normalizedEmail = String(email || '').trim().toLowerCase();
+  if (!normalizedEmail || !password) throw new Error('Invalid email or password.');
+  const credential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
   if (!await isAuthorizedSiteAdmin(credential.user, true)) {
     await signOut(auth);
-    throw new Error('Invalid username or password.');
+    throw new Error('Invalid email or password.');
   }
   return adminLabel(credential.user);
 }
