@@ -16,7 +16,10 @@ const auth = getAuth();
 
 for (const uid of userIds) {
   const user = await auth.getUser(uid);
+  if (!user.email || !user.emailVerified) {
+    throw new Error('Each admin account must have a verified email address before it receives the website admin claim.');
+  }
   const existingClaims = user.customClaims || {};
   await auth.setCustomUserClaims(uid, { ...existingClaims, websiteAdmin: true });
-  console.log('Granted websiteAdmin claim to Firebase Auth UID ' + uid);
+  console.log('Granted websiteAdmin claim to verified Firebase Auth UID ' + uid);
 }
