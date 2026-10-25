@@ -118,7 +118,7 @@
             <i class="fa-solid fa-right-to-bracket"></i>
             <span>Portal Login</span>
           </a>
-          <a id="websiteEditorLauncher" href="pms-tracker.html?websiteEditor=1" class="bg-indigo-700 hover:bg-indigo-800 text-white font-bold px-3 py-2 rounded-xl text-xs transition"><i class="fa-solid fa-lock mr-1"></i> Only for admin use</a>
+          <button id="websiteEditorLauncher" onclick="openWebsiteEditor()" class="hidden bg-indigo-700 hover:bg-indigo-800 text-white font-bold px-3 py-2 rounded-xl text-xs transition"><i class="fa-solid fa-pen-to-square mr-1"></i> Edit Website</button>
         </div>
       </div>
     </div>
@@ -1239,16 +1239,12 @@ async function saveWebsiteChanges(){
   }catch(_){showWebsiteEditorStatus('Save failed. The live database rejected the change; check its write rules.',true);saveButton.disabled=false;saveButton.innerHTML='<i class="fa-solid fa-floppy-disk mr-2"></i>Save Website Changes';}
 }
 async function ifunction initializeWebsiteEditor(){
-  const wantsEditor=new URLSearchParams(location.search).get('siteEditor')==='1';
+  await loadWebsiteContent();
   const user=getWebsiteAdminSession();
-  if(wantsEditor&&!user){
-    location.replace('pms-tracker.html?websiteEditor=1');
-    return;
+  if(user){
+    const launcher=document.getElementById('websiteEditorLauncher');launcher.classList.remove('hidden');
+    if(new URLSearchParams(location.search).get('siteEditor')==='1')openWebsiteEditor();
   }
-  loadWebsiteContent().then(()=>{
-    const currentAdmin=getWebsiteAdminSession();
-    if(currentAdmin&&wantsEditor)openWebsiteEditor();
-  });
 }
 initializeWebsiteEditor();
 </script>
