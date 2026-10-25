@@ -4682,14 +4682,18 @@ function doPost(e) {
 
       let restSuccess = false;
       try {
-        // Preserve website content written from the homepage before replacing the shared school record.
-        const websiteResponse = await fetch(dbUrl + '/schools/' + schoolId + '/websiteContent.json', { cache: 'no-store' });
-        if (websiteResponse.ok) {
-          const remoteWebsiteContent = await websiteResponse.json();
-          if (remoteWebsiteContent && typeof remoteWebsiteContent === 'object') {
-            fullRecord.websiteContent = remoteWebsiteContent;
-            saveLocal(WEBSITE_CONTENT_KEY, remoteWebsiteContent);
+        // Preserve website content when available, but never let this optional read block PMS sync.
+        try {
+          const websiteResponse = await fetch(dbUrl + '/schools/' + schoolId + '/websiteContent.json', { cache: 'no-store' });
+          if (websiteResponse.ok) {
+            const remoteWebsiteContent = await websiteResponse.json();
+            if (remoteWebsiteContent && typeof remoteWebsiteContent === 'object') {
+              fullRecord.websiteContent = remoteWebsiteContent;
+              saveLocal(WEBSITE_CONTENT_KEY, remoteWebsiteContent);
+            }
           }
+        } catch (websiteFetchError) {
+          console.warn('Website content read warning:', websiteFetchError);
         }
         // Immediate HTTP PUT with keepalive:true so browser completes the write even if reloaded immediately
         const putEndpoint = dbUrl + '/schools/' + schoolId + '.json';
@@ -5655,7 +5659,7 @@ function doPost(e) {
       }
 
       setSyncBadge(false, 'Syncing...');
-      await setupFirebaseConnection();
+      await setupFirebaseConnection(!hasCachedStudentRoster);
 
       if (cloudConfig.sheetsWebhookUrl) {
         await pullFromGoogleSheets();
