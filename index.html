@@ -348,10 +348,10 @@
           <span class="text-xs font-bold uppercase tracking-widest text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full border border-emerald-300">
             Student Welfare &amp; Direct Benefit Transfer
           </span>
-          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
+          <h2 id="siteScholarshipTitle" class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
             PMS Scholarship Desk &amp; Quick Status Verification
           </h2>
-          <p class="text-xs sm:text-sm text-slate-600 mt-1">
+          <p id="siteScholarshipIntro" class="text-xs sm:text-sm text-slate-600 mt-1">
             Access our integrated student database, deficiency tracking, and scholarship nodal allocation.
           </p>
         </div>
@@ -436,10 +436,10 @@
         <span class="text-xs font-bold uppercase tracking-widest text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">
           Curriculum &amp; Streams
         </span>
-        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
+        <h2 id="siteAcademicsTitle" class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
           Academic Wings &amp; Courses Offered
         </h2>
-        <p class="text-xs sm:text-sm text-slate-500 mt-1">Affiliated to Board of Secondary Education (BSE) and Council of Higher Secondary Education (CHSE), Odisha.</p>
+        <p id="siteAcademicsIntro" class="text-xs sm:text-sm text-slate-500 mt-1">Affiliated to Board of Secondary Education (BSE) and Council of Higher Secondary Education (CHSE), Odisha.</p>
         <div class="w-16 h-1 bg-amber-500 mx-auto mt-2 rounded-full"></div>
       </div>
 
@@ -506,8 +506,8 @@
             <span class="text-[10px] font-bold tracking-widest text-amber-300 uppercase bg-white/10 px-3 py-1 rounded-full border border-white/20">
               Interactive Tool for Students &amp; Staff
             </span>
-            <h3 class="text-xl sm:text-2xl font-black">Teacher &amp; Period Finder</h3>
-            <p class="text-xs text-indigo-200">
+            <h3 id="siteTimetableTitle" class="text-xl sm:text-2xl font-black">Teacher &amp; Period Finder</h3>
+            <p id="siteTimetableIntro" class="text-xs text-indigo-200">
               Select your class or teacher to immediately view allocated sections, subject periods and room assignments.
             </p>
           </div>
@@ -561,7 +561,7 @@
         <span class="text-xs font-bold uppercase tracking-widest text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">
           World-Class Infrastructure
         </span>
-        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
+        <h2 id="siteFacilitiesTitle" class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
           Campus Facilities &amp; Modern Labs
         </h2>
         <div class="w-16 h-1 bg-amber-500 mx-auto mt-2 rounded-full"></div>
@@ -647,10 +647,10 @@
           <span class="text-xs font-bold uppercase tracking-widest text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">
             Official Circulars
           </span>
-          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
+          <h2 id="siteNoticesTitle" class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
             Notice Board &amp; Downloads
           </h2>
-          <p class="text-xs sm:text-sm text-slate-500 mt-1">Stay updated with examinations, holidays, and government notifications.</p>
+          <p id="siteNoticesIntro" class="text-xs sm:text-sm text-slate-500 mt-1">Stay updated with examinations, holidays, and government notifications.</p>
         </div>
 
         <!-- Category Filters -->
@@ -739,7 +739,7 @@
         <span class="text-xs font-bold uppercase tracking-widest text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">
           Campus Life
         </span>
-        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
+        <h2 id="siteGalleryTitle" class="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
           Glimpses of Bapuji HSS Activities
         </h2>
         <div class="w-16 h-1 bg-amber-500 mx-auto mt-2 rounded-full"></div>
@@ -891,6 +891,17 @@
           <label class="block text-xs font-semibold text-slate-700">About heading<input id="editAboutVision" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal" /></label>
           <label class="block text-xs font-semibold text-slate-700">About introduction<textarea id="editAboutIntro" rows="3" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal"></textarea></label>
           <label class="block text-xs font-semibold text-slate-700">About details<textarea id="editAboutValues" rows="3" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal"></textarea></label>
+          <h3 class="font-bold text-indigo-900 border-b pb-2 pt-3">Other Page Sections</h3>
+          <label class="block text-xs font-semibold text-slate-700">Scholarship section title<input id="editScholarshipTitle" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal" /></label>
+          <label class="block text-xs font-semibold text-slate-700">Scholarship introduction<textarea id="editScholarshipIntro" rows="2" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal"></textarea></label>
+          <label class="block text-xs font-semibold text-slate-700">Academics section title<input id="editAcademicsTitle" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal" /></label>
+          <label class="block text-xs font-semibold text-slate-700">Academics introduction<textarea id="editAcademicsIntro" rows="2" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal"></textarea></label>
+          <label class="block text-xs font-semibold text-slate-700">Facilities section title<input id="editFacilitiesTitle" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal" /></label>
+          <label class="block text-xs font-semibold text-slate-700">Period finder title<input id="editTimetableTitle" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal" /></label>
+          <label class="block text-xs font-semibold text-slate-700">Period finder introduction<textarea id="editTimetableIntro" rows="2" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal"></textarea></label>
+          <label class="block text-xs font-semibold text-slate-700">Notice board title<input id="editNoticesTitle" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal" /></label>
+          <label class="block text-xs font-semibold text-slate-700">Notice board introduction<textarea id="editNoticesIntro" rows="2" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal"></textarea></label>
+          <label class="block text-xs font-semibold text-slate-700">Gallery section title<input id="editGalleryTitle" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal" /></label>
           <label class="block text-xs font-semibold text-slate-700">Announcement ticker<textarea id="editAnnouncement" rows="2" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal"></textarea></label>
         </section>
         <section class="space-y-3">
@@ -1082,6 +1093,16 @@ function applyWebsiteContent(data){
   setText('siteAboutVision',siteContent.aboutVision);
   setText('siteAboutIntro',siteContent.aboutIntro);
   setText('siteAboutValues',siteContent.aboutValues);
+  setText('siteScholarshipTitle',siteContent.scholarshipTitle);
+  setText('siteScholarshipIntro',siteContent.scholarshipIntro);
+  setText('siteAcademicsTitle',siteContent.academicsTitle);
+  setText('siteAcademicsIntro',siteContent.academicsIntro);
+  setText('siteFacilitiesTitle',siteContent.facilitiesTitle);
+  setText('siteTimetableTitle',siteContent.timetableTitle);
+  setText('siteTimetableIntro',siteContent.timetableIntro);
+  setText('siteNoticesTitle',siteContent.noticesTitle);
+  setText('siteNoticesIntro',siteContent.noticesIntro);
+  setText('siteGalleryTitle',siteContent.galleryTitle);
   setText('sitePrincipalName',siteContent.principalName);
   setText('siteContactAddress',siteContent.contactAddress);
   setText('siteContactEmail',siteContent.contactEmail);
@@ -1137,6 +1158,16 @@ function fillWebsiteEditor(){
   field('editAboutVision','aboutVision',document.getElementById('siteAboutVision').textContent.trim());
   field('editAboutIntro','aboutIntro',document.getElementById('siteAboutIntro').textContent.trim());
   field('editAboutValues','aboutValues',document.getElementById('siteAboutValues').textContent.trim());
+  field('editScholarshipTitle','scholarshipTitle',document.getElementById('siteScholarshipTitle').textContent.trim());
+  field('editScholarshipIntro','scholarshipIntro',document.getElementById('siteScholarshipIntro').textContent.trim());
+  field('editAcademicsTitle','academicsTitle',document.getElementById('siteAcademicsTitle').textContent.trim());
+  field('editAcademicsIntro','academicsIntro',document.getElementById('siteAcademicsIntro').textContent.trim());
+  field('editFacilitiesTitle','facilitiesTitle',document.getElementById('siteFacilitiesTitle').textContent.trim());
+  field('editTimetableTitle','timetableTitle',document.getElementById('siteTimetableTitle').textContent.trim());
+  field('editTimetableIntro','timetableIntro',document.getElementById('siteTimetableIntro').textContent.trim());
+  field('editNoticesTitle','noticesTitle',document.getElementById('siteNoticesTitle').textContent.trim());
+  field('editNoticesIntro','noticesIntro',document.getElementById('siteNoticesIntro').textContent.trim());
+  field('editGalleryTitle','galleryTitle',document.getElementById('siteGalleryTitle').textContent.trim());
   field('editAnnouncement','announcement',document.getElementById('siteAnnouncement').textContent.replace(/^📢\s*/,'').trim());
   field('editPrincipalName','principalName',document.getElementById('sitePrincipalName').textContent.trim());
   field('editPrincipalPhone','principalPhone',document.querySelector('#sitePrincipalPhone span').textContent.trim());
@@ -1189,6 +1220,10 @@ async function saveWebsiteChanges(){
   const content={
     heroTitle:get('editHeroTitle'),heroDescription:get('editHeroDescription'),
     aboutVision:get('editAboutVision'),aboutIntro:get('editAboutIntro'),aboutValues:get('editAboutValues'),
+    scholarshipTitle:get('editScholarshipTitle'),scholarshipIntro:get('editScholarshipIntro'),
+    academicsTitle:get('editAcademicsTitle'),academicsIntro:get('editAcademicsIntro'),
+    facilitiesTitle:get('editFacilitiesTitle'),timetableTitle:get('editTimetableTitle'),timetableIntro:get('editTimetableIntro'),
+    noticesTitle:get('editNoticesTitle'),noticesIntro:get('editNoticesIntro'),galleryTitle:get('editGalleryTitle'),
     announcement:get('editAnnouncement'),principalName:get('editPrincipalName'),principalPhone:get('editPrincipalPhone'),
     principalPhoto:principalPhotoDraft||siteContent.principalPhoto||'',
     contactAddress:get('editContactAddress'),contactEmail:get('editContactEmail'),officePhone:get('editOfficePhone'),
