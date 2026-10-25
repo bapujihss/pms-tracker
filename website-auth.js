@@ -12,12 +12,11 @@ const firebaseConfig = {
   measurementId: 'G-526Z0V4CES'
 };
 
-// These are login identifiers only; passwords are entered by each administrator and are never stored in this file.
+// Login identifiers only. Passwords are entered by administrators and are never stored in this file.
 const ADMIN_LOGIN_EMAILS = Object.freeze({
   hemant: 'hemant@pms-admin.bapujihss.school',
   bapujihss: 'bapujihss@pms-admin.bapujihss.school'
 });
-const ADMIN_EMAIL_SET = new Set(Object.values(ADMIN_LOGIN_EMAILS));
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
@@ -33,25 +32,26 @@ function waitForCurrentUser() {
   });
 }
 
-function isAllowedAdmin(user) {
-  return Boolean(user && user.email && ADMIN_EMAIL_SET.has(user.email.toLowerCase()));
+async function isAuthorizedSiteAdmin(user, refreshToken = false) {
+  if (!user) return false;
+  const token = await user.getIdTokenResult(refreshToken);
+  return token.claims.websiteAdmin === true;
 }
 
-function adminLabel(user) {
-  if (!isAllowedAdmin(user)) return null;
+async function adminLabel(user) {
+  if (!await isAuthorizedSiteAdmin(user)) return null;
   return { name: 'Authorized administrator', username: 'website-admin', uid: user.uid };
 }
 
 export async function getCurrentSiteAdmin() {
-  const user = await waitForCurrentUser();
-  return adminLabel(user);
+  return adminLabel(await waitForCurrentUser());
 }
 
 export async function signInSiteAdmin(username, password) {
   const email = ADMIN_LOGIN_EMAILS[String(username || '').trim().toLowerCase()];
   if (!email || !password) throw new Error('Invalid username or password.');
   const credential = await signInWithEmailAndPassword(auth, email, password);
-  if (!isAllowedAdmin(credential.user)) {
+  if (!await isAuthorizedSiteAdmin(credential.user, true)) {
     await signOut(auth);
     throw new Error('Invalid username or password.');
   }
@@ -60,7 +60,7 @@ export async function signInSiteAdmin(username, password) {
 
 export async function getSiteAdminToken() {
   const user = auth.currentUser;
-  if (!isAllowedAdmin(user)) throw new Error('Administrator sign-in required.');
+  if (!await isAuthorizedSiteAdmin(user, true)) throw new Error('Administrator sign-in required.');
   return user.getIdToken();
 }
 
