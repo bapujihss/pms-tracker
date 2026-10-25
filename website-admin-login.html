@@ -22,10 +22,10 @@
         <p class="text-sm text-indigo-200 mt-2">Sign in with an authorized administrator account.</p>
       </div>
       <form id="adminLoginForm" class="p-7 space-y-4" novalidate>
-        <label class="block text-sm font-semibold">Admin username
-          <input id="adminUsername" name="username" required autocomplete="username" autocapitalize="none"
+        <label class="block text-sm font-semibold">Admin email
+          <input id="adminEmail" name="email" type="email" required autocomplete="username" autocapitalize="none"
             class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Enter username">
+            placeholder="Enter admin email">
         </label>
         <label class="block text-sm font-semibold">Password
           <input id="adminPassword" name="password" type="password" required autocomplete="current-password"
@@ -61,7 +61,7 @@
       button.textContent = 'Signing in…';
       try {
         await signInSiteAdmin(
-          document.getElementById('adminUsername').value,
+          document.getElementById('adminEmail').value,
           document.getElementById('adminPassword').value
         );
         window.location.replace(editorUrl);
