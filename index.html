@@ -118,7 +118,7 @@
             <i class="fa-solid fa-right-to-bracket"></i>
             <span>Portal Login</span>
           </a>
-          <button id="websiteEditorLauncher" onclick="openWebsiteEditor()" class="hidden bg-indigo-700 hover:bg-indigo-800 text-white font-bold px-3 py-2 rounded-xl text-xs transition"><i class="fa-solid fa-pen-to-square mr-1"></i> Edit Website</button>
+          <a id="websiteEditorLauncher" href="website-admin-login.html" class="bg-indigo-700 hover:bg-indigo-800 text-white font-bold px-3 py-2 rounded-xl text-xs transition"><i class="fa-solid fa-lock mr-1"></i> Only for admin use</a>
         </div>
       </div>
     </div>
@@ -879,7 +879,7 @@
   <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
     <div class="bg-indigo-950 text-white px-5 py-4 flex items-center justify-between gap-4">
       <div><h2 class="font-black text-lg">School Website Editor</h2><p class="text-xs text-indigo-200">Signed in as <span id="websiteEditorUser"></span></p></div>
-      <button onclick="closeWebsiteEditor()" class="rounded-lg px-3 py-2 bg-white/10 hover:bg-white/20 text-sm"><i class="fa-solid fa-xmark mr-1"></i> Close</button>
+      <div class="flex items-center gap-2"><button onclick="logoutWebsiteAdmin()" class="rounded-lg px-3 py-2 bg-white/10 hover:bg-white/20 text-sm"><i class="fa-solid fa-right-from-bracket mr-1"></i> Sign out</button><button onclick="closeWebsiteEditor()" class="rounded-lg px-3 py-2 bg-white/10 hover:bg-white/20 text-sm"><i class="fa-solid fa-xmark mr-1"></i> Close</button></div>
     </div>
     <div class="p-5 space-y-6 max-h-[78vh] overflow-y-auto">
       <p class="text-xs text-amber-900 bg-amber-50 border border-amber-200 rounded-xl p-3">Changes save to the live school website database. Use this panel for public website information only.</p>
@@ -1069,18 +1069,21 @@
       renderPeriodSchedule();
     });
   
-const SITE_CONTENT_ENDPOINT='https://bapujihss-default-rtdb.asia-southeast1.firebasedatabase.app/schools/school_01/websiteContent.json';
-const SITE_ADMIN_NAMES=['hemant','bapujihss'];
+const SITE_CONTENT_ENDPOINT='https://bapujihss-default-rtdb.asia-southeast1.firebasedatabase.app/siteContent/school_01.json';
 let siteContent={};
 let siteGalleryDraft=[];
 let principalPhotoDraft='';
+let siteAdminIdentity=null;
+let websiteAuthModule=null;
 
 function getWebsiteAdminSession(){
-  try{
-    const user=JSON.parse(localStorage.getItem('pms_school_session_user_v2')||'null');
-    if(user&&user.role==='admin'&&SITE_ADMIN_NAMES.includes(String(user.username||'').toLowerCase())) return user;
-  }catch(_){}
-  return null;
+  return siteAdminIdentity;
+}
+
+async function initializeSiteAdminAuth(){
+  websiteAuthModule=await import('./website-auth.js');
+  siteAdminIdentity=await websiteAuthModule.getCurrentSiteAdmin();
+  return siteAdminIdentity;
 }
 function siteEscape(value){
   return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -1181,7 +1184,7 @@ function fillWebsiteEditor(){
 function openWebsiteEditor(){
   const admin=getWebsiteAdminSession();
   if(!admin){showToast('Sign in with an authorized PMS administrator account to edit the website.',true);return;}
-  document.getElementById('websiteEditorUser').textContent=admin.name||admin.username;
+  document.getElementById('websiteEditorUser').textContent=admin.name||'Authorized administrator';
   const modal=document.getElementById('websiteEditorModal');modal.classList.remove('hidden');
   fillWebsiteEditor();
   document.getElementById('websiteEditorModal').classList.add('flex');
@@ -1231,20 +1234,35 @@ async function saveWebsiteChanges(){
   };
   const saveButton=document.getElementById('saveWebsiteChanges');saveButton.disabled=true;saveButton.textContent='Saving…';
   try{
-    const response=await fetch(SITE_CONTENT_ENDPOINT,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(content)});
+    const token=await websiteAuthModule.getSiteAdminToken();
+    const response=await fetch(SITE_CONTENT_ENDPOINT,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(content)});
     if(!response.ok)throw new Error('Database rejected the change');
     siteContent=content;principalPhotoDraft='';applyWebsiteContent(content);
     showWebsiteEditorStatus('Website changes saved and published.');saveButton.textContent='Saved';
     setTimeout(()=>{saveButton.innerHTML='<i class="fa-solid fa-floppy-disk mr-2"></i>Save Website Changes';saveButton.disabled=false;},1400);
   }catch(_){showWebsiteEditorStatus('Save failed. The live database rejected the change; check its write rules.',true);saveButton.disabled=false;saveButton.innerHTML='<i class="fa-solid fa-floppy-disk mr-2"></i>Save Website Changes';}
 }
-async function ifunction initializeWebsiteEditor(){
-  await loadWebsiteContent();
-  const user=getWebsiteAdminSession();
-  if(user){
-    const launcher=document.getElementById('websiteEditorLauncher');launcher.classList.remove('hidden');
-    if(new URLSearchParams(location.search).get('siteEditor')==='1')openWebsiteEditor();
+async function iasync function logoutWebsiteAdmin(){
+  try{
+    if(websiteAuthModule)await websiteAuthModule.signOutSiteAdmin();
+  }finally{
+    siteAdminIdentity=null;
+    location.replace('index.html');
   }
+}
+async function initializeWebsiteEditor(){
+  await loadWebsiteContent();
+  const wantsEditor=new URLSearchParams(location.search).get('siteEditor')==='1';
+  try{
+    await initializeSiteAdminAuth();
+  }catch(_){
+    siteAdminIdentity=null;
+  }
+  if(wantsEditor&&!siteAdminIdentity){
+    location.replace('website-admin-login.html');
+    return;
+  }
+  if(wantsEditor&&siteAdminIdentity)openWebsiteEditor();
 }
 initializeWebsiteEditor();
 </script>
