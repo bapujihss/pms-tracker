@@ -538,6 +538,39 @@
     </div>
   </div>
 
+  <!-- SCHOLARSHIP STATUS EDIT POPUP MODAL -->
+  <div id="statusModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl shadow-xl max-w-sm w-full p-6 relative">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Update Apply Status</h3>
+          <p id="statusStudentName" class="text-xs text-slate-500 font-medium mt-0.5"></p>
+        </div>
+        <button type="button" onclick="closeStatusModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="statusForm" onsubmit="saveScholarshipStatus(event)" class="py-4 space-y-4">
+        <input type="hidden" id="statusStudentId" />
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wide text-slate-600 mb-2">Scholarship Portal Status</label>
+          <select id="scholarshipStatusSelect" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="Applied">Applied / Completed</option>
+            <option value="Incomplete">Incomplete / Pending</option>
+            <option value="Not Applied">Not Applied</option>
+          </select>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="closeStatusModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-xs font-semibold text-white shadow-sm transition">Update Status</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- IN-PAGE CONFIRMATION MODAL (REPLACES BLOCKED confirm() DIALOGS) -->
   <div id="confirmModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
     <div class="bg-white rounded-3xl shadow-xl max-w-sm w-full p-6 relative">
@@ -4116,7 +4149,8 @@ function doPost(e) {
         ifsc: String(student.ifsc || '').trim().toUpperCase(),
         aadhaarNo: String(student.aadhaarNo || '').trim(),
         incomeCertNo: String(student.incomeCertNo || '').trim().toUpperCase(),
-        casteCertNo: String(student.casteCertNo || '').trim().toUpperCase()
+        casteCertNo: String(student.casteCertNo || '').trim().toUpperCase(),
+		scholarshipStatus: String(student.scholarshipStatus || 'Not Applied').trim()
       };
     }
 
@@ -4452,6 +4486,15 @@ function doPost(e) {
         const row = document.createElement('tr');
         row.className = 'hover:bg-slate-50/80 transition';
         row.dataset.id = String(student.id);
+		let applyBadge = '';
+      const st = student.scholarshipStatus || 'Not Applied';
+      if (st === 'Applied') {
+        applyBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300"><i class="fa-solid fa-circle-check"></i> Applied</span>';
+      } else if (st === 'Incomplete') {
+        applyBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300"><i class="fa-solid fa-clock"></i> Incomplete</span>';
+      } else {
+        applyBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-300"><i class="fa-solid fa-circle-xmark"></i> Not Applied</span>';
+      }
         row.innerHTML = `
           <td class="py-3.5 px-4">
             <div class="font-semibold text-slate-900">${escapeHtml(student.name)}</div>
@@ -4474,6 +4517,14 @@ function doPost(e) {
           <td class="py-3.5 px-4 align-top max-w-xs">
             ${issuesHtml}
             <div class="mt-2 pt-2 border-t border-slate-100">${docNumsHtml}</div>
+          </td>
+		  <td class="py-3.5 px-4 align-top">
+            <button type="button" onclick="openStatusModal('${escapeHtml(student.id)}')" title="Click to update status" class="hover:scale-105 transition-transform text-left">
+              ${applyBadge}
+              <div class="text-[10px] text-indigo-600 mt-1 flex items-center gap-1 font-semibold">
+                <i class="fa-solid fa-pen-to-square text-[9px]"></i> Change
+              </div>
+            </button>
           </td>
           <td class="py-3.5 px-4 align-top">${bankInfo}</td>
           <td class="py-3.5 px-4 text-center align-top">
@@ -5620,6 +5671,45 @@ function doPost(e) {
     window.openReminder = openReminder;
     window.closeReminderModal = closeReminderModal;
     window.copyReminderText = copyReminderText;
+	function openStatusModal(studentId) {
+      const student = window.students.find(s => String(s.id) === String(studentId));
+      if (!student) return;
+
+      document.getElementById('statusStudentId').value = student.id;
+      document.getElementById('statusStudentName').textContent = `${student.name} (${student.rollNo})`;
+      document.getElementById('scholarshipStatusSelect').value = student.scholarshipStatus || 'Not Applied';
+
+      const modal = document.getElementById('statusModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeStatusModal() {
+      const modal = document.getElementById('statusModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    async function saveScholarshipStatus(event) {
+      event.preventDefault();
+      const id = document.getElementById('statusStudentId').value;
+      const newStatus = document.getElementById('scholarshipStatusSelect').value;
+
+      const student = window.students.find(s => String(s.id) === String(id));
+      if (!student) return;
+
+      student.scholarshipStatus = newStatus;
+
+      saveLocal(LOCAL_KEY, window.students);
+      markLocalStateChanged(true);
+      renderTable();
+      closeStatusModal();
+
+      await syncFirebaseOp({ type: 'upsertStudent', student });
+      await syncGoogleSheetsOp({ action: 'upsertStudent', student });
+
+      showToast(`Status updated to "${newStatus}"!`);
+    }
     window.openConfirmModal = openConfirmModal;
     window.closeConfirmModal = closeConfirmModal;
     window.executeConfirmedAction = executeConfirmedAction;
@@ -5636,6 +5726,9 @@ function doPost(e) {
     window.pushAllToGoogleSheets = pushAllToGoogleSheets;
     window.pullDirectGoogleSheetCsv = pullDirectGoogleSheetCsv;
     window.forceSyncNow = forceSyncNow;
+	window.openStatusModal = openStatusModal;
+    window.closeStatusModal = closeStatusModal;
+    window.saveScholarshipStatus = saveScholarshipStatus;
 
     initApp();
   </script>
