@@ -118,6 +118,7 @@
             <i class="fa-solid fa-right-to-bracket"></i>
             <span>Portal Login</span>
           </a>
+          <button id="websiteEditorLauncher" onclick="openWebsiteEditor()" class="hidden bg-indigo-700 hover:bg-indigo-800 text-white font-bold px-3 py-2 rounded-xl text-xs transition"><i class="fa-solid fa-pen-to-square mr-1"></i> Edit Website</button>
         </div>
       </div>
     </div>
@@ -154,7 +155,7 @@
       </span>
       <div class="overflow-hidden whitespace-nowrap w-full">
         <div class="animate-marquee text-xs font-bold inline-block">
-          <span class="mr-8">📢 <span class="underline">Urgent:</span> Pre-Matric &amp; Post-Matric Scholarship Bank &amp; Aadhaar Seeding verification is active on the PMS Portal. All students must submit documents to assigned nodal teachers.</span>
+          <span id="siteAnnouncement" class="mr-8">📢 Urgent: Pre-Matric &amp; Post-Matric Scholarship Bank &amp; Aadhaar Seeding verification is active on the PMS Portal. All students must submit documents to assigned nodal teachers.</span>
           <span class="mr-8">🏛️ PM SHRI Digital Smart Labs inaugurated for High School &amp; +2 Science stream students.</span>
           <span class="mr-8">📝 CHSE +2 Annual Examination Routine 2026 and BSE Class 10 Model Test Papers now available in Downloads.</span>
           <span class="mr-8">🏆 Annual Sports &amp; District Level Science Exhibition results declared. Congratulations to Team Bapuji HSS!</span>
@@ -179,10 +180,10 @@
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
             Nurturing Excellence Since 1962 • Nabarangpur District
           </div>
-          <h2 class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
+          <h2 id="siteHeroTitle" class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
             Empowering Youth with Modern Knowledge, Science &amp; Values
           </h2>
-          <p class="text-slate-200 text-sm sm:text-base max-w-2xl font-medium leading-relaxed">
+          <p id="siteHeroDescription" class="text-slate-200 text-sm sm:text-base max-w-2xl font-medium leading-relaxed">
             PM SHRI Government Bapuji Higher Secondary School, Tentulikhunti is an exemplar institution under the Ministry of Education &amp; Odisha S&amp;ME Dept, blending digital pedagogy with vocational skills, science labs, and comprehensive student welfare.
           </p>
 
@@ -289,29 +290,29 @@
         <div class="lg:col-span-4 text-center">
           <div class="relative inline-block">
             <div class="w-52 h-52 sm:w-60 sm:h-60 rounded-3xl overflow-hidden bg-gradient-to-tr from-indigo-900 to-indigo-700 p-2 shadow-2xl mx-auto flex items-center justify-center text-white border-4 border-amber-400">
-              <img src="assets/principal-ramesh-kumar-hial.png" alt="Shri Ramesh Kumar Hial, Principal" class="w-full h-full rounded-2xl object-cover" loading="lazy" />
+              <img id="sitePrincipalPhoto" src="assets/principal-ramesh-kumar-hial.png" alt="Shri Ramesh Kumar Hial, Principal" class="w-full h-full rounded-2xl object-cover" loading="lazy" />
             </div>
             <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-slate-900 text-amber-300 font-bold text-xs px-4 py-1.5 rounded-full shadow-lg border border-amber-400/50 whitespace-nowrap">
               UDISE: 21280906905
             </div>
           </div>
           <div class="mt-5">
-            <h4 class="font-black text-lg text-slate-900">Shri. Ramesh Kumar Hial</h4>
+            <h4 id="sitePrincipalName" class="font-black text-lg text-slate-900">Shri. Ramesh Kumar Hial</h4>
             <p class="text-xs text-slate-500 font-medium">Principal, PM SHRI Govt Bapuji Higher Secondary School</p>
-            <a href="tel:+919437912668" class="inline-flex items-center gap-2 mt-2 text-sm font-bold text-indigo-700 hover:text-indigo-900"><i class="fa-solid fa-phone"></i> +91 9437912668</a>
+            <a id="sitePrincipalPhone" href="tel:+919437912668" class="inline-flex items-center gap-2 mt-2 text-sm font-bold text-indigo-700 hover:text-indigo-900"><i class="fa-solid fa-phone"></i> <span>+91 9437912668</span></a>
           </div>
         </div>
 
         <!-- Vision Content Column -->
         <div class="lg:col-span-8 space-y-4">
-          <h3 class="text-xl font-bold text-brand-navy">
+          <h3 id="siteAboutVision" class="text-xl font-bold text-brand-navy">
             "Fostering Academic Brilliance, Equity and Holistic Growth in Tentulikhunti"
           </h3>
           <p class="text-sm text-slate-600 leading-relaxed">
-            Welcome to the official web portal of PM SHRI Government Bapuji Higher Secondary School, Tentulikhunti, Nabarangpur. Established in 1962, our institution has stood as the beacon of enlightenment in the tribal and rural heartland of Southern Odisha.
+            <span id="siteAboutIntro">Welcome to the official web portal of PM SHRI Government Bapuji Higher Secondary School, Tentulikhunti, Nabarangpur. Established in 1962, our institution has stood as the beacon of enlightenment in the tribal and rural heartland of Southern Odisha.</span>
           </p>
           <p class="text-sm text-slate-600 leading-relaxed">
-            Selected as an exemplary <strong>PM SHRI institution</strong>, we are committed to national educational standards through 21st-century digital classrooms, hands-on scientific experimentation, sports infrastructure, and comprehensive government scholarship management ensuring no deserving student is left behind.
+            <span id="siteAboutValues">Selected as an exemplary <strong>PM SHRI institution</strong>, we are committed to national educational standards through 21st-century digital classrooms, hands-on scientific experimentation, sports infrastructure, and comprehensive government scholarship management ensuring no deserving student is left behind.</span>
           </p>
 
           <!-- Core Pillars Grid -->
@@ -744,7 +745,7 @@
         <div class="w-16 h-1 bg-amber-500 mx-auto mt-2 rounded-full"></div>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div id="siteGalleryGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="group relative rounded-2xl overflow-hidden bg-slate-900 aspect-video md:aspect-square flex items-center justify-center p-4 text-center">
           <div class="space-y-1">
             <i class="fa-solid fa-flag-checkered text-3xl text-amber-400 group-hover:scale-110 transition"></i>
@@ -831,15 +832,15 @@
           <h4 class="text-white font-bold uppercase tracking-wider text-xs">Office &amp; Helpdesk</h4>
           <p class="text-slate-400">
             <i class="fa-solid fa-location-dot text-amber-400 mr-1.5"></i>
-            At/Po: Tentulikhunti, Dist: Nabarangpur, Odisha - 764070
+            <span id="siteContactAddress">At/Po: Tentulikhunti, Dist: Nabarangpur, Odisha - 764070</span>
           </p>
           <p class="text-slate-400">
             <i class="fa-solid fa-envelope text-amber-400 mr-1.5"></i>
-            bapujihss.tentulikhunti@gmail.com
+            <span id="siteContactEmail">bapujihss.tentulikhunti@gmail.com</span>
           </p>
           <p class="text-slate-400">
             <i class="fa-solid fa-phone text-amber-400 mr-1.5"></i>
-            06858-XXXXXX / School Administrative Desk
+            <span id="siteOfficePhone">06858-XXXXXX / School Administrative Desk</span>
           </p>
           <div class="pt-2">
             <a href="pms-tracker.html" class="w-full bg-indigo-700 hover:bg-indigo-600 text-white font-bold py-2 rounded-xl text-xs transition">
@@ -1010,6 +1011,208 @@
     window.addEventListener('DOMContentLoaded', () => {
       renderPeriodSchedule();
     });
-  </script>
+  
+const SITE_CONTENT_ENDPOINT='https://bapujihss-default-rtdb.asia-southeast1.firebasedatabase.app/websiteContent/school_01.json';
+const SITE_ADMIN_NAMES=['hemant','bapujihss'];
+let siteContent={};
+let siteGalleryDraft=[];
+let principalPhotoDraft='';
+
+function getWebsiteAdminSession(){
+  try{
+    const user=JSON.parse(localStorage.getItem('pms_school_session_user_v2')||'null');
+    if(user&&user.role==='admin'&&SITE_ADMIN_NAMES.includes(String(user.username||'').toLowerCase())) return user;
+  }catch(_){}
+  return null;
+}
+function siteEscape(value){
+  return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function applyWebsiteContent(data){
+  siteContent=data&&typeof data==='object'?data:{};
+  const setText=(id,value)=>{const el=document.getElementById(id);if(el&&value!==undefined&&value!==null)el.textContent=value;};
+  setText('siteHeroTitle',siteContent.heroTitle);
+  setText('siteHeroDescription',siteContent.heroDescription);
+  setText('siteAboutVision',siteContent.aboutVision);
+  setText('siteAboutIntro',siteContent.aboutIntro);
+  setText('siteAboutValues',siteContent.aboutValues);
+  setText('sitePrincipalName',siteContent.principalName);
+  setText('siteContactAddress',siteContent.contactAddress);
+  setText('siteContactEmail',siteContent.contactEmail);
+  setText('siteOfficePhone',siteContent.officePhone);
+  if(siteContent.announcement){const e=document.getElementById('siteAnnouncement');if(e)e.textContent='📢 '+siteContent.announcement;}
+  if(siteContent.principalPhone){const e=document.getElementById('sitePrincipalPhone');if(e){e.href='tel:'+siteContent.principalPhone.replace(/[^\d+]/g,'');e.querySelector('span').textContent=siteContent.principalPhone;}}
+  if(siteContent.principalPhoto){const e=document.getElementById('sitePrincipalPhoto');if(e)e.src=siteContent.principalPhoto;}
+  if(Array.isArray(siteContent.notices))renderSiteNotices(siteContent.notices);
+  if(Array.isArray(siteContent.gallery))renderSiteGallery(siteContent.gallery);
+}
+async function loadWebsiteContent(){
+  try{const response=await fetch(SITE_CONTENT_ENDPOINT,{cache:'no-store'});if(response.ok)applyWebsiteContent(await response.json());}catch(_){}
+}
+function renderSiteNotices(notices){
+  const target=document.getElementById('noticeContainer');if(!target)return;
+  const colors={scholarship:['amber','Scholarship'],exam:['blue','Examinations'],academic:['emerald','Academic'],general:['indigo','General']};
+  target.innerHTML=notices.map(item=>{
+    const category=String(item.category||'general').toLowerCase();
+    const tone=colors[category]||colors.general;
+    return '<article class="notice-card p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-start gap-4" data-category="'+siteEscape(category)+'">'+
+      '<div class="bg-'+tone[0]+'-100 text-'+tone[0]+'-800 p-3 rounded-xl font-black text-center shrink-0"><span class="block text-base leading-none">'+siteEscape(item.date||'')+'</span><span class="text-[10px] uppercase">'+siteEscape(item.month||'')+'</span></div>'+
+      '<div class="flex-1"><span class="text-[10px] font-bold text-'+tone[0]+'-700 bg-'+tone[0]+'-50 px-2 py-0.5 rounded border border-'+tone[0]+'-200">'+siteEscape(item.category||'General')+'</span>'+
+      '<h4 class="font-bold text-slate-900 text-sm mt-1">'+siteEscape(item.title||'')+'</h4><p class="text-xs text-slate-500 mt-0.5">'+siteEscape(item.details||'')+'</p></div></article>';
+  }).join('');
+}
+function renderSiteGallery(images){
+  const target=document.getElementById('siteGalleryGrid');if(!target)return;
+  if(!images.length){target.innerHTML='<p class="col-span-full text-sm text-slate-500">No gallery photos have been added yet.</p>';return;}
+  target.innerHTML=images.map(item=>'<figure class="group relative rounded-2xl overflow-hidden bg-slate-900 aspect-square">'+
+    '<img src="'+siteEscape(item.dataUrl||'')+'" alt="'+siteEscape(item.caption||'School activity photo')+'" class="w-full h-full object-cover" loading="lazy">'+
+    '<figcaption class="absolute inset-x-0 bottom-0 bg-slate-950/75 text-white p-3 text-xs font-semibold">'+siteEscape(item.caption||'School activity')+'</figcaption></figure>').join('');
+}
+function showWebsiteEditorStatus(message,isError=false){
+  const box=document.getElementById('websiteEditorStatus');if(!box)return;
+  box.className='rounded-xl p-3 text-sm '+(isError?'bg-rose-50 text-rose-800 border border-rose-200':'bg-emerald-50 text-emerald-800 border border-emerald-200');
+  box.textContent=message;
+}
+function defaultNoticeLines(){
+  return Array.from(document.querySelectorAll('#noticeContainer .notice-card')).map(card=>{
+    const category=card.getAttribute('data-category')||'general';
+    const date=card.querySelector('.block.text-base')?.textContent||'';
+    const month=card.querySelector('.text-\\[10px\\].uppercase')?.textContent||'';
+    const title=card.querySelector('h4')?.textContent||'';
+    const details=card.querySelector('p')?.textContent||'';
+    return [category,(date+' '+month).trim(),title,details].join(' | ');
+  }).join('\n');
+}
+function fillWebsiteEditor(){
+  const val=(key,fallback='')=>siteContent[key]??fallback;
+  const field=(id,key,fallback='')=>{document.getElementById(id).value=val(key,fallback);};
+  field('editHeroTitle','heroTitle',document.getElementById('siteHeroTitle').textContent.trim());
+  field('editHeroDescription','heroDescription',document.getElementById('siteHeroDescription').textContent.trim());
+  field('editAboutVision','aboutVision',document.getElementById('siteAboutVision').textContent.trim());
+  field('editAboutIntro','aboutIntro',document.getElementById('siteAboutIntro').textContent.trim());
+  field('editAboutValues','aboutValues',document.getElementById('siteAboutValues').textContent.trim());
+  field('editAnnouncement','announcement',document.getElementById('siteAnnouncement').textContent.replace(/^📢\s*/,'').trim());
+  field('editPrincipalName','principalName',document.getElementById('sitePrincipalName').textContent.trim());
+  field('editPrincipalPhone','principalPhone',document.querySelector('#sitePrincipalPhone span').textContent.trim());
+  field('editContactAddress','contactAddress',document.getElementById('siteContactAddress').textContent.trim());
+  field('editContactEmail','contactEmail',document.getElementById('siteContactEmail').textContent.trim());
+  field('editOfficePhone','officePhone',document.getElementById('siteOfficePhone').textContent.trim());
+  document.getElementById('editNotices').value=Array.isArray(siteContent.notices)?siteContent.notices.map(n=>[n.category,n.date,n.title,n.details].join(' | ')).join('\n'):defaultNoticeLines();
+  siteGalleryDraft=Array.isArray(siteContent.gallery)?siteContent.gallery.slice():[];
+  renderGalleryDraft();
+}
+function openWebsiteEditor(){
+  const admin=getWebsiteAdminSession();
+  if(!admin){showToast('Sign in with an authorized PMS administrator account to edit the website.',true);return;}
+  document.getElementById('websiteEditorUser').textContent=admin.name||admin.username;
+  const modal=document.getElementById('websiteEditorModal');modal.classList.remove('hidden');
+  fillWebsiteEditor();
+  document.getElementById('websiteEditorModal').classList.add('flex');
+}
+function closeWebsiteEditor(){
+  const modal=document.getElementById('websiteEditorModal');modal.classList.add('hidden');modal.classList.remove('flex');
+}
+function renderGalleryDraft(){
+  const target=document.getElementById('editGalleryDraft');if(!target)return;
+  target.innerHTML=siteGalleryDraft.map((item,index)=>'<div class="border rounded-xl overflow-hidden bg-white"><img src="'+siteEscape(item.dataUrl)+'" class="w-full h-24 object-cover" alt=""><input data-caption-index="'+index+'" value="'+siteEscape(item.caption||'')+'" class="w-full p-2 text-xs border-t" placeholder="Photo caption"><button type="button" data-remove-index="'+index+'" class="m-2 px-2 py-1 rounded bg-rose-50 text-rose-700 text-xs">Remove</button></div>').join('');
+  target.querySelectorAll('[data-caption-index]').forEach(input=>input.addEventListener('input',event=>{siteGalleryDraft[Number(event.target.dataset.captionIndex)].caption=event.target.value;}));
+  target.querySelectorAll('[data-remove-index]').forEach(button=>button.addEventListener('click',event=>{siteGalleryDraft.splice(Number(event.currentTarget.dataset.removeIndex),1);renderGalleryDraft();}));
+}
+async function compressSiteImage(file){
+  const image=await createImageBitmap(file);
+  const scale=Math.min(1,1000/Math.max(image.width,image.height));
+  const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(image.width*scale));canvas.height=Math.max(1,Math.round(image.height*scale));
+  canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);image.close();
+  return canvas.toDataURL('image/jpeg',0.78);
+}
+document.getElementById('editPrincipalPhoto').addEventListener('change',async event=>{
+  const file=event.target.files&&event.target.files[0];if(!file)return;
+  try{principalPhotoDraft=await compressSiteImage(file);showWebsiteEditorStatus('Principal photo ready to save.');}catch(_){showWebsiteEditorStatus('Could not process this photo.',true);}
+});
+document.getElementById('editGalleryFiles').addEventListener('change',async event=>{
+  const files=Array.from(event.target.files||[]);
+  for(const file of files){try{siteGalleryDraft.push({caption:file.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' '),dataUrl:await compressSiteImage(file)});}catch(_){showWebsiteEditorStatus('One photo could not be processed.',true);}}
+  renderGalleryDraft();event.target.value='';
+});
+async function saveWebsiteChanges(){
+  const admin=getWebsiteAdminSession();
+  if(!admin){showWebsiteEditorStatus('Administrator session not found. Sign in again.',true);return;}
+  const get=id=>document.getElementById(id).value.trim();
+  const lines=get('editNotices').split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
+  const notices=lines.map(line=>{const [category,date,title,...details]=line.split('|').map(part=>part.trim());return{category:category||'General',date:date||'',title:title||'',details:details.join(' | ')};});
+  const content={
+    heroTitle:get('editHeroTitle'),heroDescription:get('editHeroDescription'),
+    aboutVision:get('editAboutVision'),aboutIntro:get('editAboutIntro'),aboutValues:get('editAboutValues'),
+    announcement:get('editAnnouncement'),principalName:get('editPrincipalName'),principalPhone:get('editPrincipalPhone'),
+    principalPhoto:principalPhotoDraft||siteContent.principalPhoto||'',
+    contactAddress:get('editContactAddress'),contactEmail:get('editContactEmail'),officePhone:get('editOfficePhone'),
+    notices,gallery:siteGalleryDraft,updatedAt:new Date().toISOString(),updatedBy:admin.username
+  };
+  const saveButton=document.getElementById('saveWebsiteChanges');saveButton.disabled=true;saveButton.textContent='Saving…';
+  try{
+    const response=await fetch(SITE_CONTENT_ENDPOINT,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(content)});
+    if(!response.ok)throw new Error('Database rejected the change');
+    siteContent=content;principalPhotoDraft='';applyWebsiteContent(content);
+    showWebsiteEditorStatus('Website changes saved and published.');saveButton.textContent='Saved';
+    setTimeout(()=>{saveButton.innerHTML='<i class="fa-solid fa-floppy-disk mr-2"></i>Save Website Changes';saveButton.disabled=false;},1400);
+  }catch(_){showWebsiteEditorStatus('Save failed. The live database rejected the change; check its write rules.',true);saveButton.disabled=false;saveButton.innerHTML='<i class="fa-solid fa-floppy-disk mr-2"></i>Save Website Changes';}
+}
+async function initializeWebsiteEditor(){
+  const user=getWebsiteAdminSession();
+  if(user){
+    const launcher=document.getElementById('websiteEditorLauncher');launcher.classList.remove('hidden');
+    if(new URLSearchParams(location.search).get('siteEditor')==='1')openWebsiteEditor();
+  }
+  await loadWebsiteContent();
+}
+initializeWebsiteEditor();
+</script>
+<div id="websiteEditorModal" class="fixed inset-0 z-[100] hidden overflow-y-auto bg-slate-950/70 p-3 sm:p-6">
+  <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <div class="bg-indigo-950 text-white px-5 py-4 flex items-center justify-between gap-4">
+      <div><h2 class="font-black text-lg">School Website Editor</h2><p class="text-xs text-indigo-200">Signed in as <span id="websiteEditorUser"></span></p></div>
+      <button onclick="closeWebsiteEditor()" class="rounded-lg px-3 py-2 bg-white/10 hover:bg-white/20 text-sm"><i class="fa-solid fa-xmark mr-1"></i> Close</button>
+    </div>
+    <div class="p-5 space-y-6 max-h-[78vh] overflow-y-auto">
+      <p class="text-xs text-amber-900 bg-amber-50 border border-amber-200 rounded-xl p-3">Changes save to the live school website database. Use this panel for public website information only.</p>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <section class="space-y-3">
+          <h3 class="font-bold text-indigo-900 border-b pb-2">Home and About</h3>
+          <label class="block text-xs font-semibold text-slate-700">Homepage headline<input id="editHeroTitle" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal" /></label>
+          <label class="block text-xs font-semibold text-slate-700">Homepage introduction<textarea id="editHeroDescription" rows="3" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal"></textarea></label>
+          <label class="block text-xs font-semibold text-slate-700">About heading<input id="editAboutVision" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal" /></label>
+          <label class="block text-xs font-semibold text-slate-700">About introduction<textarea id="editAboutIntro" rows="3" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal"></textarea></label>
+          <label class="block text-xs font-semibold text-slate-700">About details<textarea id="editAboutValues" rows="3" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal"></textarea></label>
+          <label class="block text-xs font-semibold text-slate-700">Announcement ticker<textarea id="editAnnouncement" rows="2" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal"></textarea></label>
+        </section>
+        <section class="space-y-3">
+          <h3 class="font-bold text-indigo-900 border-b pb-2">Principal and Contacts</h3>
+          <label class="block text-xs font-semibold text-slate-700">Principal name<input id="editPrincipalName" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal" /></label>
+          <label class="block text-xs font-semibold text-slate-700">Principal phone<input id="editPrincipalPhone" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal" /></label>
+          <label class="block text-xs font-semibold text-slate-700">Principal photo<input id="editPrincipalPhoto" type="file" accept="image/*" class="mt-1 block w-full text-sm font-normal" /></label>
+          <label class="block text-xs font-semibold text-slate-700">School address<input id="editContactAddress" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal" /></label>
+          <label class="block text-xs font-semibold text-slate-700">School email<input id="editContactEmail" type="email" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal" /></label>
+          <label class="block text-xs font-semibold text-slate-700">Office phone<input id="editOfficePhone" class="mt-1 w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal" /></label>
+        </section>
+      </div>
+      <section class="space-y-3">
+        <h3 class="font-bold text-indigo-900 border-b pb-2">Notice Board</h3>
+        <p class="text-xs text-slate-500">One notice per line: category | date | title | details</p>
+        <textarea id="editNotices" rows="6" class="w-full p-2.5 rounded-lg border border-slate-300 text-sm font-normal" placeholder="Scholarship | 28 OCT | Document verification | Bring bank passbook"></textarea>
+      </section>
+      <section class="space-y-3">
+        <h3 class="font-bold text-indigo-900 border-b pb-2">Photo Gallery</h3>
+        <label class="block text-xs font-semibold text-slate-700">Add photos<input id="editGalleryFiles" type="file" accept="image/*" multiple class="mt-1 block w-full text-sm font-normal" /></label>
+        <div id="editGalleryDraft" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+      </section>
+      <div id="websiteEditorStatus" class="hidden rounded-xl p-3 text-sm"></div>
+    </div>
+    <div class="border-t bg-slate-50 px-5 py-4 flex flex-wrap justify-end gap-3">
+      <button onclick="closeWebsiteEditor()" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-bold">Cancel</button>
+      <button id="saveWebsiteChanges" onclick="saveWebsiteChanges()" class="px-5 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-sm font-bold"><i class="fa-solid fa-floppy-disk mr-2"></i>Save Website Changes</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
