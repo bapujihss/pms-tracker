@@ -323,6 +323,10 @@
             <option value="Doc Issue">Income / Caste Issue</option>
           </select>
 
+          <select id="teacherFilter" onchange="renderTable()" class="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="all">All Teachers</option>
+          </select>
+
           <select id="sectionFilter" onchange="renderTable()" class="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
             <option value="all">All Sections</option>
             <option value="Section A">Section A</option>
@@ -790,12 +794,3036 @@ function doPost(e) {
 }`;
 
     const defaultTeachers = [
-      { id: 'admin-1', name: 'Hemant', username: 'Hemant', password: 'Abcd@1234', role: 'admin' },
-      { id: 'teacher-1', name: 'Bapujihss', username: 'Bapujihss', password: '1962', role: 'admin' }
-    ];
+      {
+            id: 'admin-1',
+            "name": "Hemant",
+            "username": "Hemant",
+            "password": "Abcd@1234",
+            "role": "admin"
+      },
+      {
+            id: 'teacher-1',
+            "name": "Bapujihss",
+            "username": "Bapujihss",
+            "password": "1962",
+            "role": "admin"
+      },
+      {
+            "id": "teacher-2",
+            "name": "ANONO KUMAR BHATRA",
+            "username": "anono",
+            "password": "1962",
+            "role": "teacher"
+      },
+      {
+            "id": "teacher-3",
+            "name": "BHUBAN HARIJAN",
+            "username": "bhuban",
+            "password": "1962",
+            "role": "teacher"
+      },
+      {
+            "id": "teacher-4",
+            "name": "BIKASH BHOLA NAIK",
+            "username": "bikash_naik",
+            "password": "1962",
+            "role": "teacher"
+      },
+      {
+            "id": "teacher-5",
+            "name": "BIKASH RANJAN SAHOO",
+            "username": "bikash_sahoo",
+            "password": "1962",
+            "role": "teacher"
+      },
+      {
+            "id": "teacher-6",
+            "name": "CHANDANA NAYAK",
+            "username": "chandana",
+            "password": "1962",
+            "role": "teacher"
+      },
+      {
+            "id": "teacher-7",
+            "name": "GYANA JYOTI MOHANTY",
+            "username": "gyana",
+            "password": "1962",
+            "role": "teacher"
+      },
+      {
+            "id": "teacher-8",
+            "name": "HIMANSHU SEKHAR BARIK",
+            "username": "himanshu",
+            "password": "1962",
+            "role": "teacher"
+      },
+      {
+            "id": "teacher-9",
+            "name": "HEMANTA KUMAR MAJHI",
+            "username": "hemanta",
+            "password": "1962",
+            "role": "teacher"
+      },
+      {
+            "id": "teacher-10",
+            "name": "JASODA KORKORA",
+            "username": "jasoda",
+            "password": "1962",
+            "role": "teacher"
+      },
+      {
+            "id": "teacher-11",
+            "name": "JAGADISH BHATRA",
+            "username": "jagadish",
+            "password": "1962",
+            "role": "teacher"
+      },
+      {
+            "id": "teacher-12",
+            "name": "LINGARAJ MAJHI",
+            "username": "lingaraj",
+            "password": "1962",
+            "role": "teacher"
+      },
+      {
+            "id": "teacher-13",
+            "name": "SANGITA KUMARI SABAT",
+            "username": "sangita",
+            "password": "1962",
+            "role": "teacher"
+      },
+      {
+            "id": "teacher-14",
+            "name": "SASHIDHAR SABAR",
+            "username": "sashidhar",
+            "password": "1962",
+            "role": "teacher"
+      }
+];
 
     const LEGACY_DEMO_ROLLS = ['ix-2026-001', 'ix-2026-002', 'ix-2026-003', 'ix-2026-004', 'ix-2026-005'];
-    const defaultStudents = [];
+    const defaultStudents = [
+      {
+            "id": "ix_a_01",
+            "name": "ANJALI JANI",
+            "rollNo": "IX-A-01",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "anono",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_02",
+            "name": "ANJEL KHURA",
+            "rollNo": "IX-A-02",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "anono",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_03",
+            "name": "BABITA GOUDA",
+            "rollNo": "IX-A-03",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "anono",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_04",
+            "name": "BARSHA PATRA",
+            "rollNo": "IX-A-04",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "anono",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_05",
+            "name": "CHARCHITA PATRA",
+            "rollNo": "IX-A-05",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "anono",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_06",
+            "name": "GANITA BHATRA",
+            "rollNo": "IX-A-06",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "anono",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_07",
+            "name": "GITA JANI",
+            "rollNo": "IX-A-07",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "anono",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_08",
+            "name": "HEMALATA JANI",
+            "rollNo": "IX-A-08",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "anono",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_09",
+            "name": "IPSITA PATRA",
+            "rollNo": "IX-A-09",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "anono",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_10",
+            "name": "JASPINI KORKORA",
+            "rollNo": "IX-A-10",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "anono",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_11",
+            "name": "JAYANTI BAGH",
+            "rollNo": "IX-A-11",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "anono",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_12",
+            "name": "JHANSI RANI HARIJAN",
+            "rollNo": "IX-A-12",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "bhuban",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_13",
+            "name": "KALPANA PATRA",
+            "rollNo": "IX-A-13",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "bhuban",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_14",
+            "name": "LESALI KORKORA",
+            "rollNo": "IX-A-14",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "bhuban",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_15",
+            "name": "LIPIKA JANI",
+            "rollNo": "IX-A-15",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "bhuban",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_16",
+            "name": "MAMATA PATRA",
+            "rollNo": "IX-A-16",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "bhuban",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_17",
+            "name": "MEGHA SAGARIA",
+            "rollNo": "IX-A-17",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "bhuban",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_18",
+            "name": "NITA PUJARI",
+            "rollNo": "IX-A-18",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "bhuban",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_19",
+            "name": "NABINA GOUDA",
+            "rollNo": "IX-A-19",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "bhuban",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_20",
+            "name": "NAMITA MAJHI",
+            "rollNo": "IX-A-20",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "bhuban",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_21",
+            "name": "NILA GOUDA",
+            "rollNo": "IX-A-21",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "bhuban",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_22",
+            "name": "NILENDRI GOUDA",
+            "rollNo": "IX-A-22",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "bhuban",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_23",
+            "name": "PRIYADARSINI PUJARI",
+            "rollNo": "IX-A-23",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "bikash_naik",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_24",
+            "name": "PRIYANKA SUNA",
+            "rollNo": "IX-A-24",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "bikash_naik",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_25",
+            "name": "RASHMITA KUMBHAR",
+            "rollNo": "IX-A-25",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "bikash_naik",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_26",
+            "name": "SASMITA RANI BAGH",
+            "rollNo": "IX-A-26",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "bikash_naik",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_27",
+            "name": "SRIYA KORKORA",
+            "rollNo": "IX-A-27",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "bikash_naik",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_28",
+            "name": "SOMITRA CHALAN",
+            "rollNo": "IX-A-28",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "bikash_naik",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_29",
+            "name": "SUNAMIA SUNA",
+            "rollNo": "IX-A-29",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "bikash_naik",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_30",
+            "name": "TULASI GOUDA",
+            "rollNo": "IX-A-30",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "bikash_naik",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_31",
+            "name": "URBASI CHALAN",
+            "rollNo": "IX-A-31",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "bikash_naik",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_32",
+            "name": "YAMUNA MUDULI",
+            "rollNo": "IX-A-32",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "bikash_naik",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_33",
+            "name": "ABHAYA KORKORA",
+            "rollNo": "IX-A-33",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "bikash_naik",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_34",
+            "name": "AYUSH KORKORA",
+            "rollNo": "IX-A-34",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "bikash_naik",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_35",
+            "name": "BALADEVA MUDULI",
+            "rollNo": "IX-A-35",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "bikash_sahoo",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_36",
+            "name": "BHAGABANA GOUDA",
+            "rollNo": "IX-A-36",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "bikash_sahoo",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_37",
+            "name": "BHAGABANA NAYAK",
+            "rollNo": "IX-A-37",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "bikash_sahoo",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_38",
+            "name": "DASARATHI PUJARI",
+            "rollNo": "IX-A-38",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "bikash_sahoo",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_39",
+            "name": "DURIYADHAN GOUDA",
+            "rollNo": "IX-A-39",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "bikash_sahoo",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_40",
+            "name": "IMANUEL KARKARA",
+            "rollNo": "IX-A-40",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "bikash_sahoo",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_41",
+            "name": "MAHENDRA GOUDA",
+            "rollNo": "IX-A-41",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "bikash_sahoo",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_42",
+            "name": "NAHASAN HIAL",
+            "rollNo": "IX-A-42",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "bikash_sahoo",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_43",
+            "name": "NARENDRA MUDULI",
+            "rollNo": "IX-A-43",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "bikash_sahoo",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_44",
+            "name": "PABITRA PATRA",
+            "rollNo": "IX-A-44",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "bikash_sahoo",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_45",
+            "name": "PRAPULLA MAJHI",
+            "rollNo": "IX-A-45",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "bikash_sahoo",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_46",
+            "name": "PURANDAR MUDULI",
+            "rollNo": "IX-A-46",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "chandana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_47",
+            "name": "RABI NAYAK",
+            "rollNo": "IX-A-47",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "chandana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_48",
+            "name": "SAI SUBHAM DAS",
+            "rollNo": "IX-A-48",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "chandana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_49",
+            "name": "SUBHAM BEHERA",
+            "rollNo": "IX-A-49",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "chandana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_50",
+            "name": "SUBHAM NAYAK",
+            "rollNo": "IX-A-50",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "chandana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_51",
+            "name": "AMBIKA JANI",
+            "rollNo": "IX-A-51",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "chandana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_52",
+            "name": "ANITA JANI",
+            "rollNo": "IX-A-52",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "chandana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_53",
+            "name": "BABITA HARIJAN",
+            "rollNo": "IX-A-53",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "chandana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_54",
+            "name": "BASANTI SOURA",
+            "rollNo": "IX-A-54",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "chandana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_55",
+            "name": "BHABANI MAJHI",
+            "rollNo": "IX-A-55",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "chandana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_56",
+            "name": "HANSIKA BHATTA",
+            "rollNo": "IX-A-56",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "chandana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_57",
+            "name": "BADAL SUNA",
+            "rollNo": "IX-A-57",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "gyana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_58",
+            "name": "KALPANA JANI",
+            "rollNo": "IX-A-58",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "gyana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_59",
+            "name": "KANCHANA JANI",
+            "rollNo": "IX-A-59",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "gyana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_60",
+            "name": "KALWARI NAYAK",
+            "rollNo": "IX-A-60",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "gyana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_61",
+            "name": "KUNI BHATRA",
+            "rollNo": "IX-A-61",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "gyana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_62",
+            "name": "NANDINI CHALAN",
+            "rollNo": "IX-A-62",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "gyana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_63",
+            "name": "NANDINI SANTA",
+            "rollNo": "IX-A-63",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "gyana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_64",
+            "name": "NIRMALA NAYAK",
+            "rollNo": "IX-A-64",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "gyana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_65",
+            "name": "PADMASINI DALAPATI",
+            "rollNo": "IX-A-65",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "gyana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_66",
+            "name": "PRAMILA BHATRA",
+            "rollNo": "IX-A-66",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "gyana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_67",
+            "name": "SANTITA JANI",
+            "rollNo": "IX-A-67",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "gyana",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_68",
+            "name": "HEMALATA JANI",
+            "rollNo": "IX-A-68",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "ST",
+            "teacher": "himanshu",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_69",
+            "name": "CHANDAN CHALAN",
+            "rollNo": "IX-A-69",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "himanshu",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_70",
+            "name": "NARESH PRATAP NAYAK",
+            "rollNo": "IX-A-70",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "himanshu",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_71",
+            "name": "PANKAJ NAYAK",
+            "rollNo": "IX-A-71",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "himanshu",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_72",
+            "name": "SMIKIT KORKORA",
+            "rollNo": "IX-A-72",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "himanshu",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_73",
+            "name": "SUJIT NAG",
+            "rollNo": "IX-A-73",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "himanshu",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_74",
+            "name": "JOYESH MERY BAGH",
+            "rollNo": "IX-A-74",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "himanshu",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_75",
+            "name": "KRISHNA HARIJAN",
+            "rollNo": "IX-A-75",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "himanshu",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_76",
+            "name": "SURENDRA DAS",
+            "rollNo": "IX-A-76",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "OBC",
+            "teacher": "himanshu",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_77",
+            "name": "ANISHA NAG",
+            "rollNo": "IX-A-77",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "himanshu",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_a_78",
+            "name": "MERSIA KARKARA",
+            "rollNo": "IX-A-78",
+            "className": "Class 9",
+            "section": "Section A",
+            "category": "SC",
+            "teacher": "himanshu",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_01",
+            "name": "ABED BAGH",
+            "rollNo": "IX-B-01",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "hemanta",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_02",
+            "name": "AJIT GOUDA",
+            "rollNo": "IX-B-02",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "hemanta",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_03",
+            "name": "ANIL PUJARI",
+            "rollNo": "IX-B-03",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "hemanta",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_04",
+            "name": "ANITA BHATRA",
+            "rollNo": "IX-B-04",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "hemanta",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_05",
+            "name": "ANSHUMAN KORKORA",
+            "rollNo": "IX-B-05",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "hemanta",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_06",
+            "name": "ARYAN HARIJAN",
+            "rollNo": "IX-B-06",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "hemanta",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_07",
+            "name": "ARUN SINGH",
+            "rollNo": "IX-B-07",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "hemanta",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_08",
+            "name": "BABULU JANI",
+            "rollNo": "IX-B-08",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "hemanta",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_09",
+            "name": "BABITA JANI",
+            "rollNo": "IX-B-09",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "hemanta",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_10",
+            "name": "BANABASI JANI",
+            "rollNo": "IX-B-10",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "hemanta",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_11",
+            "name": "BARUN HARIJAN",
+            "rollNo": "IX-B-11",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "hemanta",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_12",
+            "name": "BHUBANA BHATRA",
+            "rollNo": "IX-B-12",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "hemanta",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_13",
+            "name": "BIJAY HARIJAN",
+            "rollNo": "IX-B-13",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "jasoda",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_14",
+            "name": "BINSHI SETA HIAL",
+            "rollNo": "IX-B-14",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "jasoda",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_15",
+            "name": "BRUNDABAN MUDULI",
+            "rollNo": "IX-B-15",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "jasoda",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_16",
+            "name": "CHANDAN PATRA",
+            "rollNo": "IX-B-16",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "jasoda",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_17",
+            "name": "CHANDINI JANI",
+            "rollNo": "IX-B-17",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "jasoda",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_18",
+            "name": "CHANDRI BINDHANI",
+            "rollNo": "IX-B-18",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "jasoda",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_19",
+            "name": "CHINMAYEE BHATRA",
+            "rollNo": "IX-B-19",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "jasoda",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_20",
+            "name": "DAIMATI BHATRA",
+            "rollNo": "IX-B-20",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "jasoda",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_21",
+            "name": "DALESWARI MAJHI",
+            "rollNo": "IX-B-21",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "jasoda",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_22",
+            "name": "DIPIKA DALAPATI",
+            "rollNo": "IX-B-22",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "jasoda",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_23",
+            "name": "DURYODHAN KUMBHAR",
+            "rollNo": "IX-B-23",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "jasoda",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_24",
+            "name": "GHASIRAM HARIJAN",
+            "rollNo": "IX-B-24",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "jagadish",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_25",
+            "name": "GOMATI PAIK",
+            "rollNo": "IX-B-25",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "jagadish",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_26",
+            "name": "HARI KAMAR",
+            "rollNo": "IX-B-26",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "jagadish",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_27",
+            "name": "HEMALATA BHATRA",
+            "rollNo": "IX-B-27",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "jagadish",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_28",
+            "name": "INDIRA GOUDA",
+            "rollNo": "IX-B-28",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "jagadish",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_29",
+            "name": "ISAK KACHHAP",
+            "rollNo": "IX-B-29",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "jagadish",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_30",
+            "name": "JALESWAR SAHU",
+            "rollNo": "IX-B-30",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "jagadish",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_31",
+            "name": "JALENDRA PAIK",
+            "rollNo": "IX-B-31",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "jagadish",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_32",
+            "name": "JALENDRA PATRA",
+            "rollNo": "IX-B-32",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "jagadish",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_33",
+            "name": "JHARANA SOURA",
+            "rollNo": "IX-B-33",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "jagadish",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_34",
+            "name": "KABITA JANI",
+            "rollNo": "IX-B-34",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "jagadish",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_35",
+            "name": "KAILASH CHALAN",
+            "rollNo": "IX-B-35",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "lingaraj",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_36",
+            "name": "KAJAL JANI",
+            "rollNo": "IX-B-36",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "lingaraj",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_37",
+            "name": "KAMESH BHATRA",
+            "rollNo": "IX-B-37",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "lingaraj",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_38",
+            "name": "KARUNA JANI",
+            "rollNo": "IX-B-38",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "lingaraj",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_39",
+            "name": "LILI JANI",
+            "rollNo": "IX-B-39",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "lingaraj",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_40",
+            "name": "LIPIKA BHATRA",
+            "rollNo": "IX-B-40",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "lingaraj",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_41",
+            "name": "MANGRI BHATRA",
+            "rollNo": "IX-B-41",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "lingaraj",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_42",
+            "name": "MANJULA JANI",
+            "rollNo": "IX-B-42",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "lingaraj",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_43",
+            "name": "MRUTYUNJAY NAYAK",
+            "rollNo": "IX-B-43",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "lingaraj",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_44",
+            "name": "NILENDRI BHATRA",
+            "rollNo": "IX-B-44",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "lingaraj",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_45",
+            "name": "PARTHAK KHRISTIAN",
+            "rollNo": "IX-B-45",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "Minority",
+            "teacher": "lingaraj",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_46",
+            "name": "PRATIMA SANTA",
+            "rollNo": "IX-B-46",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "lingaraj",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_47",
+            "name": "RABINDRA GOUDA",
+            "rollNo": "IX-B-47",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "sangita",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_48",
+            "name": "RAHUL BISOI",
+            "rollNo": "IX-B-48",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "sangita",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_49",
+            "name": "RENUKA KARKARA",
+            "rollNo": "IX-B-49",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "sangita",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_50",
+            "name": "RISAB HARIJAN",
+            "rollNo": "IX-B-50",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "sangita",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_51",
+            "name": "ROHIT KUMAR SINGH",
+            "rollNo": "IX-B-51",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "sangita",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_52",
+            "name": "RUPELI DANGRI",
+            "rollNo": "IX-B-52",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "sangita",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_53",
+            "name": "RUPALI HARIJAN",
+            "rollNo": "IX-B-53",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "sangita",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_54",
+            "name": "SAHIL KACHHAP",
+            "rollNo": "IX-B-54",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "sangita",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_55",
+            "name": "SAHIL SUNA",
+            "rollNo": "IX-B-55",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "sangita",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_56",
+            "name": "SARAT KUMAR JANI",
+            "rollNo": "IX-B-56",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "sangita",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_57",
+            "name": "SASMITA JANI",
+            "rollNo": "IX-B-57",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "sangita",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_58",
+            "name": "SASMITA PUJARI",
+            "rollNo": "IX-B-58",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "sashidhar",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_59",
+            "name": "SIBANI MAJHI",
+            "rollNo": "IX-B-59",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "sashidhar",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_60",
+            "name": "SIKHA SUNA",
+            "rollNo": "IX-B-60",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "sashidhar",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_61",
+            "name": "SIYANSI RANI BENYA",
+            "rollNo": "IX-B-61",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "sashidhar",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_62",
+            "name": "SUKANTI SANTA",
+            "rollNo": "IX-B-62",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "sashidhar",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_63",
+            "name": "SUNENA KARKARA",
+            "rollNo": "IX-B-63",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "sashidhar",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_64",
+            "name": "SUNIL SETHY",
+            "rollNo": "IX-B-64",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "sashidhar",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_65",
+            "name": "SUNITA HARIJAN",
+            "rollNo": "IX-B-65",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "SC",
+            "teacher": "sashidhar",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_66",
+            "name": "SWATI JANI",
+            "rollNo": "IX-B-66",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "ST",
+            "teacher": "sashidhar",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_67",
+            "name": "TEJKAR GOUDA",
+            "rollNo": "IX-B-67",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "sashidhar",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      },
+      {
+            "id": "ix_b_68",
+            "name": "TULASI MALI",
+            "rollNo": "IX-B-68",
+            "className": "Class 9",
+            "section": "Section B",
+            "category": "OBC",
+            "teacher": "sashidhar",
+            "phone": "",
+            "aadhaar": false,
+            "aadhaarSeeded": false,
+            "income": false,
+            "caste": false,
+            "passbook": false,
+            "bankAcc": "",
+            "ifsc": "",
+            "aadhaarNo": "",
+            "incomeCertNo": "",
+            "casteCertNo": ""
+      }
+];
 
     window.students = [];
     window.teachers = [];
@@ -1103,41 +4131,109 @@ function doPost(e) {
       };
     }
 
+    function resolveTeacherUsername(teacherKey) {
+      const raw = String(teacherKey || '').trim();
+      if (!raw) return 'Bapujihss';
+      const list = (window.teachers && window.teachers.length) ? window.teachers : defaultTeachers;
+      const matched = list.find(t =>
+        t.username.toLowerCase() === raw.toLowerCase() ||
+        t.name.toLowerCase() === raw.toLowerCase()
+      );
+      return matched ? matched.username : raw;
+    }
+
+    function getTeacherDisplayName(teacherKey) {
+      const raw = String(teacherKey || '').trim();
+      if (!raw) return 'Unassigned';
+      const list = (window.teachers && window.teachers.length) ? window.teachers : defaultTeachers;
+      const matched = list.find(t =>
+        t.username.toLowerCase() === raw.toLowerCase() ||
+        t.name.toLowerCase() === raw.toLowerCase()
+      );
+      return matched ? matched.name : raw;
+    }
+
+    function isStudentAssignedToTeacher(student, teacherObj) {
+      if (!student || !teacherObj) return false;
+      const st = String(student.teacher || '').trim().toLowerCase();
+      const uname = String(teacherObj.username || '').trim().toLowerCase();
+      const tname = String(teacherObj.name || '').trim().toLowerCase();
+      return st === uname || st === tname;
+    }
+
     function ensureDefaultTeachersPresent() {
+      const deletedSet = new Set(getDeletedIds());
+      let addedAny = false;
       for (const defT of defaultTeachers) {
-        const existingIdx = window.teachers.findIndex(t => t.username.toLowerCase() === defT.username.toLowerCase());
+        if (defT.role !== 'admin' && deletedSet.has('teacher:' + defT.username.toLowerCase())) {
+          continue;
+        }
+        const existingIdx = window.teachers.findIndex(t =>
+          t.username.toLowerCase() === defT.username.toLowerCase() ||
+          t.name.toLowerCase() === defT.name.toLowerCase()
+        );
         if (existingIdx === -1) {
           window.teachers.push(normalizeTeacher(defT));
+          addedAny = true;
         } else {
-          window.teachers[existingIdx] = normalizeTeacher({ ...window.teachers[existingIdx], role: defT.role });
+          window.teachers[existingIdx] = normalizeTeacher({
+            ...window.teachers[existingIdx],
+            name: defT.name,
+            username: defT.username,
+            role: defT.role
+          });
         }
       }
+      return addedAny;
+    }
+
+    function ensureDefaultAllocatedStudentsPresent() {
+      const deletedSet = new Set(getDeletedIds());
+      let addedAny = false;
+      for (const defS of defaultStudents) {
+        const sId = String(defS.id);
+        const sRoll = String(defS.rollNo).toLowerCase();
+        if (deletedSet.has(sId) || deletedSet.has(sRoll)) {
+          continue;
+        }
+        const existingIdx = window.students.findIndex(s =>
+          String(s.id) === sId || String(s.rollNo).toLowerCase() === sRoll
+        );
+        if (existingIdx === -1) {
+          window.students.push(normalizeStudent(defS));
+          addedAny = true;
+        } else {
+          window.students[existingIdx].teacher = resolveTeacherUsername(window.students[existingIdx].teacher || defS.teacher);
+        }
+      }
+      return addedAny;
     }
 
     function ensureInitialData() {
-      const wasInitialized = readLocal(INIT_FLAG_KEY, false);
       const storedStudents = readLocal(LOCAL_KEY, null);
       const storedTeachers = readLocal(TEACHER_KEY, null);
       const deletedSet = new Set(getDeletedIds());
+
+      window.teachers = Array.isArray(storedTeachers) && storedTeachers.length
+        ? storedTeachers.filter(Boolean).map(normalizeTeacher)
+        : defaultTeachers.map(normalizeTeacher);
+      const addedTeachers = ensureDefaultTeachersPresent();
 
       if (Array.isArray(storedStudents)) {
         window.students = storedStudents
           .filter(Boolean)
           .map(normalizeStudent)
           .filter(s => !deletedSet.has(String(s.id)) && !deletedSet.has(String(s.rollNo).toLowerCase()));
-      } else if (wasInitialized) {
-        window.students = [];
       } else {
-        // Wait for IndexedDB / Firebase before deciding whether to seed defaultStudents
         window.students = [];
       }
+      const addedStudents = ensureDefaultAllocatedStudentsPresent();
 
-      window.teachers = Array.isArray(storedTeachers) && storedTeachers.length
-        ? storedTeachers.filter(Boolean).map(normalizeTeacher)
-        : defaultTeachers.map(normalizeTeacher);
-
-      ensureDefaultTeachersPresent();
       saveLocal(TEACHER_KEY, window.teachers);
+      saveLocal(LOCAL_KEY, window.students);
+      if (addedTeachers || addedStudents) {
+        markLocalStateChanged(true);
+      }
       renderTeacherList();
       populateTeacherDropdown();
       renderTable();
@@ -1146,16 +4242,31 @@ function doPost(e) {
 
     function populateTeacherDropdown() {
       const select = document.getElementById('teacherSelect');
-      if (!select) return;
-
-      const currentVal = select.value;
       const options = window.teachers.filter(t => t.role === 'teacher' || t.username === 'Bapujihss');
-      select.innerHTML = options.map(t => `<option value="${escapeHtml(t.username)}">${escapeHtml(t.name)} (${escapeHtml(t.username)})</option>`).join('');
+      if (select) {
+        const currentVal = select.value;
+        select.innerHTML = options.map(t => `<option value="${escapeHtml(t.username)}">${escapeHtml(t.name)} (ID: ${escapeHtml(t.username)})</option>`).join('');
 
-      if (window.currentUser && window.currentUser.role === 'teacher') {
-        select.value = window.currentUser.username;
-      } else if (currentVal && options.some(o => o.username === currentVal)) {
-        select.value = currentVal;
+        if (window.currentUser && window.currentUser.role === 'teacher') {
+          select.value = window.currentUser.username;
+        } else if (currentVal && options.some(o => o.username === currentVal)) {
+          select.value = currentVal;
+        }
+      }
+
+      const filterSelect = document.getElementById('teacherFilter');
+      if (filterSelect) {
+        const prevFilter = filterSelect.value || 'all';
+        const teacherOpts = window.teachers.filter(t => t.role === 'teacher');
+        filterSelect.innerHTML = '<option value="all">All Teachers</option>' +
+          teacherOpts.map(t => `<option value="${escapeHtml(t.username)}">${escapeHtml(t.name)}</option>`).join('');
+        if (window.currentUser && window.currentUser.role !== 'admin') {
+          filterSelect.value = window.currentUser.username;
+          filterSelect.classList.add('hidden');
+        } else {
+          filterSelect.classList.remove('hidden');
+          filterSelect.value = (prevFilter === 'all' || teacherOpts.some(t => t.username === prevFilter)) ? prevFilter : 'all';
+        }
       }
     }
 
@@ -1176,16 +4287,20 @@ function doPost(e) {
 
       list.innerHTML = window.teachers.map(t => {
         const isLocked = t.role === 'admin' || t.username === 'Bapujihss';
-        const assignedCount = window.students.filter(s => s.teacher === t.username).length;
+        const assignedCount = window.students.filter(s => isStudentAssignedToTeacher(s, t)).length;
         const deleteButton = isLocked
-          ? '<button type="button" disabled class="opacity-40 px-2.5 py-1 rounded-lg text-xs bg-slate-100 text-slate-500">System Default</button>'
+          ? '<button type="button" disabled class="opacity-40 px-2.5 py-1 rounded-lg text-xs bg-slate-100 text-slate-500">Admin</button>'
           : `<button type="button" onclick="removeTeacher('${escapeHtml(t.id)}', '${escapeHtml(t.username)}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-100 text-rose-600 hover:bg-rose-200 transition">Delete</button>`;
+
+        const credInfo = isLocked
+          ? `ID: <span class="font-mono font-semibold text-indigo-700">${escapeHtml(t.username)}</span> • ${escapeHtml(t.role)}`
+          : `ID: <span class="font-mono font-semibold text-indigo-700">${escapeHtml(t.username)}</span> • Pass: <span class="font-mono font-semibold text-slate-700">${escapeHtml(t.password)}</span> • ${assignedCount} students`;
 
         return `
           <div class="flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50">
             <div>
               <div class="font-semibold text-slate-800">${escapeHtml(t.name)}</div>
-              <div class="text-xs text-slate-500">${escapeHtml(t.username)} • ${escapeHtml(t.role)} • ${assignedCount} students</div>
+              <div class="text-xs text-slate-500">${credInfo}</div>
             </div>
             ${deleteButton}
           </div>
@@ -1205,7 +4320,7 @@ function doPost(e) {
 
     function getScopedStudentsForCurrentUser() {
       if (window.currentUser && window.currentUser.role !== 'admin') {
-        return window.students.filter(s => s.teacher === window.currentUser.username);
+        return window.students.filter(s => isStudentAssignedToTeacher(s, window.currentUser));
       }
       return window.students;
     }
@@ -1268,6 +4383,7 @@ function doPost(e) {
       const tbody = document.getElementById('studentTableBody');
       const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
       const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+      const teacherFilter = document.getElementById('teacherFilter')?.value || 'all';
       const sectionFilter = document.getElementById('sectionFilter')?.value || 'all';
       const classFilter = document.getElementById('classFilter')?.value || 'all';
       const emptyState = document.getElementById('emptyState');
@@ -1280,12 +4396,16 @@ function doPost(e) {
 
       visible = visible.filter(student => {
         const result = evaluateStudent(student);
+        const teacherFullName = getTeacherDisplayName(student.teacher);
         const matchesSearch =
           (student.name || '').toLowerCase().includes(search) ||
           (student.rollNo || '').toLowerCase().includes(search) ||
           (student.teacher || '').toLowerCase().includes(search) ||
+          teacherFullName.toLowerCase().includes(search) ||
           (student.phone || '').includes(search);
 
+        const matchesTeacher = teacherFilter === 'all' ||
+          resolveTeacherUsername(student.teacher).toLowerCase() === teacherFilter.toLowerCase();
         const matchesSection = sectionFilter === 'all' || student.section === sectionFilter;
         const matchesClass = classFilter === 'all' || student.className === classFilter;
 
@@ -1295,7 +4415,7 @@ function doPost(e) {
         else if (effectiveStatus === 'Aadhaar Issue') matchesStatus = (!student.aadhaar || !student.aadhaarSeeded);
         else if (effectiveStatus === 'Doc Issue') matchesStatus = (!student.income || !student.caste);
 
-        return matchesSearch && matchesSection && matchesClass && matchesStatus;
+        return matchesSearch && matchesTeacher && matchesSection && matchesClass && matchesStatus;
       });
 
       if (visible.length === 0) {
@@ -1346,7 +4466,7 @@ function doPost(e) {
           <td class="py-3.5 px-4">
             <div class="text-xs font-medium text-slate-700 flex items-center gap-1.5">
               <i class="fa-solid fa-chalkboard-user text-indigo-600"></i>
-              <span>${escapeHtml(student.teacher || 'Unassigned')}</span>
+              <span>${escapeHtml(getTeacherDisplayName(student.teacher))}</span>
             </div>
           </td>
           <td class="py-3.5 px-4 align-top">${statusBadge}</td>
@@ -1422,7 +4542,10 @@ function doPost(e) {
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
 
-      const user = window.teachers.find(t => t.username.toLowerCase() === username.toLowerCase() && t.password === password);
+      const user = window.teachers.find(t =>
+        (t.username.toLowerCase() === username.toLowerCase() || t.name.toLowerCase() === username.toLowerCase()) &&
+        t.password === password
+      );
       if (!user) {
         showToast('Invalid username or password.', true);
         return;
@@ -1600,9 +4723,9 @@ function doPost(e) {
         'Remove Teacher Account',
         `Delete teacher account "${username}" and their assigned student records across all synced devices?`,
         async () => {
-          const removedIds = window.students.filter(s => s.teacher === username).map(s => String(s.id));
-          const removedRolls = window.students.filter(s => s.teacher === username).map(s => String(s.rollNo).toLowerCase());
-          addDeletedIds([...removedIds, ...removedRolls]);
+          const removedIds = window.students.filter(s => resolveTeacherUsername(s.teacher).toLowerCase() === username.toLowerCase()).map(s => String(s.id));
+          const removedRolls = window.students.filter(s => resolveTeacherUsername(s.teacher).toLowerCase() === username.toLowerCase()).map(s => String(s.rollNo).toLowerCase());
+          addDeletedIds([...removedIds, ...removedRolls, 'teacher:' + username.toLowerCase()]);
           window.teachers = window.teachers.filter(t => String(t.id) !== String(id));
           window.students = window.students.filter(s => s.teacher !== username);
           saveLocal(TEACHER_KEY, window.teachers);
@@ -1692,7 +4815,7 @@ function doPost(e) {
       document.getElementById('incomeCertNo').value = student.incomeCertNo || '';
       document.getElementById('casteCertNo').value = student.casteCertNo || '';
       populateTeacherDropdown();
-      document.getElementById('teacherSelect').value = student.teacher || 'Bapujihss';
+      document.getElementById('teacherSelect').value = resolveTeacherUsername(student.teacher || 'Bapujihss');
       document.getElementById('studentModal').classList.remove('hidden');
       document.getElementById('studentModal').classList.add('flex');
     }
@@ -1769,7 +4892,9 @@ function doPost(e) {
           addDeletedIds(toRemove);
           window.students = window.students.filter(s => String(s.id) !== String(id));
           saveLocal(INIT_FLAG_KEY, true);
+          saveLocal(TEACHER_KEY, window.teachers);
           saveLocal(LOCAL_KEY, window.students);
+          populateTeacherDropdown();
           renderTeacherList();
           renderTable();
           await syncFirebaseOp({ type: 'deleteStudent', studentId: String(id) });
@@ -1854,7 +4979,7 @@ function doPost(e) {
         'Class': student.className,
         'Section': student.section,
         'Category': student.category,
-        'Teacher': student.teacher,
+        'Teacher': getTeacherDisplayName(student.teacher),
         'Parent Mobile': student.phone,
         'Aadhaar': student.aadhaar ? 'Yes' : 'No',
         'Aadhaar Seeded': student.aadhaarSeeded ? 'Yes' : 'No',
@@ -1884,14 +5009,44 @@ function doPost(e) {
       return String(value || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
     }
 
-    function mapImportedRow(row) {
+    function mapImportedRow(row, rowIdx = 0) {
       const keys = Object.keys(row).reduce((acc, key) => {
         acc[normalizeHeader(key)] = row[key];
         return acc;
       }, {});
 
-      const rollNo = String(keys.rollno || keys.rollnumber || keys.regno || '').trim();
+      let rawSec = String(keys.section || keys.sec || 'Section A').trim();
+      if (rawSec.length === 1) rawSec = `Section ${rawSec.toUpperCase()}`;
+      const secLetter = rawSec.replace(/^section\s+/i, '').trim().toUpperCase() || 'A';
+
+      const slVal = keys.slno || keys.sl || keys.serialno || '';
+      let rollNo = String(keys.rollno || keys.rollnumber || keys.regno || '').trim();
+      if (!rollNo && slVal !== '') {
+        const slNum = parseInt(slVal, 10);
+        rollNo = !isNaN(slNum) ? `IX-${secLetter}-${String(slNum).padStart(2, '0')}` : `IX-${secLetter}-${rowIdx + 1}`;
+      }
       const existing = window.students.find(s => s.rollNo.toLowerCase() === rollNo.toLowerCase());
+
+      const rawTeacher = String(keys.teacher || keys.assignteacher || keys.allocatedteacher || 'Bapujihss').trim();
+      if (rawTeacher && rawTeacher.toLowerCase() !== 'bapujihss') {
+        const foundT = window.teachers.find(t =>
+          t.username.toLowerCase() === rawTeacher.toLowerCase() ||
+          t.name.toLowerCase() === rawTeacher.toLowerCase()
+        );
+        if (!foundT) {
+          const baseUname = rawTeacher.toLowerCase().split(/\s+/)[0].replace(/[^a-z0-9]/g, '') || `teacher${window.teachers.length + 1}`;
+          const finalUname = window.teachers.some(t => t.username.toLowerCase() === baseUname)
+            ? `${baseUname}_${window.teachers.length + 1}`
+            : baseUname;
+          window.teachers.push(normalizeTeacher({
+            id: `teacher-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`,
+            name: rawTeacher,
+            username: finalUname,
+            password: '1962',
+            role: 'teacher'
+          }));
+        }
+      }
 
       const bankAcc = String(keys.bankaccount || keys.accountnumber || keys.bankacc || '').trim();
       const ifsc = String(keys.ifsc || keys.ifsccode || '').trim().toUpperCase();
@@ -1899,12 +5054,12 @@ function doPost(e) {
 
       const student = {
         id: keys.id || (existing ? existing.id : `s_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`),
-        name: keys.studentname || keys.studentfullname || keys.name || '',
+        name: keys.studentname || keys.studentfullname || keys.students || keys.student || keys.name || '',
         rollNo: rollNo,
         className: keys.class || keys.classname || 'Class 9',
-        section: keys.section || 'Section A',
+        section: rawSec,
         category: keys.category || 'OBC',
-        teacher: keys.teacher || 'Bapujihss',
+        teacher: resolveTeacherUsername(rawTeacher),
         phone: String(keys.parentmobile || keys.phone || '').trim(),
         aadhaar: parseBool(keys.aadhaar, false),
         aadhaarSeeded: parseBool(keys.aadhaarseeded, false),
@@ -1932,7 +5087,18 @@ function doPost(e) {
           const workbook = XLSX.read(data, { type: 'array' });
           const sheetName = workbook.SheetNames[0];
           const sheet = workbook.Sheets[sheetName];
-          const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+          let rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+          if (rows.length > 0) {
+            const firstKeys = Object.keys(rows[0]).map(normalizeHeader);
+            const hasKnownHeader = firstKeys.some(k => ['studentname', 'students', 'rollno', 'assignteacher', 'name'].includes(k));
+            if (!hasKnownHeader) {
+              const aoa = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+              const hdrIdx = aoa.findIndex(r => Array.isArray(r) && r.some(c => ['students', 'studentname', 'rollno', 'assignteacher'].includes(normalizeHeader(c))));
+              if (hdrIdx >= 0) {
+                rows = XLSX.utils.sheet_to_json(sheet, { range: hdrIdx, defval: '' });
+              }
+            }
+          }
 
           if (!rows.length) {
             showToast('The imported sheet is empty.', true);
@@ -2239,6 +5405,7 @@ function doPost(e) {
         }
       }
 
+      let neededSeedSync = false;
       if (data.students) {
         const remoteStudents = (Array.isArray(data.students)
           ? data.students.filter(Boolean).map(normalizeStudent)
@@ -2246,18 +5413,21 @@ function doPost(e) {
         ).filter(s => !deletedSet.has(String(s.id)) && !deletedSet.has(String(s.rollNo).toLowerCase()));
 
         window.students = remoteStudents;
-        saveLocal(INIT_FLAG_KEY, true);
-        saveLocal(LOCAL_KEY, window.students);
-        renderTeacherList();
-        renderTable();
-        updateStats();
       } else {
         window.students = [];
-        saveLocal(INIT_FLAG_KEY, true);
-        saveLocal(LOCAL_KEY, window.students);
-        renderTeacherList();
-        renderTable();
-        updateStats();
+      }
+      if (ensureDefaultTeachersPresent()) neededSeedSync = true;
+      if (ensureDefaultAllocatedStudentsPresent()) neededSeedSync = true;
+
+      saveLocal(INIT_FLAG_KEY, true);
+      saveLocal(TEACHER_KEY, window.teachers);
+      saveLocal(LOCAL_KEY, window.students);
+      populateTeacherDropdown();
+      renderTeacherList();
+      renderTable();
+      updateStats();
+      if (neededSeedSync) {
+        setTimeout(() => { syncFirebaseOp({ type: 'syncAll' }); }, 200);
       }
 
       if (remoteSync.updatedAt) {
