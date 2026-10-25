@@ -1,5 +1,6 @@
 import { initializeApp, getApp, getApps } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js';
+import { getDatabase, ref, set } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyA8HX-nCadL5uuvnEyiQBgv5eRHrTJD5uo',
@@ -19,6 +20,7 @@ const ADMIN_LOGIN_EMAILS = Object.freeze({
 });
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const database = getDatabase(app);
 
 function waitForCurrentUser() {
   return new Promise(resolve => {
@@ -58,10 +60,10 @@ export async function signInSiteAdmin(username, password) {
   return adminLabel(credential.user);
 }
 
-export async function getSiteAdminToken() {
+export async function saveSiteContent(content) {
   const user = auth.currentUser;
   if (!await isAuthorizedSiteAdmin(user, true)) throw new Error('Administrator sign-in required.');
-  return user.getIdToken();
+  await set(ref(database, 'siteContent/school_01'), content);
 }
 
 export async function signOutSiteAdmin() {
