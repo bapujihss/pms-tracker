@@ -1204,12 +1204,12 @@ async function saveWebsiteChanges(){
   }catch(_){showWebsiteEditorStatus('Save failed. The live database rejected the change; check its write rules.',true);saveButton.disabled=false;saveButton.innerHTML='<i class="fa-solid fa-floppy-disk mr-2"></i>Save Website Changes';}
 }
 async function initializeWebsiteEditor(){
+  await loadWebsiteContent();
   const user=getWebsiteAdminSession();
   if(user){
     const launcher=document.getElementById('websiteEditorLauncher');launcher.classList.remove('hidden');
     if(new URLSearchParams(location.search).get('siteEditor')==='1')openWebsiteEditor();
   }
-  await loadWebsiteContent();
 }
 initializeWebsiteEditor();
 </script>
