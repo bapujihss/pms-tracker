@@ -1234,15 +1234,13 @@ async function saveWebsiteChanges(){
   };
   const saveButton=document.getElementById('saveWebsiteChanges');saveButton.disabled=true;saveButton.textContent='Saving…';
   try{
-    const token=await websiteAuthModule.getSiteAdminToken();
-    const response=await fetch(SITE_CONTENT_ENDPOINT,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(content)});
-    if(!response.ok)throw new Error('Database rejected the change');
+    await websiteAuthModule.saveSiteContent(content);
     siteContent=content;principalPhotoDraft='';applyWebsiteContent(content);
     showWebsiteEditorStatus('Website changes saved and published.');saveButton.textContent='Saved';
     setTimeout(()=>{saveButton.innerHTML='<i class="fa-solid fa-floppy-disk mr-2"></i>Save Website Changes';saveButton.disabled=false;},1400);
   }catch(_){showWebsiteEditorStatus('Save failed. The live database rejected the change; check its write rules.',true);saveButton.disabled=false;saveButton.innerHTML='<i class="fa-solid fa-floppy-disk mr-2"></i>Save Website Changes';}
 }
-async function iasync function logoutWebsiteAdmin(){
+async function logoutWebsiteAdmin(){
   try{
     if(websiteAuthModule)await websiteAuthModule.signOutSiteAdmin();
   }finally{
