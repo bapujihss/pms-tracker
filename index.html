@@ -114,10 +114,10 @@
             <i class="fa-solid fa-indian-rupee-sign text-emerald-600"></i>
             <span class="hidden sm:inline">PMS Tracker</span>
           </a>
-          <button onclick="openLoginModal()" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black px-4 py-2 rounded-xl text-xs sm:text-sm shadow-md transition flex items-center gap-2 border border-amber-400">
+          <a href="pms-tracker.html" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-black px-4 py-2 rounded-xl text-xs sm:text-sm shadow-md transition flex items-center gap-2 border border-amber-400">
             <i class="fa-solid fa-right-to-bracket"></i>
             <span>Portal Login</span>
-          </button>
+          </a>
         </div>
       </div>
     </div>
@@ -192,10 +192,10 @@
               <i class="fa-solid fa-table-list"></i>
               <span>PMS Scholarship Tracker</span>
             </a>
-            <button onclick="openLoginModal()" class="bg-white/10 hover:bg-white/20 text-white font-bold border border-white/30 px-6 py-3 rounded-xl text-sm backdrop-blur-md transition flex items-center gap-2">
+            <a href="pms-tracker.html" class="bg-white/10 hover:bg-white/20 text-white font-bold border border-white/30 px-6 py-3 rounded-xl text-sm backdrop-blur-md transition flex items-center gap-2">
               <i class="fa-solid fa-user-lock text-amber-300"></i>
               <span>Staff / Student Login</span>
-            </button>
+            </a>
             <a href="#about" class="text-slate-300 hover:text-white px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-1 transition">
               <span>Read Prospectus</span>
               <i class="fa-solid fa-arrow-right text-xs"></i>
@@ -844,9 +844,9 @@
             06858-XXXXXX / School Administrative Desk
           </p>
           <div class="pt-2">
-            <button onclick="openLoginModal()" class="w-full bg-indigo-700 hover:bg-indigo-600 text-white font-bold py-2 rounded-xl text-xs transition">
+            <a href="pms-tracker.html" class="w-full bg-indigo-700 hover:bg-indigo-600 text-white font-bold py-2 rounded-xl text-xs transition">
               <i class="fa-solid fa-lock mr-1"></i> Staff / Admin Secure Sign-In
-            </button>
+            </a>
           </div>
         </div>
       </div>
@@ -865,61 +865,7 @@
   <!-- ========================================================= -->
   <!-- 12. CENTRAL PORTAL LOGIN MODAL (MULTI-ROLE)               -->
   <!-- ========================================================= -->
-  <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200">
-      <!-- Modal Header -->
-      <div class="gradient-banner p-6 text-white text-center relative">
-        <button onclick="closeLoginModal()" class="absolute right-4 top-4 text-slate-300 hover:text-white text-lg">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-        <div class="w-12 h-12 rounded-2xl bg-white/10 mx-auto flex items-center justify-center text-amber-300 text-2xl mb-2 border border-white/20">
-          <i class="fa-solid fa-school-flag"></i>
-        </div>
-        <h3 class="text-lg font-black tracking-tight">PM SHRI Bapuji HSS Portal</h3>
-        <p class="text-xs text-indigo-200 mt-0.5">Select role to access tracker, academics &amp; student records</p>
-      </div>
-
-      <!-- Role Tabs -->
-      <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-600">
-        <button onclick="switchLoginRole('teacher')" id="tabTeacher" class="flex-1 py-3 border-b-2 border-indigo-600 text-indigo-900 bg-white transition">
-          <i class="fa-solid fa-chalkboard-user mr-1"></i> Teacher / PMS
-        </button>
-        <button onclick="switchLoginRole('student')" id="tabStudent" class="flex-1 py-3 border-b-2 border-transparent hover:text-indigo-900 transition">
-          <i class="fa-solid fa-user-graduate mr-1"></i> Student / Parent
-        </button>
-        <button onclick="switchLoginRole('admin')" id="tabAdmin" class="flex-1 py-3 border-b-2 border-transparent hover:text-indigo-900 transition">
-          <i class="fa-solid fa-shield-halved mr-1"></i> Admin Central
-        </button>
-      </div>
-
-      <!-- Login Form Content -->
-      <div class="p-6 space-y-4">
-        <div>
-          <label class="block text-xs font-semibold uppercase text-slate-600 mb-1" id="lblUsername">Username / Teacher ID</label>
-          <input id="portalUser" type="text" placeholder="e.g. anono or Bapujihss" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Password</label>
-          <input id="portalPass" type="password" placeholder="Enter password" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-        </div>
-
-        <button onclick="submitPortalLogin()" class="w-full bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-2.5 rounded-xl text-sm shadow-md transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-right-to-bracket"></i>
-          <span id="btnSubmitLoginText">Enter PMS Staff Dashboard</span>
-        </button>
-
-        <!-- Quick Demo Shortcuts -->
-        <div class="pt-2 border-t border-slate-100 text-[11px] text-slate-500">
-          <div class="font-semibold text-slate-700 mb-1">Quick credentials:</div>
-          <div class="flex flex-wrap gap-1.5">
-            <button onclick="fillDemoCred('Bapujihss', '1962')" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 font-mono text-[10px]">Head Admin (Bapujihss)</button>
-            <button onclick="fillDemoCred('anono', '1962')" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 font-mono text-[10px]">Staff (anono)</button>
-            <button onclick="fillDemoCred('Hemant', 'Abcd@1234')" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 font-mono text-[10px]">Admin (Hemant)</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  
 
   <!-- Toast Notification Box -->
   <div id="toastBox" class="fixed bottom-5 right-5 z-50 hidden bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 text-xs flex items-center gap-2">
@@ -944,74 +890,6 @@
       { name: "CHANDAN PATRA", roll: "IX-B-16", class: "Class 9", sec: "Section B", teacher: "jasoda", status: "Applied", issues: "None" },
       { name: "ROHIT KUMAR SINGH", roll: "IX-B-51", class: "Class 9", sec: "Section B", teacher: "sangita", status: "Applied", issues: "None" }
     ];
-
-    let currentRole = 'teacher';
-
-    function openLoginModal() {
-      document.getElementById('loginModal').classList.remove('hidden');
-      document.getElementById('loginModal').classList.add('flex');
-    }
-
-    function closeLoginModal() {
-      document.getElementById('loginModal').classList.add('hidden');
-      document.getElementById('loginModal').classList.remove('flex');
-    }
-
-    function switchLoginRole(role) {
-      currentRole = role;
-      const tTeacher = document.getElementById('tabTeacher');
-      const tStudent = document.getElementById('tabStudent');
-      const tAdmin = document.getElementById('tabAdmin');
-      const lblUser = document.getElementById('lblUsername');
-      const btnText = document.getElementById('btnSubmitLoginText');
-
-      tTeacher.className = "flex-1 py-3 border-b-2 border-transparent hover:text-indigo-900 transition";
-      tStudent.className = "flex-1 py-3 border-b-2 border-transparent hover:text-indigo-900 transition";
-      tAdmin.className = "flex-1 py-3 border-b-2 border-transparent hover:text-indigo-900 transition";
-
-      if (role === 'teacher') {
-        tTeacher.className = "flex-1 py-3 border-b-2 border-indigo-600 text-indigo-900 bg-white font-bold transition";
-        lblUser.textContent = "Teacher Username / Staff ID";
-        btnText.textContent = "Open PMS Teacher Sync";
-      } else if (role === 'student') {
-        tStudent.className = "flex-1 py-3 border-b-2 border-indigo-600 text-indigo-900 bg-white font-bold transition";
-        lblUser.textContent = "Student Roll No / SAMS Reg ID";
-        btnText.textContent = "View My Scholarship & Academics";
-      } else if (role === 'admin') {
-        tAdmin.className = "flex-1 py-3 border-b-2 border-indigo-600 text-indigo-900 bg-white font-bold transition";
-        lblUser.textContent = "Admin User ID";
-        btnText.textContent = "Admin Central Console";
-      }
-    }
-
-    function fillDemoCred(u, p) {
-      document.getElementById('portalUser').value = u;
-      document.getElementById('portalPass').value = p;
-    }
-
-    function submitPortalLogin() {
-      const u = document.getElementById('portalUser').value.trim();
-      const p = document.getElementById('portalPass').value.trim();
-
-      if (!u || !p) {
-        showToast('Please enter username and password', true);
-        return;
-      }
-
-      showToast(`Logged in successfully as ${u}. Redirecting to PMS Tracker...`);
-      setTimeout(() => {
-        closeLoginModal();
-        try {
-          if (window.location && typeof window.location.assign === 'function') {
-            window.location.assign('pms-tracker.html');
-          } else {
-            window.location.href = 'pms-tracker.html';
-          }
-        } catch (e) {
-          window.location.href = './pms-tracker.html';
-        }
-      }, 1200);
-    }
 
     function performQuickSearch() {
       const query = document.getElementById('quickSearchInput').value.trim().toLowerCase();
