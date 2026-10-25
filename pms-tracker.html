@@ -783,6 +783,7 @@
     const DELETED_IDS_KEY = 'pms_school_deleted_ids_v2';
     const LOCAL_META_KEY = 'pms_school_local_meta_v2';
     const SESSION_USER_KEY = 'pms_school_session_user_v2';
+    const WEBSITE_CONTENT_KEY = 'pms_school_website_content_v1';
 
     const APPS_SCRIPT_TEMPLATE = `// Paste into Google Sheet -> Extensions -> Apps Script -> Code.gs
 // Deploy -> New deployment -> Web app (Execute as: Me, Who has access: Anyone)
@@ -4198,6 +4199,9 @@ function doPost(e) {
     }
 
     function ensureDefaultTeachersPresent() {
+      if (data.websiteContent && typeof data.websiteContent === 'object') {
+        saveLocal(WEBSITE_CONTENT_KEY, data.websiteContent);
+      }
       const deletedSet = new Set(getDeletedIds());
       let addedAny = false;
       for (const defT of defaultTeachers) {
@@ -4653,6 +4657,7 @@ function doPost(e) {
         academicYear: '2024-25-26',
         teachers: teachersMap,
         students: studentsMap,
+        websiteContent: readLocal(WEBSITE_CONTENT_KEY, {}),
         sync: {
           source: 'firebase',
           updatedAt: nowIso,
@@ -4677,6 +4682,15 @@ function doPost(e) {
 
       let restSuccess = false;
       try {
+        // Preserve website content written from the homepage before replacing the shared school record.
+        const websiteResponse = await fetch(dbUrl + '/schools/' + schoolId + '/websiteContent.json', { cache: 'no-store' });
+        if (websiteResponse.ok) {
+          const remoteWebsiteContent = await websiteResponse.json();
+          if (remoteWebsiteContent && typeof remoteWebsiteContent === 'object') {
+            fullRecord.websiteContent = remoteWebsiteContent;
+            saveLocal(WEBSITE_CONTENT_KEY, remoteWebsiteContent);
+          }
+        }
         // Immediate HTTP PUT with keepalive:true so browser completes the write even if reloaded immediately
         const putEndpoint = dbUrl + '/schools/' + schoolId + '.json';
         const res = await fetch(putEndpoint, {
