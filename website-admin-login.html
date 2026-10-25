@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Administrator Sign In | PM SHRI Bapuji HSS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-800 flex items-center justify-center p-4">
+  <main class="w-full max-w-md">
+    <a href="index.html" class="inline-flex items-center gap-2 text-sm font-semibold text-indigo-800 hover:text-indigo-950 mb-5">
+      <i class="fa-solid fa-arrow-left"></i> Back to school website
+    </a>
+    <section class="bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden">
+      <div class="bg-indigo-950 text-white px-7 py-6">
+        <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-amber-300 text-xl mb-4">
+          <i class="fa-solid fa-lock"></i>
+        </div>
+        <p class="text-amber-300 text-xs font-black uppercase tracking-widest">Only for admin use</p>
+        <h1 class="text-2xl font-black mt-2">School Website Editor</h1>
+        <p class="text-sm text-indigo-200 mt-2">Sign in with an authorized administrator account.</p>
+      </div>
+      <form id="adminLoginForm" class="p-7 space-y-4" novalidate>
+        <label class="block text-sm font-semibold">Admin username
+          <input id="adminUsername" name="username" required autocomplete="username" autocapitalize="none"
+            class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="Enter username">
+        </label>
+        <label class="block text-sm font-semibold">Password
+          <input id="adminPassword" name="password" type="password" required autocomplete="current-password"
+            class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="Enter password">
+        </label>
+        <p id="loginError" role="alert" class="hidden rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm p-3"></p>
+        <button id="loginButton" type="submit"
+          class="w-full rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-3 transition">
+          <i class="fa-solid fa-right-to-bracket mr-2"></i>Sign in
+        </button>
+        <p class="text-xs text-slate-500 text-center">No public registration is available.</p>
+      </form>
+    </section>
+  </main>
+
+  <script type="module">
+    import { getCurrentSiteAdmin, signInSiteAdmin } from './website-auth.js';
+
+    const form = document.getElementById('adminLoginForm');
+    const button = document.getElementById('loginButton');
+    const errorBox = document.getElementById('loginError');
+    const editorUrl = 'index.html?siteEditor=1';
+
+    try {
+      if (await getCurrentSiteAdmin()) window.location.replace(editorUrl);
+    } catch (_) {}
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      errorBox.classList.add('hidden');
+      button.disabled = true;
+      button.textContent = 'Signing in…';
+      try {
+        await signInSiteAdmin(
+          document.getElementById('adminUsername').value,
+          document.getElementById('adminPassword').value
+        );
+        window.location.replace(editorUrl);
+      } catch (_) {
+        errorBox.textContent = 'Sign-in failed. Check your account details or contact the school administrator.';
+        errorBox.classList.remove('hidden');
+        document.getElementById('adminPassword').value = '';
+      } finally {
+        button.disabled = false;
+        button.innerHTML = '<i class="fa-solid fa-right-to-bracket mr-2"></i>Sign in';
+      }
+    });
+  </script>
+</body>
+</html>
