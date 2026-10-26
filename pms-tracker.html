@@ -769,7 +769,7 @@
 
   <script type="module">
     import { initializeApp, getApps, deleteApp } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js';
-    import { getDatabase, ref, set, remove, onValue, onDisconnect } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
+    import { getDatabase, ref, set, update, remove, onValue, onDisconnect } from 'https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js';
 
     const DEFAULT_DB_URL = 'https://bapujihss-default-rtdb.asia-southeast1.firebasedatabase.app';
     const DEFAULT_SCHOOL_ID = 'school_01';
@@ -4695,13 +4695,19 @@ function doPost(e) {
         } catch (websiteFetchError) {
           console.warn('Website content read warning:', websiteFetchError);
         }
-        // Immediate HTTP PUT with keepalive:true so browser completes the write even if reloaded immediately
+        // Update a single student and its sync metadata atomically. A whole-school PUT
+        // here lets an older roster from another device erase concurrent student edits.
+        const incrementalPatch = op && op.type === 'upsertStudent' && op.student
+          ? { [`students/${String(op.student.id)}`]: normalizeStudent(op.student), sync: fullRecord.sync }
+          : (op && op.type === 'deleteStudent' && op.studentId
+            ? { [`students/${String(op.studentId)}`]: null, sync: fullRecord.sync }
+            : null);
         const putEndpoint = dbUrl + '/schools/' + schoolId + '.json';
         const res = await fetch(putEndpoint, {
-          method: 'PUT',
+          method: incrementalPatch ? 'PATCH' : 'PUT',
           keepalive: true,
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(fullRecord)
+          body: JSON.stringify(incrementalPatch || fullRecord)
         });
         if (res.ok) {
           restSuccess = true;
@@ -4731,7 +4737,11 @@ function doPost(e) {
       // Fallback to Firebase WebSocket SDK if REST fetch failed
       if (db) {
         try {
-          await set(ref(db, `schools/${schoolId}`), fullRecord);
+          if (incrementalPatch) {
+            await update(ref(db, `schools/${schoolId}`), incrementalPatch);
+          } else {
+            await set(ref(db, `schools/${schoolId}`), fullRecord);
+          }
           markLocalStateChanged(false, writeTs);
           clearPendingOps();
           isFirebaseOnline = true;
@@ -4946,9 +4956,12 @@ function doPost(e) {
       renderTeacherList();
       renderTable();
       closeModal();
-      await syncFirebaseOp({ type: 'upsertStudent', student: studentData });
+      const cloudSaved = await syncFirebaseOp({ type: 'upsertStudent', student: studentData });
       await syncGoogleSheetsOp({ action: 'upsertStudent', student: studentData });
-      showToast('Student record saved & synced!');
+      showToast(cloudSaved
+        ? 'Student saved to cloud and synced across devices.'
+        : 'Student saved on this device. Cloud sync is pending; check the sync status before relying on another device.',
+        !cloudSaved);
     }
 
     function deleteStudent(id) {
