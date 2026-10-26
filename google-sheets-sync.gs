@@ -1,16 +1,9 @@
 /**
- * PMS Tracker — Two-Way Live Google Sheets Sync (Google Apps Script)
+ * PMS Tracker — Legacy Google Sheets Sync Example
  *
- * SETUP INSTRUCTIONS:
- * 1. Open a new or existing Google Sheet (https://sheets.new).
- * 2. Click Extensions -> Apps Script.
- * 3. Replace any code in Code.gs with this entire file and click Save (Ctrl+S).
- * 4. Click Deploy -> New deployment.
- * 5. Select type: "Web app".
- *    - Execute as: "Me"
- *    - Who has access: "Anyone"
- * 6. Click Deploy, authorize access, and copy the Web App URL (ends with /exec).
- * 7. Paste the Web App URL into PMS Tracker -> Cloud Sync Setup -> Google Sheets Sync.
+ * SECURITY: doGet exposes the full student roster and doPost accepts database
+ * replacements without authentication. Never deploy this as a public web app
+ * or use it with identifiable student data. Prefer the secured Firebase sync.
  */
 
 const STUDENT_HEADERS = [
@@ -20,7 +13,7 @@ const STUDENT_HEADERS = [
 ];
 
 const TEACHER_HEADERS = [
-  'id', 'name', 'username', 'password', 'role'
+  'id', 'name', 'username', 'role'
 ];
 
 function ensureSheet(ss, name, headers) {

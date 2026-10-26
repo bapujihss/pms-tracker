@@ -4,8 +4,8 @@
     ".write": false,
     "schools": {
       "$schoolId": {
-        ".read": true,
-        ".write": true
+        ".read": "auth != null && auth.token.email_verified == true && auth.token.pmsStaff == true && auth.token.pmsSchoolId == $schoolId && (auth.token.pmsRole == 'admin' || auth.token.pmsRole == 'teacher')",
+        ".write": "auth != null && auth.token.email_verified == true && auth.token.pmsStaff == true && auth.token.pmsSchoolId == $schoolId && (auth.token.pmsRole == 'admin' || auth.token.pmsRole == 'teacher')"
       }
     },
     "siteContent": {

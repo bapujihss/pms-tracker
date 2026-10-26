@@ -21,44 +21,109 @@
         <h1 class="text-2xl font-black mt-2">School Website Editor</h1>
         <p class="text-sm text-indigo-200 mt-2">Sign in with an authorized administrator account.</p>
       </div>
-      <form id="adminLoginForm" class="p-7 space-y-4" novalidate>
-        <label class="block text-sm font-semibold">Admin email
-          <input id="adminEmail" name="email" type="email" required autocomplete="username" autocapitalize="none"
-            class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Enter admin email">
-        </label>
-        <label class="block text-sm font-semibold">Password
-          <input id="adminPassword" name="password" type="password" required autocomplete="current-password"
-            class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Enter password">
-        </label>
+      <div class="p-7 space-y-4">
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" data-login-tab="email" class="rounded-lg bg-indigo-100 text-indigo-900 px-3 py-2 text-sm font-bold">Email &amp; password</button>
+          <button type="button" data-login-tab="phone" class="rounded-lg bg-slate-100 text-slate-700 px-3 py-2 text-sm font-bold">Phone OTP</button>
+        </div>
+        <div id="emailLoginPanel" class="space-y-3">
+          <label class="block text-sm font-semibold">Admin email
+            <input id="adminEmail" type="email" autocomplete="username" autocapitalize="none"
+              class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Enter admin email">
+          </label>
+          <label class="block text-sm font-semibold">Password
+            <input id="adminPassword" type="password" autocomplete="current-password"
+              class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Enter password">
+          </label>
+          <button id="emailLoginButton" type="button" class="w-full rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-3 transition">Sign in with email</button>
+        </div>
+        <div id="phoneLoginPanel" class="hidden space-y-3">
+          <label class="block text-sm font-semibold">Admin phone number
+            <input id="adminPhone" type="tel" autocomplete="tel" class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-indigo-500" placeholder="+919876543210">
+          </label>
+          <button id="sendPhoneCodeButton" type="button" class="w-full rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-3 transition">Send SMS code</button>
+          <label id="phoneCodeField" class="hidden block text-sm font-semibold">SMS verification code
+            <input id="phoneCode" inputmode="numeric" autocomplete="one-time-code" class="mt-1.5 w-full rounded-xl border border-slate-300 px-4 py-3 font-normal outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter the code">
+          </label>
+          <button id="verifyPhoneCodeButton" type="button" class="hidden w-full rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-3 transition">Verify &amp; sign in</button>
+        </div>
+        <details class="rounded-xl border border-slate-200 p-3">
+          <summary class="cursor-pointer text-sm font-semibold text-indigo-900">Link your phone to your existing admin account</summary>
+          <div class="mt-3 space-y-3">
+            <p class="text-xs text-slate-600">Sign in with your existing admin email/password, then verify your own phone. This keeps both sign-in methods on the same account.</p>
+            <input id="linkAdminEmail" type="email" autocomplete="username" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Admin email">
+            <input id="linkAdminPassword" type="password" autocomplete="current-password" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Admin password">
+            <input id="linkAdminPhone" type="tel" autocomplete="tel" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="+919876543210">
+            <button id="sendLinkCodeButton" type="button" class="w-full rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-3 transition">Sign in &amp; send linking code</button>
+            <input id="linkPhoneCode" type="text" inputmode="numeric" autocomplete="one-time-code" class="hidden w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500" placeholder="SMS verification code">
+            <button id="confirmLinkCodeButton" type="button" class="hidden w-full rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-3 transition">Verify &amp; link phone</button>
+          </div>
+        </details>
+        <div id="recaptcha-container"></div>
         <p id="loginError" role="alert" class="hidden rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm p-3"></p>
-        <button id="loginButton" type="submit"
-          class="w-full rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold py-3 transition">
-          <i class="fa-solid fa-right-to-bracket mr-2"></i>Sign in
-        </button>
-        <p class="text-xs text-slate-500 text-center">No public registration is available.</p>
-      </form>
+        <p class="text-xs text-slate-500 text-center">Only the two authorized administrators can sign in. No public registration is available.</p>
+      </div>
     </section>
   </main>
 
   <script type="module">
-    import { getCurrentSiteAdmin, signInSiteAdmin } from './website-auth.js';
+    import {
+      getCurrentSiteAdmin,
+      signInSiteAdmin,
+      createSiteAdminRecaptchaVerifier,
+      sendSiteAdminPhoneCode,
+      confirmSiteAdminPhoneCode,
+      sendSiteAdminPhoneLinkCode,
+      confirmSiteAdminPhoneLinkCode
+    } from './website-auth.js';
 
-    const form = document.getElementById('adminLoginForm');
-    const button = document.getElementById('loginButton');
     const errorBox = document.getElementById('loginError');
     const editorUrl = 'index.html?siteEditor=1';
+    let recaptchaVerifier = null;
+    const linkCodeInput = document.getElementById('linkPhoneCode');
+    const linkConfirmButton = document.getElementById('confirmLinkCodeButton');
+    const phoneCodeInput = document.getElementById('phoneCode');
+    const phoneVerifyButton = document.getElementById('verifyPhoneCodeButton');
+
+    function showError(message) {
+      errorBox.textContent = message;
+      errorBox.classList.remove('hidden');
+    }
+
+    function getVerifier() {
+      if (!recaptchaVerifier) recaptchaVerifier = createSiteAdminRecaptchaVerifier('recaptcha-container');
+      return recaptchaVerifier;
+    }
+
+    function resetVerifier() {
+      if (recaptchaVerifier) recaptchaVerifier.clear();
+      recaptchaVerifier = null;
+    }
+
+    function showMode(mode) {
+      document.getElementById('emailLoginPanel').classList.toggle('hidden', mode !== 'email');
+      document.getElementById('phoneLoginPanel').classList.toggle('hidden', mode !== 'phone');
+      document.querySelectorAll('[data-login-tab]').forEach(tab => {
+        const selected = tab.dataset.loginTab === mode;
+        tab.className = selected
+          ? 'rounded-lg bg-indigo-100 text-indigo-900 px-3 py-2 text-sm font-bold'
+          : 'rounded-lg bg-slate-100 text-slate-700 px-3 py-2 text-sm font-bold';
+      });
+      errorBox.classList.add('hidden');
+    }
+
+    document.querySelectorAll('[data-login-tab]').forEach(tab => {
+      tab.addEventListener('click', () => showMode(tab.dataset.loginTab));
+    });
 
     try {
       if (await getCurrentSiteAdmin()) window.location.replace(editorUrl);
     } catch (_) {}
 
-    form.addEventListener('submit', async event => {
-      event.preventDefault();
+    document.getElementById('emailLoginButton').addEventListener('click', async () => {
       errorBox.classList.add('hidden');
-      button.disabled = true;
-      button.textContent = 'Signing in…';
       try {
         await signInSiteAdmin(
           document.getElementById('adminEmail').value,
@@ -66,12 +131,66 @@
         );
         window.location.replace(editorUrl);
       } catch (_) {
-        errorBox.textContent = 'Sign-in failed. Check your account details or contact the school administrator.';
-        errorBox.classList.remove('hidden');
+        showError('Email sign-in failed. Check your admin email/password or contact the Firebase administrator.');
         document.getElementById('adminPassword').value = '';
+      }
+    });
+
+    document.getElementById('sendPhoneCodeButton').addEventListener('click', async event => {
+      const button = event.currentTarget;
+      button.disabled = true;
+      errorBox.classList.add('hidden');
+      try {
+        await sendSiteAdminPhoneCode(document.getElementById('adminPhone').value, getVerifier());
+        document.getElementById('phoneCodeField').classList.remove('hidden');
+        phoneVerifyButton.classList.remove('hidden');
+        button.textContent = 'Code sent';
+      } catch (_) {
+        showError('Could not send the SMS. Check the phone number including +country code and Firebase Phone sign-in settings.');
       } finally {
+        resetVerifier();
         button.disabled = false;
-        button.innerHTML = '<i class="fa-solid fa-right-to-bracket mr-2"></i>Sign in';
+      }
+    });
+
+    phoneVerifyButton.addEventListener('click', async () => {
+      try {
+        await confirmSiteAdminPhoneCode(phoneCodeInput.value);
+        window.location.replace(editorUrl);
+      } catch (_) {
+        showError('Phone sign-in failed. Confirm the code and check that this phone is linked to an authorized admin account.');
+        phoneCodeInput.value = '';
+      }
+    });
+
+    document.getElementById('sendLinkCodeButton').addEventListener('click', async event => {
+      const button = event.currentTarget;
+      button.disabled = true;
+      errorBox.classList.add('hidden');
+      try {
+        await signInSiteAdmin(
+          document.getElementById('linkAdminEmail').value,
+          document.getElementById('linkAdminPassword').value
+        );
+        await sendSiteAdminPhoneLinkCode(document.getElementById('linkAdminPhone').value, getVerifier());
+        linkCodeInput.classList.remove('hidden');
+        linkConfirmButton.classList.remove('hidden');
+        button.textContent = 'SMS sent';
+      } catch (_) {
+        showError('Could not start phone linking. Check your authorized admin email/password, phone number, and Firebase settings.');
+      } finally {
+        resetVerifier();
+        button.disabled = false;
+      }
+    });
+
+    linkConfirmButton.addEventListener('click', async () => {
+      try {
+        await confirmSiteAdminPhoneLinkCode(linkCodeInput.value);
+        window.location.replace(editorUrl);
+      } catch (_) {
+        showError('Phone linking failed. Check the SMS code and confirm this phone is not already linked to another Firebase account.');
+        linkCodeInput.value = '';
       }
     });
   </script>
