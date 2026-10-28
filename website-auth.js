@@ -49,9 +49,14 @@ export async function getCurrentSiteAdmin() {
   return adminLabel(await waitForCurrentUser());
 }
 
-export async function signInSiteAdmin(email, password) {
-  const normalizedEmail = String(email || '').trim().toLowerCase();
-  if (!normalizedEmail || !password) throw new Error('Invalid email or password.');
+const SITE_ADMIN_USERNAME_EMAILS = Object.freeze({
+  hemantkm98: 'hemantmajhi2015@gmail.com'
+});
+
+export async function signInSiteAdmin(username, password) {
+  const normalizedUsername = String(username || '').trim().toLowerCase();
+  const normalizedEmail = SITE_ADMIN_USERNAME_EMAILS[normalizedUsername];
+  if (!normalizedEmail || !password) throw new Error('Invalid username or password.');
   const credential = await signInWithEmailAndPassword(auth, normalizedEmail, password);
   if (!await isAuthorizedSiteAdmin(credential.user, true)) {
     await signOut(auth);
